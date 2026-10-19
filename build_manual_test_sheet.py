@@ -58,12 +58,12 @@ SECTIONS = [
          WP + " eval 'foreach (array_keys(rest_get_server()->get_routes()) as $r) {{ if (preg_match(\"/mcp/i\", $r)) echo $r . PHP_EOL; }}'",
          "MCP route(s) found. If none, note where the plugin says the endpoint lives (settings page, readme)."),
         ("A3", "Security", "Unauthenticated tools/list",
-         "Call the endpoint with NO credentials. A JSON list of tools means the plugin exposes everything by default: set 'Security hard fail?' to Y on the Scores sheet. A 401/403 is the good outcome. If the plugin is off until enabled, note that.",
+         "Call the endpoint with NO credentials. A JSON list of tools means the plugin exposes everything by default: set 'Security hard fail?' to Y on the Scores sheet. A 401/403 is the good outcome. If the endpoint is missing or says MCP is disabled, pick 'Disabled' (good safe default) and run this step again after enabling MCP in A4, because the real hard-fail check is whether the ENABLED endpoint answers without credentials.",
          "curl -si -X POST '{endpoint}' -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' -d '{{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}}' | head -40",
          "HTTP status and whether any tools were returned. Feeds: Safe defaults, Auth method."),
         ("A4", "Setup", "Find the settings and connection UI",
          "Open the plugin's admin page. Does it show a ready-to-copy Claude Desktop config or connector URL? Take a screenshot of the connection instructions and of every security-related setting (read-only, per-tool toggles, roles, confirmations, logging).",
-         "xdg-open '{url}/wp-admin/admin.php?page={slug}' || xdg-open '{url}/wp-admin/plugins.php'",
+         "U='{url}/wp-admin/admin.php?page={slug}'; open \"$U\" 2>/dev/null || xdg-open \"$U\"",
          "Feeds: In-plugin connection guide, Permission scoping, Read-only mode, Audit log. If the guessed page URL is wrong, use the plugin's menu entry."),
         ("A5", "Security", "Dump the plugin's options",
          "Shows stored settings, which often reveals defaults (enabled flags, API keys, tool allow-lists) the UI hides.",
@@ -133,7 +133,7 @@ SECTIONS = [
          "Tool count and areas covered."),
         ("D3", "Quality", "Docs and support",
          "Open the support forum and readme. Are questions answered? Is there setup documentation beyond the readme? Feeds: Docs & support.",
-         "xdg-open 'https://wordpress.org/support/plugin/{slug}/'; xdg-open 'https://wordpress.org/plugins/{slug}/#description'",
+         "for U in 'https://wordpress.org/support/plugin/{slug}/' 'https://wordpress.org/plugins/{slug}/#description'; do open \"$U\" 2>/dev/null || xdg-open \"$U\"; done",
          "Last reply date from the maintainer, number of unresolved threads, quality of docs."),
         ("D4", "Quality", "Console / debug log errors",
          "Catches PHP notices and fatals triggered while you ran the tasks.",
@@ -153,7 +153,7 @@ SECTIONS = [
 ]
 
 RESULT_COLS = [
-    "A3 Unauth probe (Pass = 401/403)", "A3 Hard fail?", "Auth method", "Minutes to first tool call", "Steps needed", "Works w/o terminal?",
+    "A3 Unauth probe (Pass = 401/403 once enabled)", "A3 Hard fail?", "Auth method", "Minutes to first tool call", "Steps needed", "Works w/o terminal?",
     "T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8",
     "T7 confirmed?", "T7 audit log?", "Abilities API / MCP Adapter?", "Tool count", "Output quality (0-5)", "Docs & support (0-5)",
 ]
@@ -320,11 +320,11 @@ def main():
     dv_yn = DataValidation(type="list", formula1='"Y,N"', allow_blank=True)
     dv_auth = DataValidation(type="list", formula1='"App password,API key,OAuth,None,Other"', allow_blank=True)
     dv_score = DataValidation(type="whole", operator="between", formula1="0", formula2="5", allow_blank=True)
-    dv_probe = DataValidation(type="list", formula1='"Pass,Fail"', allow_blank=True)
+    dv_probe = DataValidation(type="list", formula1='"Pass,Disabled,Fail"', allow_blank=True)
     for dv in (dv_pf, dv_yn, dv_auth, dv_score, dv_probe):
         rs.add_data_validation(dv)
     kinds = {
-        "A3 Unauth probe (Pass = 401/403)": dv_probe, "A3 Hard fail?": dv_yn, "Auth method": dv_auth, "Works w/o terminal?": dv_yn,
+        "A3 Unauth probe (Pass = 401/403 once enabled)": dv_probe, "A3 Hard fail?": dv_yn, "Auth method": dv_auth, "Works w/o terminal?": dv_yn,
         "T7 confirmed?": dv_yn, "T7 audit log?": dv_yn, "Abilities API / MCP Adapter?": dv_yn,
         "Output quality (0-5)": dv_score, "Docs & support (0-5)": dv_score,
     }

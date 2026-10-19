@@ -55,9 +55,19 @@ setup_one() {
   wp "$path" post generate --count=8 --post_status=publish >/dev/null 2>&1
 
   local out status=ok note=""
-  if ! out="$(wp "$path" plugin install "$slug" --activate 2>&1)"; then
+  # Install first, then any dependencies from the "Requires Plugins" header, then activate
+  local deps
+  if ! out="$(wp "$path" plugin install "$slug" 2>&1)"; then
     status=install-failed; note="$(echo "$out" | tail -1)"
-  elif ! wp "$path" plugin is-active "$slug" >/dev/null 2>&1; then
+  else
+    deps="$(wp "$path" plugin get "$slug" --field=requires_plugins 2>/dev/null | tail -1 | tr ',' ' ')"
+    for d in $deps; do
+      wp "$path" plugin install "$d" --activate >/dev/null 2>&1 || note="dependency $d failed"
+    done
+    [ -n "$deps" ] && note="${note:-deps: $deps}"
+    out="$(wp "$path" plugin activate "$slug" 2>&1)"
+  fi
+  if [ "$status" = ok ] && ! wp "$path" plugin is-active "$slug" >/dev/null 2>&1; then
     status=not-active; note="$(echo "$out" | tail -1)"
   fi
   local version; version="$(wp "$path" plugin get "$slug" --field=version 2>/dev/null | tail -1)"
@@ -70,7 +80,7 @@ cmd="${1:-}"; shift || true
 case "$cmd" in
   setup)
     command -v studio >/dev/null || { echo "studio CLI not found"; exit 1; }
-    if [ $# -gt 0 ]; then slugs=("$@"); else mapfile -t slugs < <(all_slugs); fi
+    if [ $# -gt 0 ]; then slugs=("$@"); else slugs=($(all_slugs)); fi
     for s in "${slugs[@]}"; do setup_one "$s"; done
     echo "Done. Results: $RESULTS"
     ;;
@@ -84,7 +94,7 @@ case "$cmd" in
     if [ "${1:-}" = "--all" ] || [ $# -eq 0 ]; then studio stop --all; else studio stop --path "$(site_path "$1")"; fi
     ;;
   status)
-    if [ $# -gt 0 ]; then slugs=("$@"); else mapfile -t slugs < <(all_slugs); fi
+    if [ $# -gt 0 ]; then slugs=("$@"); else slugs=($(all_slugs)); fi
     for s in "${slugs[@]}"; do
       p="$(site_path "$s")"
       [ -e "$p" ] && printf '%-48s exists\n' "$s" || printf '%-48s not created\n' "$s"
