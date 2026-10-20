@@ -12,8 +12,6 @@ Written 2026-10-19 so work can resume on another machine. Read `criteria.md` fir
 | Automated tests (`run_tests.py` + `test_config.json`) | Built 2026-10-19, prototyped on mcp-for-woocommerce, royal-mcp, ai-engine. Writes `results.json` |
 | Single place for all results | `results.json` exists (auto checks only). `import_manual.py` and scoring-sheet integration not built |
 
-`build_manual_test_sheet.py` and `mcp-manual-test-sheet.xlsx` were created in this session and are not committed yet.
-
 ## run_tests.py (built)
 
 Checks per slug: S1 active/version, A2 MCP routes before enabling, A3pre unauth probe before enabling, ABIL source markers (registers/reads abilities, MCP Adapter), EN enable MCP via `enable_php` in `test_config.json`, A3 unauth probe after enabling (tools returned = hard-fail candidate), AUTH authenticated tools/list (auth method, tool count, names), BR breadth by tool-name keywords. Entries are `source: auto`; `source: manual` entries are never overwritten.
@@ -24,7 +22,7 @@ Checks per slug: S1 active/version, A2 MCP routes before enabling, A3pre unauth 
 - ylabs-connector-for-wpwriter was removed from the shortlist on 2026-10-20 (closed on WordPress.org). It is excluded in `make_shortlist.py`; the shortlist, both workbooks, `test_config.json`, `results.json` and its Studio site were updated or removed.
 - Findings worth a look: invizo-mcp 2.0.8 ships without vendor/ (endpoint never registers without the MCP Adapter plugin); cowboy-mcp API keys always act as the first admin; strifebridge stores its legacy token in plain text; several readmes say OAuth only but accept application passwords (acadium, publishio, rectus).
 - MCP Adapter meta-tool servers (nibwp, rectus, invizo): run_tests calls discover-abilities and records ability_count. cowboy-mcp (2 meta-tools) and acrossai (14 grouped toolsets) still undercount: judge breadth manually.
-- Default auth when a plugin has no entry is an admin application password (Basic), which works on Studio sites. Default auth is an admin application password (Basic), which works on Studio sites.
+- Default auth when a plugin has no entry is an admin application password (Basic), which works on Studio sites.
 - EN sets the site option `run_tests_mcp_enabled_at`; after that A2/A3pre are skipped. Recreate the site (`setup_test_sites.sh delete` + `setup`) to re-check defaults.
 - Sites are left running with MCP enabled.
 - First results: all 3 off by default. mcp-for-woocommerce is open without auth once enabled; marked `public_by_design` in `test_config.json` (source says read-only storefront tools), so not a hard fail (rule in `criteria.md`). royal-mcp 401 without key, 259 tools. ai-engine 401 without auth, 46 tools.
