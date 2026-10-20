@@ -85,10 +85,41 @@ Assumptions and known caveats:
 1. Done: `results.json` store keyed by slug and check ID, each entry with `source: auto|manual`.
 2. Done: `run_tests.py` for the automatable checks (all 35 plugins).
 3. Done: `build_scoring_sheet.py` reads the store (see above).
-4. Run the manual sheet on 2-3 plugins from step A4 (sites are still running with MCP enabled). Fix the wrong A4 settings URLs for mcp-for-woocommerce and ai-engine.
+4. Run the manual sheet on 2-3 plugins (plan below, "Manual test pilot").
 5. `import_manual.py` to load the manual sheet's Results into the store, with manual overriding auto where both exist. That also lets hand scores and a manual hard-fail override survive a rebuild.
 6. Decide whether Safe defaults (A2/A3pre) and Abilities API / standards (ABIL) should be auto-scored from Checks. The evidence is on Checks; both are still manual inputs.
 7. Fold `setup_results.tsv` into the store.
+
+## Manual test pilot (next up, planned 2026-10-20)
+
+Goal: run `mcp-manual-test-sheet.xlsx` end to end on three plugins to get first manual results and to find what is broken in the sheet itself (it has never been run against a live site). Note every command that fails or step that is unclear so the sheet can be fixed before the other plugins.
+
+Plugins, chosen for different auth:
+
+| Plugin | Auth | Endpoint at last run (port may change, use what A1 prints) |
+|---|---|---|
+| ai-engine | App password (Basic): B3 config works unchanged | `http://localhost:8886/wp-json/mcp/v1/http` |
+| royal-mcp | API key in `X-Royal-MCP-API-Key` header | `http://localhost:8885/wp-json/royal-mcp/v1/mcp` |
+| miniorange-secure-mcp-server | OAuth only (`run_tests.py` could not do AUTH) | `http://localhost:8889/wp-json/mosmcp/v1/mcp` |
+
+Before starting:
+- `run_tests.py` already enabled MCP on these sites, so A2/A3 are covered by `results.json`: start at A4. "Minutes to first tool call" will read low because enabling is already done. For a real setup time on one plugin, recreate its site (`./setup_test_sites.sh delete <slug>`, then `setup <slug>`) and run from A1.
+- Run commands from the repo folder. Sites may have stopped since: A1 starts them.
+
+Per plugin (Runbook sheet):
+1. Pick the slug in B4. A1: start the site, paste the URL into B7 and the endpoint into B8.
+2. A4: settings page guess is wrong for ai-engine (`?page=mwai_settings`); for royal-mcp use the admin menu if the guess fails. Screenshot the connection guide and security settings. A5: dump options.
+3. B1-B3 credentials:
+   - ai-engine: B1 -> B10, B2 -> B11, B3 config as is.
+   - royal-mcp: skip B1/B2. `run_tests.py` stored only a hash of its key, so create a new API key in the plugin settings. In B3 change the header to `X-Royal-MCP-API-Key:${AUTH_HEADER}` and set `AUTH_HEADER` to the key.
+   - miniorange: skip B1/B2. Use B3 without `--header` and `env`; `mcp-remote` should open the browser for the OAuth consent.
+   - Fully quit and reopen Claude Desktop after editing the config.
+4. B4: break the credential, quote the error.
+5. T1-T8: prompt in Claude Desktop, verify with the command. T3/T7 need a post ID in B12. T8 needs subscriber credentials: ai-engine via the T8 command; royal-mcp needs an API key bound to the subscriber; miniorange needs the OAuth consent as the subscriber.
+6. D1-D4. D2's tool count should match Tools on the scoring workbook's Checks sheet (ai-engine 46, royal-mcp 259; miniorange unknown).
+7. E1-E2 cleanup; remove the plugin from `claude_desktop_config.json` before the next one.
+
+Record results on the manual sheet's Results tab (one row per plugin). Nothing reads it yet: `import_manual.py` (next step 5) will load it into `results.json`. Afterwards: fix the sheet issues found in `build_manual_test_sheet.py`, then build `import_manual.py`.
 
 ## Open decisions (from `criteria.md`)
 
