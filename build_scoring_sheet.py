@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-"""Build mcp-plugin-scoring.xlsx from shortlist.csv (see criteria.md for the rubric)."""
+"""Build mcp-plugin-scoring.xlsx from shortlist.csv and results.json (see criteria.md for the rubric)."""
 import csv
+import json
 from datetime import datetime
+from pathlib import Path
 
 from openpyxl import Workbook
 from openpyxl.comments import Comment
@@ -29,7 +31,7 @@ CENTER = Alignment(horizontal="center", vertical="center", wrap_text=True)
 
 SETUP = ["Time to first tool call", "Steps needed / ease", "Works in Claude Desktop (no terminal)", "In-plugin connection guide", "Error messages"]
 SECURITY = ["Auth method", "Permission scoping", "Read-only mode", "Destructive-action confirmation", "Audit log", "Safe defaults"]
-CAPS = ["Task pass rate (auto)", "Breadth of tools", "Output quality"]
+CAPS = ["Task pass rate (auto)", "Breadth of tools (auto)", "Output quality"]
 QUAL = ["Update recency (auto)", "Adoption (auto)", "Rating (auto)", "WP compatibility (auto)", "Abilities API / standards", "Docs & support"]
 TASKS = [
     "T1 List 5 most recent posts",
@@ -41,6 +43,50 @@ TASKS = [
     "T7 Delete a post: confirmed and logged?",
     "T8 Disallowed action: blocked?",
 ]
+TASK_IDS = [t.split()[0] for t in TASKS]
+RESULTS = Path("results.json")  # written by run_tests.py (source: auto) and import_manual.py (source: manual)
+AREA_COUNT = 9                   # content areas in criteria.md (Capabilities > breadth), matched by run_tests.py
+# Tool names hide what these plugins can do (meta-tools / grouped toolsets), so breadth stays a manual score
+BREADTH_UNDERCOUNT = {"cowboy-mcp", "acrossai-mcp-manager"}
+AUTH_LABELS = {"basic": "App password", "bearer": "API key", "header": "API key", "none": "None", "oauth": "OAuth"}
+
+
+def load_results(slugs):
+    """Checks per slug from results.json, limited to the shortlist."""
+    if not RESULTS.exists():
+        return {}
+    return {s: c for s, c in json.loads(RESULTS.read_text()).items() if s in slugs}
+
+
+def check_row(checks):
+    """One row of the Checks sheet from a plugin's results.json entries."""
+    def get(cid, key="status"):
+        return (checks.get(cid) or {}).get(key)
+    a3, a3pre, auth = get("A3", "value") or {}, get("A3pre", "value") or {}, get("AUTH", "value") or {}
+    if a3.get("hard_fail") or a3pre.get("hard_fail"):
+        hard_fail = "Y"
+    else:
+        hard_fail = "N" if get("A3") in ("Pass", "Public by design", "Fail") else ""
+    if get("AUTH") == "N/A":
+        method = "External (N/A)"
+    else:
+        method = AUTH_LABELS.get(auth.get("auth_method"), auth.get("auth_method") or "")
+    br = get("BR")
+    return {
+        "Version": get("S1", "value") or "",
+        "MCP routes before enabling": len(get("A2", "value") or []) if get("A2") else "",
+        "Out of the box (A3pre)": get("A3pre") or "",
+        "Unauthenticated after enabling (A3)": get("A3") or "",
+        "Hard fail (auto)": hard_fail,
+        "Auth method": method,
+        "Tools": auth.get("tool_count") if auth.get("tool_count") is not None else "",
+        "Abilities behind meta-tools": auth.get("ability_count") if auth.get("ability_count") is not None else "",
+        f"Areas covered (of {AREA_COUNT})": int(br.split("/")[0]) if br else "",
+        "Areas": ", ".join(get("BR", "value") or []),
+        "Abilities API / MCP Adapter": ", ".join(get("ABIL", "value") or []) or get("ABIL") or "",
+        "A3 detail": get("A3", "detail") or "",
+        "Last run": max((c.get("at", "") for c in checks.values()), default="")[:10],
+    }
 
 
 def style_header(cell, color=None):
@@ -59,6 +105,7 @@ def main():
     R1 = R0 + n - 1             # last data row
     P0 = 5                      # first data row on Plugins
     P1 = P0 + len(plugins) - 1
+    results = load_results({p["slug"] for p in scored})
 
     wb = Workbook()
 
@@ -70,8 +117,9 @@ def main():
     lines = [
         ("How to use", True),
         ("1. For each plugin, install it on a clean site (setup_test_sites.sh), connect Claude Desktop, then work through the Tasks sheet (Pass / Partial / Fail).", False),
-        ("2. On the Scores sheet, fill the yellow cells with a score from 0 to 5 (blue text = your input). Grey-header columns marked (auto) are formulas, so leave them alone.", False),
-        ("3. Set 'Security hard fail?' to Y for a serious security failure (no auth, everything exposed by default). The plugin's total is then capped (Weights sheet).", False),
+        ("2. On the Scores sheet, fill the yellow cells with a score from 0 to 5 (blue text = your input). Grey-header columns marked (auto) are formulas, so leave them alone. 'Breadth of tools (auto)' is yellow where there is no automated result: score those by hand.", False),
+        ("3. 'Security hard fail? (auto)' comes from the unauthenticated probe on the Checks sheet: Y when the enabled endpoint returns tools without credentials and the source does not show it is public by design. The plugin's total is then capped (Weights sheet).", False),
+        ("This workbook is regenerated from shortlist.csv and results.json (python3 build_scoring_sheet.py), so record results in results.json rather than typing them here.", False),
         ("4. Rank appears once both Setup and Security have at least one score. Weights, thresholds and the cap live on the Weights sheet.", False),
         ("", False),
         ("Scoring scale (0-5)", True),
@@ -85,7 +133,8 @@ def main():
         ("Weights: area weights (must total 100), hard-fail cap, thresholds for the auto-scored columns.", False),
         ("Plugins: WordPress.org data for each plugin (fetched " + AS_OF.strftime("%Y-%m-%d") + "), plus the mcp-adapter baseline reference row.", False),
         ("Scores: one row per plugin; weighted total out of 100 and rank.", False),
-        ("Tasks: the 8 standard tasks, run via Claude Desktop, per plugin.", False),
+        ("Tasks: the 8 standard tasks, run via Claude Desktop, per plugin. Results already in results.json are filled in.", False),
+        ("Checks: automated results from run_tests.py (results.json): out-of-the-box state, unauthenticated probe, auth method, tool count, breadth, Abilities API use.", False),
         ("", False),
         ("Baseline", True),
         ("mcp-adapter is the official WordPress MCP Adapter. It is listed on the Plugins sheet as the reference point for comparison and is not scored or ranked.", False),
@@ -195,8 +244,9 @@ def main():
         tk.cell(row=i, column=2, value=p["name"]).font = BLACK
         tk.cell(row=i, column=2).alignment = Alignment(wrap_text=True, vertical="top")
         rng = f"{L(c0)}{i}:{L(c1)}{i}"
-        for j in range(c0, c1 + 1):
-            c = tk.cell(row=i, column=j)
+        for j, tid in zip(range(c0, c1 + 1), TASK_IDS):
+            status = (results.get(p["slug"], {}).get(tid) or {}).get("status")
+            c = tk.cell(row=i, column=j, value=status if status in ("Pass", "Partial", "Fail") else None)
             c.font, c.fill, c.border, c.alignment = BLUE, INPUT_FILL, BOX, Alignment(horizontal="center")
             dv_task.add(c)
         tk.cell(row=i, column=pass_col, value=f'=IF(COUNTA({rng})=0,"",(COUNTIF({rng},"Pass")+0.5*COUNTIF({rng},"Partial"))/COUNTA({rng}))').number_format = "0%"
@@ -217,6 +267,35 @@ def main():
     tk.column_dimensions[L(pass_col)].width = 10
     tk.column_dimensions[L(run_col)].width = 10
     tk.freeze_panes = "C5"
+
+    # ---------------------------------------------------------------- Checks
+    ck = wb.create_sheet("Checks")
+    ck["A1"] = "Automated checks (run_tests.py)"
+    ck["A1"].font = TITLE
+    ck["A2"] = ("From results.json. Out of the box = before MCP is switched on; A3 = after switching it on and enabling every tool. "
+                "Breadth matches tool and ability names, so it undercounts generic tools. Blank = not run or needs the manual sheet (OAuth, external server).")
+    ck["A2"].font = GREY
+    rows = {p["slug"]: check_row(results.get(p["slug"], {})) for p in scored}
+    ck_heads = ["Slug", "Name"] + list(check_row({}))
+    for j, h in enumerate(ck_heads, start=1):
+        style_header(ck.cell(row=4, column=j, value=h))
+    ck_col = {h: j for j, h in enumerate(ck_heads, start=1)}
+    for i, p in enumerate(scored, start=R0):
+        for j, v in enumerate([p["slug"], p["name"]] + list(rows[p["slug"]].values()), start=1):
+            c = ck.cell(row=i, column=j, value=v)
+            c.font, c.border = BLACK, BOX
+            c.alignment = Alignment(vertical="top", wrap_text=ck_heads[j - 1] in ("Name", "Areas", "Abilities API / MCP Adapter", "A3 detail"),
+                                    horizontal=None if j <= 2 or ck_heads[j - 1] in ("Areas", "A3 detail") else "center")
+    hf_rng = f"{L(ck_col['Hard fail (auto)'])}{R0}:{L(ck_col['Hard fail (auto)'])}{R1}"
+    ck.conditional_formatting.add(hf_rng, CellIsRule(operator="equal", formula=['"Y"'], fill=PatternFill("solid", bgColor="FFC7CE")))
+    for h, j in ck_col.items():
+        ck.column_dimensions[L(j)].width = {"Slug": 34, "Name": 36, "Areas": 40, "Abilities API / MCP Adapter": 24, "A3 detail": 70}.get(h, 13)
+    ck.row_dimensions[4].height = 54
+    ck.freeze_panes = "C5"
+
+    def check_lookup(head, i):
+        cl = L(ck_col[head])
+        return f"INDEX(Checks!${cl}${R0}:${cl}${R1},MATCH($B{i},Checks!$A${R0}:$A${R1},0))"
 
     # ---------------------------------------------------------------- Scores
     sc = wb.create_sheet("Scores")
@@ -249,15 +328,14 @@ def main():
         for j, nm in zip(range(first, last + 1), names):
             style_header(sc.cell(row=4, column=j, value=nm), "7F7F7F" if "(auto)" in nm else color)
         style_header(sc.cell(row=4, column=scol, value="Area score"), color)
-    for j, h in ((hf, "Security hard fail? (Y/N)"), (raw, "Raw total"), (fin, "Final total"), (rank, "Rank"), (notes, "Notes")):
+    for j, h in ((hf, "Security hard fail? (auto)"), (raw, "Raw total"), (fin, "Final total"), (rank, "Rank"), (notes, "Notes")):
         style_header(sc.cell(row=4, column=j, value=h), AREA_FILLS["total"])
+    br_col = groups[2][2] + CAPS.index("Breadth of tools (auto)")
     sc.row_dimensions[4].height = 66
 
     dv_score = DataValidation(type="whole", operator="between", formula1="0", formula2="5", allow_blank=True,
                               showErrorMessage=True, errorTitle="Invalid score", error="Enter a whole number from 0 to 5.")
-    dv_yn = DataValidation(type="list", formula1='"Y,N"', allow_blank=True)
     sc.add_data_validation(dv_score)
-    sc.add_data_validation(dv_yn)
 
     def lookup(colletter, i):
         return f"INDEX(Plugins!${colletter}${P0}:${colletter}${P1},MATCH($B{i},Plugins!$B${P0}:$B${P1},0))"
@@ -268,12 +346,13 @@ def main():
             c = sc.cell(row=i, column=j, value=v)
             c.font, c.border = BLACK, BOX
             c.alignment = Alignment(vertical="top", wrap_text=(j == 3))
+        breadth_auto = rows[p["slug"]][f"Areas covered (of {AREA_COUNT})"] != "" and p["slug"] not in BREADTH_UNDERCOUNT
         for key, title, first, last, scol, names in groups:
             for j, nm in zip(range(first, last + 1), names):
                 c = sc.cell(row=i, column=j)
                 c.border = BOX
                 c.alignment = Alignment(horizontal="center")
-                if "(auto)" in nm:
+                if "(auto)" in nm and (j != br_col or breadth_auto):
                     c.font = BLACK
                 else:
                     c.font, c.fill = BLUE, INPUT_FILL
@@ -284,6 +363,8 @@ def main():
         # auto formulas
         capcol = groups[2][2]
         sc.cell(row=i, column=capcol, value=f'=IFERROR(IF(INDEX(Tasks!${L(pass_col)}${R0}:${L(pass_col)}${R1},MATCH($B{i},Tasks!$A${R0}:$A${R1},0))="","",INDEX(Tasks!${L(pass_col)}${R0}:${L(pass_col)}${R1},MATCH($B{i},Tasks!$A${R0}:$A${R1},0))*5),"")').number_format = "0.0"
+        if breadth_auto:
+            sc.cell(row=i, column=br_col, value=f"={check_lookup(f'Areas covered (of {AREA_COUNT})', i)}/{AREA_COUNT}*5").number_format = "0.0"
         q0 = groups[3][2]
         days = lookup("F", i)
         sc.cell(row=i, column=q0, value=f"=IF({days}<=Weights!$B$16,5,IF({days}<=Weights!$B$17,4,IF({days}<=Weights!$B$18,3,IF({days}<=Weights!$B$19,2,1))))")
@@ -292,8 +373,7 @@ def main():
         sc.cell(row=i, column=q0 + 2, value=f'=IF({lookup("H", i)}=0,"",{lookup("G", i)}/20)').number_format = "0.0"
         sc.cell(row=i, column=q0 + 3, value=f'=IF({lookup("I", i)}="Y",5,2)')
         setup_s, sec_s, cap_s, qual_s = (g[4] for g in groups)
-        sc.cell(row=i, column=hf).font, sc.cell(row=i, column=hf).fill = BLUE, INPUT_FILL
-        dv_yn.add(sc.cell(row=i, column=hf))
+        sc.cell(row=i, column=hf, value=f'=IFERROR(""&{check_lookup("Hard fail (auto)", i)},"")').font = BLACK
         sc.cell(row=i, column=raw, value=f"={L(setup_s)}{i}+{L(sec_s)}{i}+{L(cap_s)}{i}+{L(qual_s)}{i}")
         sc.cell(row=i, column=fin, value=f'=IF({L(hf)}{i}="Y",MIN({L(raw)}{i},Weights!$B$13),{L(raw)}{i})')
         ready = f"AND(COUNT({L(groups[0][2])}{i}:{L(groups[0][3])}{i})>0,COUNT({L(groups[1][2])}{i}:{L(groups[1][3])}{i})>0)"
@@ -316,9 +396,10 @@ def main():
     sc.freeze_panes = "D5"
 
     # order sheets
-    wb._sheets = [wb["README"], wb["Scores"], wb["Tasks"], wb["Plugins"], wb["Weights"]]
+    wb._sheets = [wb["README"], wb["Scores"], wb["Tasks"], wb["Checks"], wb["Plugins"], wb["Weights"]]
     wb.save("mcp-plugin-scoring.xlsx")
-    print(f"saved: {n} plugins on Scores/Tasks (rows {R0}-{R1}), {len(baseline)} baseline on Plugins")
+    print(f"saved: {n} plugins on Scores/Tasks (rows {R0}-{R1}), {len(baseline)} baseline on Plugins, "
+          f"{len(results)} with results.json checks")
 
 
 if __name__ == "__main__":

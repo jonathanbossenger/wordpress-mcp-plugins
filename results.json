@@ -4003,15 +4003,6 @@
       "value": "1.20.5"
     }
   },
-  "vibe-ai easy-mcp-ai miniorange-secure-mcp-server wsp-mcp-ai-agents-connector cowboy-mcp stifli-flex-mcp agent-abilities-for-mcp diviops-agent ai-workflow-automation-ai-agent-hub nibwp mountdev-ai-mcp-connector iato-mcp": {
-    "S1": {
-      "at": "2026-10-19T16:46:04+02:00",
-      "detail": "no site at /Users/jonathanbossenger/Studio/mcp-tests/vibe-ai easy-mcp-ai miniorange-secure-mcp-server wsp-mcp-ai-agents-connector cowboy-mcp stifli-flex-mcp agent-abilities-for-mcp diviops-agent ai-workflow-automation-ai-agent-hub nibwp mountdev-ai-mcp-connector iato-mcp",
-      "source": "auto",
-      "status": "Fail",
-      "value": null
-    }
-  },
   "webo-mcp": {
     "A2": {
       "at": "2026-10-19T17:09:59+02:00",

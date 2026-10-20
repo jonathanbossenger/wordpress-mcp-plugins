@@ -10,7 +10,7 @@ Written 2026-10-19 so work can resume on another machine. Read `criteria.md` fir
 | Site setup (Studio site per plugin, install, activate, seed content) | Done: `setup_test_sites.sh` (logs to `setup_results.tsv`, git-ignored) |
 | Manual copy/paste test sheet | Done, untested against live sites: `build_manual_test_sheet.py` -> `mcp-manual-test-sheet.xlsx` |
 | Automated tests (`run_tests.py` + `test_config.json`) | Built 2026-10-19, prototyped on mcp-for-woocommerce, royal-mcp, ai-engine. Writes `results.json` |
-| Single place for all results | `results.json` exists (auto checks only). `import_manual.py` and scoring-sheet integration not built |
+| Single place for all results | `results.json` (auto checks only). `build_scoring_sheet.py` reads it (2026-10-20). `import_manual.py` not built |
 
 ## run_tests.py (built)
 
@@ -65,17 +65,30 @@ Assumptions and known caveats:
 ## Gaps identified
 
 1. Results live in three places: `mcp-plugin-scoring.xlsx`, `mcp-manual-test-sheet.xlsx`, `setup_results.tsv`. T1-T8 must be copied from the manual sheet into the Tasks sheet by hand.
-2. Several manual Results columns (auth method, minutes to first call, tool count, T7 confirmed / audit log) have no matching column or formula on the Scores sheet.
-3. The unauthenticated probe does not set the hard-fail flag automatically.
+2. Several manual Results columns (auth method, minutes to first call, tool count, T7 confirmed / audit log) have no matching column or formula on the Scores sheet. Auth method and tool count are now on the Checks sheet (automated values only).
+3. Fixed 2026-10-20: the hard-fail flag comes from the unauthenticated probe via the Checks sheet.
 4. No rule for which result wins when an automated and a manual run cover the same check.
 
-## Proposed next steps (agreed direction, not started)
+## Scoring sheet integration (built 2026-10-20)
 
-1. Single source of truth: `results.json` (or SQLite) keyed by slug and check ID (A3, T1-T8, D1...), each entry with `source: auto|manual`.
-2. `run_tests.py` for the automatable checks, writing `source: auto` results. Prototype on 2-3 plugins first (e.g. `mcp-for-woocommerce`, `royal-mcp`) to see how much credential handling varies.
-3. `import_manual.py` to load the manual sheet's Results into the store, with manual overriding auto where both exist.
-4. Change `build_scoring_sheet.py` to read the store so Tasks, the hard-fail flag and the new columns fill in automatically; the scoring workbook stays the one presentation file.
-5. Fold `setup_results.tsv` into the store.
+`build_scoring_sheet.py` reads `results.json` (optional: without it the workbook builds as before). Regenerate with `venv/bin/python build_scoring_sheet.py`.
+- New Checks sheet, one row per plugin: version, MCP routes before enabling, A3pre, A3, hard fail (auto), auth method (labels match the manual sheet), tool count, abilities behind meta-tools, areas covered and names, ABIL markers, A3 detail, last run.
+- Scores: "Security hard fail? (auto)" is now a formula from Checks (Y when A3 or A3pre returned tools without credentials and the endpoint is not public by design). Currently N for 32 plugins, blank for the 3 external ones.
+- Scores: "Breadth of tools (auto)" = areas covered / 9 x 5. It stays a yellow manual input where there is no BR result (OAuth and external plugins) and for cowboy-mcp and acrossai-mcp-manager (`BREADTH_UNDERCOUNT`).
+- Tasks: T1-T8 entries in `results.json` (Pass/Partial/Fail) are filled in; there are none yet.
+- Hand-typed scores are lost when the workbook is regenerated. That stays true until manual results go into `results.json` through `import_manual.py`.
+- Not checked in LibreOffice (not installed on this machine): formulas were inspected, not recalculated.
+- Removed a malformed `results.json` entry whose key was a space-separated list of slugs (a quoted argument to `run_tests.py`). `run_tests.py` now splits each argument on whitespace.
+
+## Next steps
+
+1. Done: `results.json` store keyed by slug and check ID, each entry with `source: auto|manual`.
+2. Done: `run_tests.py` for the automatable checks (all 35 plugins).
+3. Done: `build_scoring_sheet.py` reads the store (see above).
+4. Run the manual sheet on 2-3 plugins from step A4 (sites are still running with MCP enabled). Fix the wrong A4 settings URLs for mcp-for-woocommerce and ai-engine.
+5. `import_manual.py` to load the manual sheet's Results into the store, with manual overriding auto where both exist. That also lets hand scores and a manual hard-fail override survive a rebuild.
+6. Decide whether Safe defaults (A2/A3pre) and Abilities API / standards (ABIL) should be auto-scored from Checks. The evidence is on Checks; both are still manual inputs.
+7. Fold `setup_results.tsv` into the store.
 
 ## Open decisions (from `criteria.md`)
 

@@ -380,7 +380,8 @@ def main():
     args = ap.parse_args()
 
     config = {k: v for k, v in json.loads(CONFIG.read_text()).items() if not k.startswith("_")} if CONFIG.exists() else {}
-    slugs = args.slugs or [s for s in SLUGS.read_text().split() if (ROOT / s).exists()]
+    # split each argument too, so a quoted list of slugs ("a b c") is not taken as one slug
+    slugs = [s for a in args.slugs for s in a.split()] or [s for s in SLUGS.read_text().split() if (ROOT / s).exists()]
     if not slugs:
         sys.exit(f"No sites found under {ROOT}")
 
