@@ -36,3 +36,6 @@
 - Final weights (30 / 30 / 25 / 15 is a starting point)
 - Shortlist thresholds (installs / ratings)
 - Whether a "hard fail" (e.g. no auth, or exposes everything by default) caps the total score
+
+## Decisions
+- An endpoint that answers without credentials is NOT a hard fail when the plugin's source code shows it is deliberately public (e.g. `permission_callback` `__return_true` with a comment explaining why). Record the evidence (file:line).

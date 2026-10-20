@@ -58,7 +58,7 @@ SECTIONS = [
          WP + " eval 'foreach (array_keys(rest_get_server()->get_routes()) as $r) {{ if (preg_match(\"/mcp/i\", $r)) echo $r . PHP_EOL; }}'",
          "MCP route(s) found. If none, note where the plugin says the endpoint lives (settings page, readme)."),
         ("A3", "Security", "Unauthenticated tools/list",
-         "Call the endpoint with NO credentials. A JSON list of tools means the plugin exposes everything by default: set 'Security hard fail?' to Y on the Scores sheet. A 401/403 is the good outcome. If the endpoint is missing or says MCP is disabled, pick 'Disabled' (good safe default) and run this step again after enabling MCP in A4, because the real hard-fail check is whether the ENABLED endpoint answers without credentials.",
+         "Call the endpoint with NO credentials. A JSON list of tools means the plugin exposes everything by default: set 'Security hard fail?' to Y on the Scores sheet, UNLESS the source code shows the endpoint is deliberately public (e.g. permission_callback __return_true with a comment explaining it): then pick 'Public by design', leave hard fail at N and note the file:line in Notes. A 401/403 is the good outcome. If the endpoint is missing or says MCP is disabled, pick 'Disabled' (good safe default) and run this step again after enabling MCP in A4, because the real hard-fail check is whether the ENABLED endpoint answers without credentials.",
          "curl -si -X POST '{endpoint}' -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' -d '{{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}}' | head -40",
          "HTTP status and whether any tools were returned. Feeds: Safe defaults, Auth method."),
         ("A4", "Setup", "Find the settings and connection UI",
@@ -320,7 +320,7 @@ def main():
     dv_yn = DataValidation(type="list", formula1='"Y,N"', allow_blank=True)
     dv_auth = DataValidation(type="list", formula1='"App password,API key,OAuth,None,Other"', allow_blank=True)
     dv_score = DataValidation(type="whole", operator="between", formula1="0", formula2="5", allow_blank=True)
-    dv_probe = DataValidation(type="list", formula1='"Pass,Disabled,Fail"', allow_blank=True)
+    dv_probe = DataValidation(type="list", formula1='"Pass,Disabled,Public by design,Fail"', allow_blank=True)
     for dv in (dv_pf, dv_yn, dv_auth, dv_score, dv_probe):
         rs.add_data_validation(dv)
     kinds = {

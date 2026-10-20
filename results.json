@@ -1,0 +1,4383 @@
+{
+  "abilities-bridge": {
+    "A2": {
+      "at": "2026-10-19T17:07:06+02:00",
+      "detail": "9 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/abilities-bridge-mcp/v1",
+        "/abilities-bridge-mcp/v1/mcp",
+        "/abilities-bridge-mcp/v1/memory",
+        "/abilities-bridge-mcp/v1/.well-known/oauth-authorization-server",
+        "/abilities-bridge-mcp/v1/.well-known/oauth-protected-resource",
+        "/abilities-bridge-mcp/v1/.well-known/mcp",
+        "/abilities-bridge-mcp/v1/authorize",
+        "/abilities-bridge-mcp/v1/oauth/token",
+        "/abilities-bridge-mcp/v1/oauth/revoke"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T17:18:26+02:00",
+      "detail": "initialize 401, tools/list 401 (Authentication required. Use OAuth Bearer token or WordPress Application Password.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "Authentication required. Use OAuth Bearer token or WordPress Application Password.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:07:06+02:00",
+      "detail": "http://localhost:8911/wp-json/abilities-bridge-mcp/v1/mcp: initialize 401, tools/list 401 (Authentication required. Use OAuth Bearer token or WordPress Application Password.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "Authentication required. Use OAuth Bearer token or WordPress Application Password.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:18:23+02:00",
+      "detail": "mcp-adapter, reads-abilities, registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "mcp-adapter",
+        "reads-abilities",
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:18:31+02:00",
+      "detail": "initialize 200, tools/list 200, 0 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "basic",
+        "tool_count": 0,
+        "tools": []
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T17:18:31+02:00",
+      "detail": "",
+      "source": "auto",
+      "status": "0/9",
+      "value": []
+    },
+    "EN": {
+      "at": "2026-10-19T17:18:26+02:00",
+      "detail": "9 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8911/wp-json/abilities-bridge-mcp/v1/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T17:18:16+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.4.1"
+    }
+  },
+  "acadium-agent-publisher": {
+    "A2": {
+      "at": "2026-10-19T17:07:22+02:00",
+      "detail": "3 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/acadium-agent-publisher/mcp",
+        "/mcp",
+        "/mcp/mcp-adapter-default-server"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T17:07:26+02:00",
+      "detail": "initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:07:23+02:00",
+      "detail": "http://localhost:8915/wp-json/acadium-agent-publisher/mcp: initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:07:23+02:00",
+      "detail": "mcp-adapter, reads-abilities, registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "mcp-adapter",
+        "reads-abilities",
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:07:29+02:00",
+      "detail": "initialize 200, tools/list 200, 27 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "basic",
+        "tool_count": 27,
+        "tools": [
+          "agent-publisher-get-capabilities",
+          "agent-publisher-list-terms",
+          "agent-publisher-get-post",
+          "agent-publisher-create-post",
+          "agent-publisher-update-draft-post",
+          "agent-publisher-submit-for-review",
+          "agent-publisher-publish-post",
+          "agent-publisher-unpublish-post",
+          "agent-publisher-update-published-post",
+          "agent-publisher-upload-media",
+          "agent-publisher-request-upload",
+          "agent-publisher-get-upload",
+          "agent-publisher-trash-post",
+          "agent-publisher-restore-revision",
+          "agent-publisher-find-posts",
+          "agent-publisher-find-media",
+          "agent-publisher-list-menus",
+          "agent-publisher-create-menu",
+          "agent-publisher-update-menu",
+          "agent-publisher-restore-menu",
+          "agent-publisher-create-term",
+          "agent-publisher-update-term",
+          "agent-publisher-delete-term",
+          "agent-publisher-update-media",
+          "agent-publisher-list-redirects",
+          "agent-publisher-create-redirect",
+          "agent-publisher-delete-redirect"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T17:07:29+02:00",
+      "detail": "posts, media, taxonomies",
+      "source": "auto",
+      "status": "3/9",
+      "value": [
+        "posts",
+        "media",
+        "taxonomies"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T17:07:26+02:00",
+      "detail": "3 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8915/wp-json/acadium-agent-publisher/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T17:07:14+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "2.0.0"
+    }
+  },
+  "acrossai-mcp-manager": {
+    "A2": {
+      "at": "2026-10-19T17:18:04+02:00",
+      "detail": "35 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/acrossai-mcp-manager/v1",
+        "/acrossai-mcp-manager/v1/generate-app-password",
+        "/acrossai-mcp-manager/v1/list-app-passwords",
+        "/wpb-ac/v1/mcp/rules/(?P<namespace>[^/]+)/(?P<key>.+)",
+        "/wpb-ac/v1/mcp/namespaces/(?P<namespace>[^/]+)",
+        "/wpb-ac/v1/mcp/providers",
+        "/wpb-ac/v1/mcp/users",
+        "/acrossai-mcp-manager/v1/servers/(?P<server_id>\\d+)/abilities",
+        "/acrossai-mcp-manager/v1/servers/(?P<server_id>\\d+)/abilities/policy",
+        "/acrossai-mcp-manager/v1/servers/(?P<server_id>\\d+)/tools",
+        "/acrossai-mcp-manager/v1/quick-connect/state",
+        "/acrossai-mcp-manager/v1/quick-connect/step",
+        "/acrossai-mcp-manager/v1/quick-connect/complete",
+        "/acrossai-mcp-manager/v1/quick-connect/install-plugin",
+        "/acrossai-mcp-manager/v1/oauth/generate-client",
+        "/acrossai-mcp-manager/v1/oauth/register",
+        "/acrossai-mcp-manager/v1/oauth/connector-settings",
+        "/acrossai-mcp-manager/v1/oauth/revoke-client-tokens",
+        "/acrossai-mcp-manager/v1/oauth/delete-client",
+        "/acrossai-mcp-manager/v1/oauth/revoke-grant",
+        "/acrossai-mcp-manager/v1/oauth/revoke-connector-tokens",
+        "/acrossai-mcp-manager/v1/oauth/revoke-client-tokens-all-servers",
+        "/acrossai-mcp-manager/v1/oauth/approve-pending-consent",
+        "/acrossai-mcp-manager/v1/oauth/server-settings",
+        "/acrossai-mcp-manager/v1/oauth/approve-server-pending",
+        "/acrossai-mcp-manager/v1/oauth/deny-server-pending",
+        "/acrossai-mcp-manager/v1/oauth/revoke-server-approval",
+        "/acrossai-mcp-manager/v1/oauth/revoke-server-tokens",
+        "/acrossai-mcp-manager/v1/oauth/deny-pending-consent",
+        "/acrossai-mcp-manager/v1/oauth/revoke-user-approval",
+        "/acrossai-mcp-manager/v1/health",
+        "/acrossai-mcp-manager/v1/auth/start",
+        "/acrossai-mcp-manager/v1/auth/status",
+        "/acrossai-mcp-manager/v1/servers",
+        "/acrossai-mcp-manager/v1/auth/exchange"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T17:21:48+02:00",
+      "detail": "initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "Sorry, you are not allowed to do that.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:18:04+02:00",
+      "detail": "http://localhost:8904/wp-json/acrossai/mcp: initialize 404, tools/list 404 (No route was found matching the URL and request method.)",
+      "source": "auto",
+      "status": "Disabled",
+      "value": {
+        "error": "No route was found matching the URL and request method.",
+        "hard_fail": false,
+        "init_status": 404,
+        "list_status": 404,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:21:35+02:00",
+      "detail": "mcp-adapter, reads-abilities, registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "mcp-adapter",
+        "reads-abilities",
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:21:53+02:00",
+      "detail": "initialize 200, tools/list 200, 14 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "basic",
+        "tool_count": 14,
+        "tools": [
+          "toolset-server-guide",
+          "toolset-integrations",
+          "toolset-other",
+          "toolset-diagnostics",
+          "toolset-files",
+          "toolset-database",
+          "toolset-cache",
+          "toolset-cron",
+          "toolset-updates",
+          "toolset-users",
+          "toolset-configuration",
+          "toolset-appearance",
+          "toolset-blocks",
+          "toolset-content"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T17:21:53+02:00",
+      "detail": "users, blocks",
+      "source": "auto",
+      "status": "2/9",
+      "value": [
+        "users",
+        "blocks"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T17:21:48+02:00",
+      "detail": "35 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8904/wp-json/acrossai/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T17:21:28+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "0.4.3"
+    }
+  },
+  "admindra-mcp": {
+    "A2": {
+      "at": "2026-10-19T17:17:39+02:00",
+      "detail": "0 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Disabled",
+      "value": []
+    },
+    "A3": {
+      "at": "2026-10-19T17:17:52+02:00",
+      "detail": "initialize 401, tools/list 401 (MCP authentication required.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "MCP authentication required.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:17:39+02:00",
+      "detail": "no MCP endpoint before enabling",
+      "source": "auto",
+      "status": "Disabled",
+      "value": {
+        "hard_fail": false
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:17:39+02:00",
+      "detail": "mcp-adapter, reads-abilities, registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "mcp-adapter",
+        "reads-abilities",
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:17:52+02:00",
+      "detail": "OAuth only: needs the browser consent flow, use the manual sheet",
+      "source": "auto",
+      "status": "Manual",
+      "value": {
+        "auth_method": "oauth"
+      }
+    },
+    "EN": {
+      "at": "2026-10-19T17:17:52+02:00",
+      "detail": "3 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8909/wp-json/mcp/mcp-oauth-server"
+    },
+    "S1": {
+      "at": "2026-10-19T17:17:31+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.1.2"
+    }
+  },
+  "agent-abilities-for-mcp": {
+    "A2": {
+      "at": "2026-10-19T16:47:48+02:00",
+      "detail": "6 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/agent-abilities-for-mcp/oauth",
+        "/agent-abilities-for-mcp/oauth/register",
+        "/agent-abilities-for-mcp/oauth/token",
+        "/agent-abilities-for-mcp/oauth/revoke",
+        "/agent-abilities-for-mcp",
+        "/agent-abilities-for-mcp/mcp"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T16:53:56+02:00",
+      "detail": "initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T16:47:48+02:00",
+      "detail": "http://localhost:8893/wp-json/agent-abilities-for-mcp/mcp: initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T16:53:53+02:00",
+      "detail": "mcp-adapter, reads-abilities, registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "mcp-adapter",
+        "reads-abilities",
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T16:54:01+02:00",
+      "detail": "initialize 200, tools/list 200, 85 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "basic",
+        "tool_count": 85,
+        "tools": [
+          "aafm-get-posts",
+          "aafm-count-posts",
+          "aafm-get-post",
+          "aafm-create-draft",
+          "aafm-create-post",
+          "aafm-update-post",
+          "aafm-replace-in-post",
+          "aafm-replace-sitewide",
+          "aafm-trash-post",
+          "aafm-create-cpt-item",
+          "aafm-update-cpt-item",
+          "aafm-delete-post",
+          "aafm-get-pages",
+          "aafm-get-page",
+          "aafm-create-page",
+          "aafm-update-page",
+          "aafm-trash-page",
+          "aafm-delete-page",
+          "aafm-get-terms",
+          "aafm-create-term",
+          "aafm-update-term",
+          "aafm-get-term",
+          "aafm-add-post-terms",
+          "aafm-get-term-meta",
+          "aafm-update-term-meta",
+          "aafm-delete-term-meta",
+          "aafm-get-taxonomies",
+          "aafm-get-post-types",
+          "aafm-get-site-info",
+          "aafm-get-comments",
+          "aafm-get-pending-comments",
+          "aafm-moderate-comment",
+          "aafm-get-comment",
+          "aafm-create-comment",
+          "aafm-update-comment",
+          "aafm-delete-comment",
+          "aafm-get-media",
+          "aafm-get-media-item",
+          "aafm-count-media",
+          "aafm-set-featured-image",
+          "aafm-upload-media",
+          "aafm-upload-media-from-url",
+          "aafm-update-media",
+          "aafm-delete-media",
+          "aafm-get-users",
+          "aafm-get-user",
+          "aafm-create-user",
+          "aafm-update-user",
+          "aafm-delete-user",
+          "aafm-get-post-meta",
+          "aafm-get-all-post-meta",
+          "aafm-update-post-meta",
+          "aafm-delete-post-meta",
+          "aafm-get-user-meta",
+          "aafm-update-user-meta",
+          "aafm-delete-user-meta",
+          "aafm-list-revisions",
+          "aafm-get-revision",
+          "aafm-restore-revision",
+          "aafm-delete-revision",
+          "aafm-search-content",
+          "aafm-get-site-settings",
+          "aafm-update-site-settings",
+          "aafm-list-plugins",
+          "aafm-get-activity-log",
+          "aafm-list-blocks",
+          "aafm-get-block",
+          "aafm-create-block",
+          "aafm-update-block",
+          "aafm-delete-block",
+          "aafm-list-menus",
+          "aafm-get-menu",
+          "aafm-list-menu-items",
+          "aafm-create-menu",
+          "aafm-update-menu",
+          "aafm-delete-menu",
+          "aafm-create-menu-item",
+          "aafm-update-menu-item",
+          "aafm-delete-menu-item",
+          "aafm-get-active-theme",
+          "aafm-list-themes",
+          "aafm-list-templates",
+          "aafm-get-template",
+          "aafm-get-global-styles",
+          "aafm-update-template"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T16:54:01+02:00",
+      "detail": "posts, pages, media, taxonomies, users, plugins, settings, blocks",
+      "source": "auto",
+      "status": "8/9",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "plugins",
+        "settings",
+        "blocks"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T16:53:56+02:00",
+      "detail": "6 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8893/wp-json/agent-abilities-for-mcp/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T16:53:50+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.9.0"
+    }
+  },
+  "ai-engine": {
+    "A2": {
+      "at": "2026-10-19T16:22:07+02:00",
+      "detail": "0 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Disabled",
+      "value": []
+    },
+    "A3": {
+      "at": "2026-10-19T16:22:43+02:00",
+      "detail": "initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T16:22:07+02:00",
+      "detail": "no MCP endpoint before enabling",
+      "source": "auto",
+      "status": "Disabled",
+      "value": {
+        "hard_fail": false
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T16:22:40+02:00",
+      "detail": "reads-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "reads-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T16:22:48+02:00",
+      "detail": "initialize 200, tools/list 200, 46 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "basic",
+        "tool_count": 46,
+        "tools": [
+          "mcp_ping",
+          "wp_list_plugins",
+          "wp_get_users",
+          "wp_create_user",
+          "wp_update_user",
+          "wp_get_comments",
+          "wp_create_comment",
+          "wp_update_comment",
+          "wp_delete_comment",
+          "wp_create_note",
+          "wp_update_note",
+          "wp_delete_note",
+          "wp_get_option",
+          "wp_update_option",
+          "wp_count_posts",
+          "wp_count_terms",
+          "wp_count_media",
+          "wp_get_post_types",
+          "wp_get_posts",
+          "wp_get_post",
+          "wp_get_post_snapshot",
+          "wp_create_post",
+          "wp_update_post",
+          "wp_delete_post",
+          "wp_alter_post",
+          "wp_write_blocks",
+          "wp_list_block_patterns",
+          "wp_insert_block_pattern",
+          "wp_get_post_meta",
+          "wp_update_post_meta",
+          "wp_delete_post_meta",
+          "wp_set_featured_image",
+          "wp_get_taxonomies",
+          "wp_get_terms",
+          "wp_create_term",
+          "wp_update_term",
+          "wp_delete_term",
+          "wp_get_post_terms",
+          "wp_add_post_terms",
+          "wp_get_media",
+          "wp_upload_media",
+          "wp_upload_request",
+          "wp_update_media",
+          "wp_delete_media",
+          "mwai_vision",
+          "mwai_image"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T16:22:48+02:00",
+      "detail": "posts, media, taxonomies, users, plugins, settings, blocks",
+      "source": "auto",
+      "status": "7/9",
+      "value": [
+        "posts",
+        "media",
+        "taxonomies",
+        "users",
+        "plugins",
+        "settings",
+        "blocks"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T16:22:43+02:00",
+      "detail": "11 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8886/wp-json/mcp/v1/http"
+    },
+    "S1": {
+      "at": "2026-10-19T16:22:38+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "3.8.6"
+    }
+  },
+  "ai-workflow-automation-ai-agent-hub": {
+    "A2": {
+      "at": "2026-10-19T16:48:17+02:00",
+      "detail": "2 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/awfah_mcp",
+        "/awfah_mcp/mcp"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T16:48:20+02:00",
+      "detail": "initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T16:48:17+02:00",
+      "detail": "http://localhost:8895/wp-json/awfah_mcp/mcp: initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T16:48:17+02:00",
+      "detail": "mcp-adapter, reads-abilities, registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "mcp-adapter",
+        "reads-abilities",
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T16:48:23+02:00",
+      "detail": "initialize 200, tools/list 200, 57 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "basic",
+        "tool_count": 57,
+        "tools": [
+          "awfah-content-analyze-post",
+          "awfah-content-generate-feature-image",
+          "awfah-content-generate-excerpt",
+          "awfah-content-focus-keywords",
+          "awfah-content-lsi-keywords",
+          "awfah-content-summarize",
+          "awfah-content-generate-content",
+          "awfah-content-generate-alt-text",
+          "awfah-content-suggest-titles",
+          "awfah-posts-wp-posts-search",
+          "awfah-posts-wp-get-post",
+          "awfah-posts-wp-add-post",
+          "awfah-posts-wp-update-post",
+          "awfah-posts-wp-delete-post",
+          "awfah-posts-wp-list-categories",
+          "awfah-posts-wp-add-category",
+          "awfah-posts-wp-update-category",
+          "awfah-posts-wp-delete-category",
+          "awfah-posts-wp-list-tags",
+          "awfah-posts-wp-add-tag",
+          "awfah-posts-wp-update-tag",
+          "awfah-posts-wp-delete-tag",
+          "awfah-pages-wp-pages-search",
+          "awfah-pages-wp-get-page",
+          "awfah-pages-wp-add-page",
+          "awfah-pages-wp-update-page",
+          "awfah-pages-wp-delete-page",
+          "awfah-media-wp-list-media",
+          "awfah-media-wp-get-media",
+          "awfah-media-wp-get-media-file",
+          "awfah-media-wp-upload-media",
+          "awfah-media-wp-update-media",
+          "awfah-media-wp-delete-media",
+          "awfah-media-wp-search-media",
+          "awfah-users-wp-users-search",
+          "awfah-users-wp-get-user",
+          "awfah-users-wp-add-user",
+          "awfah-users-wp-update-user",
+          "awfah-users-wp-delete-user",
+          "awfah-users-wp-get-current-user",
+          "awfah-users-wp-update-current-user",
+          "awfah-cpt-wp-list-post-types",
+          "awfah-cpt-wp-cpt-search",
+          "awfah-cpt-wp-get-cpt",
+          "awfah-cpt-wp-add-cpt",
+          "awfah-cpt-wp-update-cpt",
+          "awfah-cpt-wp-delete-cpt",
+          "awfah-rest-api-list-api-functions",
+          "awfah-rest-api-get-function-details",
+          "awfah-rest-api-run-api-function",
+          "awfah-site-get-site-info",
+          "awfah-site-get-plugin-info",
+          "awfah-site-get-theme-info",
+          "awfah-site-get-user-info",
+          "awfah-settings-wp-get-settings",
+          "awfah-settings-wp-update-settings",
+          "awfah-settings-get-site-settings"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T16:48:23+02:00",
+      "detail": "posts, pages, media, taxonomies, users, plugins, settings",
+      "source": "auto",
+      "status": "7/9",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "plugins",
+        "settings"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T16:48:20+02:00",
+      "detail": "2 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8895/wp-json/awfah_mcp/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T16:48:09+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.9.3"
+    }
+  },
+  "aicom": {
+    "A2": {
+      "at": "2026-10-19T17:19:02+02:00",
+      "detail": "1 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/aicom/v1/mcp"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T17:19:06+02:00",
+      "detail": "initialize 200, tools/list 200 (API key missing)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "API key missing",
+        "hard_fail": false,
+        "init_status": 200,
+        "list_status": 200
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:19:02+02:00",
+      "detail": "http://localhost:8900/wp-json/aicom/v1/mcp: initialize 200, tools/list 200 (API key missing)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "API key missing",
+        "hard_fail": false,
+        "init_status": 200,
+        "list_status": 200,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:19:02+02:00",
+      "detail": "no markers found",
+      "source": "auto",
+      "status": "N",
+      "value": []
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:19:07+02:00",
+      "detail": "initialize 200, tools/list 200, 93 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "bearer",
+        "tool_count": 93,
+        "tools": [
+          "session.open",
+          "session.close",
+          "session.status",
+          "server.status",
+          "tools/list",
+          "tools/search",
+          "tools/describe",
+          "site.summary",
+          "wp.site.info",
+          "wp.post_types.list",
+          "wp.taxonomies.list",
+          "wp.posts.list",
+          "wp.posts.get",
+          "wp.terms.list",
+          "wp.terms.get",
+          "wp.meta.get",
+          "wp.options.get",
+          "wp.posts.create",
+          "wp.posts.update",
+          "wp.posts.preview_url",
+          "wp.terms.create",
+          "wp.terms.update",
+          "wp.terms.assign_to_post",
+          "wp.terms.remove_from_post",
+          "wp.meta.set",
+          "wp.meta.set_many",
+          "wp.options.set",
+          "wp.cache.purge",
+          "wp.plugins.list",
+          "wp.plugins.update_all",
+          "wp.posts.trash",
+          "wp.posts.restore",
+          "wp.posts.delete",
+          "wp.terms.delete",
+          "wp.meta.delete",
+          "wp.menus.list",
+          "wp.menus.get",
+          "wp.menus.create",
+          "wp.menus.rename",
+          "wp.menus.delete",
+          "wp.menus.items.add",
+          "wp.menus.items.update",
+          "wp.menus.items.remove",
+          "wp.menus.locations.get",
+          "wp.menus.locations.set",
+          "media.list",
+          "media.get",
+          "media.upload",
+          "media.update_meta",
+          "media.attach_to_post",
+          "media.set_featured",
+          "files.list",
+          "files.upload",
+          "files.delete",
+          "wp.users.list",
+          "wp.users.get",
+          "wp.users.create",
+          "wp.users.update",
+          "wp.users.delete",
+          "wp.users.set_role",
+          "wp.users.add_role",
+          "wp.users.remove_role",
+          "wp.roles.list",
+          "wp.roles.create",
+          "wp.roles.update_caps",
+          "wp.roles.delete",
+          "backup.list",
+          "backup.get_manifest",
+          "backup.post.create",
+          "backup.post.restore",
+          "backup.term.create",
+          "backup.term.restore",
+          "backup.delete",
+          "backup.purge_old",
+          "a11y.images_missing_alt",
+          "a11y.audit_post",
+          "a11y.set_image_alt",
+          "a11y.site_report",
+          "skills.list",
+          "skills.get",
+          "skills.match",
+          "skills.compare",
+          "skills.run",
+          "skills.create",
+          "skills.activate",
+          "skills.update",
+          "skills.archive",
+          "skills.delete",
+          "skills.import",
+          "skills.suggest_from_session",
+          "skills.propose_update",
+          "skills.suggestions",
+          "aicom.recipes"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T17:19:07+02:00",
+      "detail": "posts, media, taxonomies, users, plugins, settings",
+      "source": "auto",
+      "status": "6/9",
+      "value": [
+        "posts",
+        "media",
+        "taxonomies",
+        "users",
+        "plugins",
+        "settings"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T17:19:06+02:00",
+      "detail": "1 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8900/wp-json/aicom/v1/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T17:18:53+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "3.22.2"
+    }
+  },
+  "albert-ai-butler": {
+    "A2": {
+      "at": "2026-10-19T17:07:40+02:00",
+      "detail": "3 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/albert/v1/mcp",
+        "/mcp",
+        "/mcp/mcp-adapter-default-server"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T17:25:50+02:00",
+      "detail": "initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "Sorry, you are not allowed to do that.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:07:40+02:00",
+      "detail": "http://localhost:8903/wp-json/albert/v1/mcp: initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:25:48+02:00",
+      "detail": "mcp-adapter, reads-abilities, registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "mcp-adapter",
+        "reads-abilities",
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:25:50+02:00",
+      "detail": "OAuth only: needs the browser consent flow, use the manual sheet",
+      "source": "auto",
+      "status": "Manual",
+      "value": {
+        "auth_method": "oauth"
+      }
+    },
+    "EN": {
+      "at": "2026-10-19T17:25:50+02:00",
+      "detail": "3 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8903/wp-json/albert/v1/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T17:25:42+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.5.0"
+    }
+  },
+  "alphabridge-mcp": {
+    "A2": {
+      "at": "2026-10-19T17:19:18+02:00",
+      "detail": "2 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/alphabridge/v1/mcp",
+        "/alphabridge/v1/mcp/(?P<token>[A-Za-z0-9_]+)"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T17:19:23+02:00",
+      "detail": "initialize 401, tools/list 401 (Invalid or missing bearer token. Send the connection's token as \"Authorization: Bearer \u2026\" or connect again; an administrator manages connections under Settings \u2192 AlphaBridge MCP.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "Invalid or missing bearer token. Send the connection's token as \"Authorization: Bearer \u2026\" or connect again; an administrator manages connections under Settings \u2192 AlphaBridge MCP.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:19:18+02:00",
+      "detail": "http://localhost:8907/wp-json/alphabridge/v1/mcp: initialize 401, tools/list 401 (Invalid or missing bearer token. Send the connection's token as \"Authorization: Bearer \u2026\" or connect again; an administrator manages connections under Settings \u2192 AlphaBridge MCP.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "Invalid or missing bearer token. Send the connection's token as \"Authorization: Bearer \u2026\" or connect again; an administrator manages connections under Settings \u2192 AlphaBridge MCP.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:19:18+02:00",
+      "detail": "no markers found",
+      "source": "auto",
+      "status": "N",
+      "value": []
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:19:23+02:00",
+      "detail": "initialize 200, tools/list 200, 40 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "bearer",
+        "tool_count": 40,
+        "tools": [
+          "wp_list_posts",
+          "wp_get_post",
+          "wp_create_post",
+          "wp_update_post",
+          "wp_delete_post",
+          "wp_list_revisions",
+          "wp_duplicate_post",
+          "wp_get_post_meta",
+          "wp_get_builder_layout",
+          "wp_list_media",
+          "wp_get_media",
+          "wp_upload_media_from_url",
+          "wp_upload_media",
+          "wp_update_media",
+          "wp_delete_media",
+          "wp_list_terms",
+          "wp_create_term",
+          "wp_update_term",
+          "wp_delete_term",
+          "wp_list_comments",
+          "wp_moderate_comment",
+          "wp_reply_comment",
+          "wp_delete_comment",
+          "wp_get_term",
+          "wp_get_comment",
+          "wp_list_sidebars",
+          "wp_get_widgets",
+          "wp_get_site_settings",
+          "wp_site_info",
+          "wp_get_post_types",
+          "wp_get_taxonomies",
+          "wp_search",
+          "wp_get_update_status",
+          "wp_seo_detect",
+          "wp_seo_get",
+          "wp_get_user_meta",
+          "wp_get_term_meta",
+          "wp_list_application_passwords",
+          "wp_site_health",
+          "wp_dashboard_counts"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T17:19:23+02:00",
+      "detail": "posts, media, taxonomies, users, settings",
+      "source": "auto",
+      "status": "5/9",
+      "value": [
+        "posts",
+        "media",
+        "taxonomies",
+        "users",
+        "settings"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T17:19:23+02:00",
+      "detail": "2 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8907/wp-json/alphabridge/v1/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T17:19:10+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "4.6.5"
+    }
+  },
+  "bcs-mcp-manager": {
+    "A2": {
+      "at": "2026-10-19T17:17:03+02:00",
+      "detail": "5 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/bcs-mcp/v1",
+        "/bcs-mcp/v1/",
+        "/bcs-mcp/v1/mcp",
+        "/bcs-mcp/v1/sse",
+        "/bcs-mcp/v1/messages"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T17:22:43+02:00",
+      "detail": "initialize 401, tools/list 401 (Authentication required.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "Authentication required.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:17:03+02:00",
+      "detail": "http://localhost:8913/wp-json/bcs-mcp/v1/mcp: initialize 503, tools/list 503 (MCP server is disabled.)",
+      "source": "auto",
+      "status": "Disabled",
+      "value": {
+        "error": "MCP server is disabled.",
+        "hard_fail": false,
+        "init_status": 503,
+        "list_status": 503,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:22:40+02:00",
+      "detail": "no markers found",
+      "source": "auto",
+      "status": "N",
+      "value": []
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:22:43+02:00",
+      "detail": "OAuth only: needs the browser consent flow, use the manual sheet",
+      "source": "auto",
+      "status": "Manual",
+      "value": {
+        "auth_method": "oauth"
+      }
+    },
+    "EN": {
+      "at": "2026-10-19T17:22:43+02:00",
+      "detail": "5 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8913/wp-json/bcs-mcp/v1/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T17:22:34+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.2.5"
+    }
+  },
+  "counterhand-mcp-for-woocommerce": {
+    "A2": {
+      "at": "2026-10-19T17:17:23+02:00",
+      "detail": "0 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Disabled",
+      "value": []
+    },
+    "A3": {
+      "at": "2026-10-19T17:17:28+02:00",
+      "detail": "initialize 401, tools/list 401 (Invalid or missing API token.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "Invalid or missing API token.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:17:23+02:00",
+      "detail": "no MCP endpoint before enabling",
+      "source": "auto",
+      "status": "Disabled",
+      "value": {
+        "hard_fail": false
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:17:23+02:00",
+      "detail": "no markers found",
+      "source": "auto",
+      "status": "N",
+      "value": []
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:17:28+02:00",
+      "detail": "OAuth only: needs the browser consent flow, use the manual sheet",
+      "source": "auto",
+      "status": "Manual",
+      "value": {
+        "auth_method": "oauth"
+      }
+    },
+    "EN": {
+      "at": "2026-10-19T17:17:28+02:00",
+      "detail": "1 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8918/wp-json/counterhand/v1/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T17:17:14+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.3.2"
+    }
+  },
+  "cowboy-mcp": {
+    "A2": {
+      "at": "2026-10-19T16:47:14+02:00",
+      "detail": "4 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/cowboy-mcp/v1",
+        "/cowboy-mcp/v1/endpoint",
+        "/cowboy-mcp/v1/oauth/register",
+        "/cowboy-mcp/v1/oauth/token"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T16:47:19+02:00",
+      "detail": "initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T16:47:14+02:00",
+      "detail": "http://localhost:8891/wp-json/cowboy-mcp/v1/endpoint: initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T16:47:14+02:00",
+      "detail": "mcp-adapter, reads-abilities, registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "mcp-adapter",
+        "reads-abilities",
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T16:47:19+02:00",
+      "detail": "initialize 200, tools/list 200, 2 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "bearer",
+        "tool_count": 2,
+        "tools": [
+          "cowboy_discover",
+          "cowboy_run"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T16:47:19+02:00",
+      "detail": "",
+      "source": "auto",
+      "status": "0/9",
+      "value": []
+    },
+    "EN": {
+      "at": "2026-10-19T16:47:19+02:00",
+      "detail": "4 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8891/wp-json/cowboy-mcp/v1/endpoint"
+    },
+    "S1": {
+      "at": "2026-10-19T16:47:06+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.7.4"
+    }
+  },
+  "devcubic-ai-bridge-for-mcp": {
+    "A2": {
+      "at": "2026-10-19T17:07:58+02:00",
+      "detail": "4 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/mcp-connector/v1",
+        "/mcp-connector/v1/register",
+        "/mcp-connector/v1/token",
+        "/mcp-connector/v1/mcp"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T17:26:01+02:00",
+      "detail": "initialize 401, tools/list 401 (A valid access token is required.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "A valid access token is required.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:07:58+02:00",
+      "detail": "http://localhost:8910/wp-json/mcp-connector/v1/mcp: initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:25:59+02:00",
+      "detail": "no markers found",
+      "source": "auto",
+      "status": "N",
+      "value": []
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:26:01+02:00",
+      "detail": "OAuth only: needs the browser consent flow, use the manual sheet",
+      "source": "auto",
+      "status": "Manual",
+      "value": {
+        "auth_method": "oauth"
+      }
+    },
+    "EN": {
+      "at": "2026-10-19T17:26:01+02:00",
+      "detail": "4 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8910/wp-json/mcp-connector/v1/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T17:25:53+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.0.3"
+    }
+  },
+  "diviops-agent": {
+    "A2": {
+      "at": "2026-10-19T16:48:05+02:00",
+      "detail": "0 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Disabled",
+      "value": []
+    },
+    "A3": {
+      "at": "2026-10-19T16:48:05+02:00",
+      "detail": "MCP server runs outside WordPress. MCP server is the separate @diviops/mcp-server npm package; the plugin adds REST endpoints it calls with an application password.",
+      "source": "auto",
+      "status": "N/A",
+      "value": null
+    },
+    "A3pre": {
+      "at": "2026-10-19T16:48:05+02:00",
+      "detail": "no MCP endpoint before enabling",
+      "source": "auto",
+      "status": "Disabled",
+      "value": {
+        "hard_fail": false
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T16:48:05+02:00",
+      "detail": "no markers found",
+      "source": "auto",
+      "status": "N",
+      "value": []
+    },
+    "AUTH": {
+      "at": "2026-10-19T16:48:05+02:00",
+      "detail": "MCP server runs outside WordPress. MCP server is the separate @diviops/mcp-server npm package; the plugin adds REST endpoints it calls with an application password.",
+      "source": "auto",
+      "status": "N/A",
+      "value": null
+    },
+    "EN": {
+      "at": "2026-10-19T16:48:05+02:00",
+      "detail": "MCP server runs outside WordPress. MCP server is the separate @diviops/mcp-server npm package; the plugin adds REST endpoints it calls with an application password.",
+      "source": "auto",
+      "status": "N/A",
+      "value": null
+    },
+    "S1": {
+      "at": "2026-10-19T16:47:57+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.5.46"
+    }
+  },
+  "easy-mcp-ai": {
+    "A2": {
+      "at": "2026-10-19T16:46:28+02:00",
+      "detail": "66 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/easy-mcp-ai/v1",
+        "/easy-mcp-ai/v1/mcp",
+        "/easy-mcp-ai/v1/header-probe",
+        "/easy-mcp-ai/v1/mcp/(?P<api_key>wpmcp_(?:[a-f0-9]{6}_)?[a-f0-9]{64})",
+        "/easy-mcp-ai/v1/.well-known/oauth-protected-resource",
+        "/easy-mcp-ai/v1/.well-known/oauth-authorization-server",
+        "/easy-mcp-ai/v1/discovery/oauth-protected-resource",
+        "/easy-mcp-ai/v1/discovery/oauth-authorization-server",
+        "/easy-mcp-ai/v1/mcp/.well-known/oauth-protected-resource",
+        "/easy-mcp-ai/v1/mcp/.well-known/oauth-authorization-server",
+        "/easy-mcp-ai/v1/mcp/.well-known/openid-configuration",
+        "/easy-mcp-ai/v1/discovery/openid-configuration",
+        "/easy-mcp-ai/v1/oauth/jwks",
+        "/easy-mcp-ai/v1/oauth/register",
+        "/easy-mcp-ai/v1/oauth/authorize",
+        "/easy-mcp-ai/v1/oauth/token",
+        "/easy-mcp-ai/v1/oauth/device",
+        "/easy-mcp-ai/v1/oauth/revoke",
+        "/easy-mcp-ai-admin/v1",
+        "/easy-mcp-ai-admin/v1/status",
+        "/easy-mcp-ai-admin/v1/diagnostics/run",
+        "/easy-mcp-ai-admin/v1/diagnostics/system-info",
+        "/easy-mcp-ai-admin/v1/diagnostics/ai-prompt",
+        "/easy-mcp-ai-admin/v1/diagnostics/auth-rule",
+        "/easy-mcp-ai-admin/v1/diagnostics/plain-routes",
+        "/easy-mcp-ai-admin/v1/dashboard",
+        "/easy-mcp-ai-admin/v1/tools",
+        "/easy-mcp-ai-admin/v1/tools/enabled",
+        "/easy-mcp-ai-admin/v1/settings/paused",
+        "/easy-mcp-ai-admin/v1/settings",
+        "/easy-mcp-ai-admin/v1/settings/(?P<section>access|logging|usage|advanced|capture)",
+        "/easy-mcp-ai-admin/v1/tokens",
+        "/easy-mcp-ai-admin/v1/tokens/tool-catalogue",
+        "/easy-mcp-ai-admin/v1/tokens/(?P<id>\\d+)",
+        "/easy-mcp-ai-admin/v1/tokens/(?P<id>\\d+)/revoke",
+        "/easy-mcp-ai-admin/v1/tokens/(?P<id>\\d+)/rebind",
+        "/easy-mcp-ai-admin/v1/tokens/(?P<id>\\d+)/delete",
+        "/easy-mcp-ai-admin/v1/activity/audit",
+        "/easy-mcp-ai-admin/v1/activity/audit/cleanup",
+        "/easy-mcp-ai-admin/v1/activity/changes",
+        "/easy-mcp-ai-admin/v1/activity/changes/cleanup",
+        "/easy-mcp-ai-admin/v1/activity/changes/(?P<id>\\d+)",
+        "/easy-mcp-ai-admin/v1/oauth/settings",
+        "/easy-mcp-ai-admin/v1/oauth/clients",
+        "/easy-mcp-ai-admin/v1/oauth/clients/(?P<id>[A-Za-z0-9_\\-]+)",
+        "/easy-mcp-ai-admin/v1/oauth/clients/(?P<id>[A-Za-z0-9_\\-]+)/delete",
+        "/easy-mcp-ai-admin/v1/oauth/clients/(?P<id>[A-Za-z0-9_\\-]+)/rotate-secret",
+        "/easy-mcp-ai-admin/v1/oauth/grants",
+        "/easy-mcp-ai-admin/v1/oauth/grants/(?P<id>\\d+)",
+        "/easy-mcp-ai-admin/v1/oauth/grants/(?P<id>\\d+)/delete",
+        "/easy-mcp-ai-admin/v1/oauth/grants/(?P<id>\\d+)/scope",
+        "/easy-mcp-ai-admin/v1/oauth/device",
+        "/easy-mcp-ai-admin/v1/oauth/site-move/revoke",
+        "/easy-mcp-ai-admin/v1/oauth/site-move/dismiss",
+        "/easy-mcp-ai-admin/v1/setup/complete",
+        "/easy-mcp-ai-admin/v1/setup/skip",
+        "/easy-mcp-ai-admin/v1/external-data",
+        "/easy-mcp-ai-admin/v1/external-data/(?P<provider>[a-z]+)",
+        "/easy-mcp-ai-admin/v1/external-data/(?P<provider>[a-z]+)/test",
+        "/easy-mcp-ai-admin/v1/external-data/(?P<provider>[a-z]+)/remove-key",
+        "/easy-mcp-ai-admin/v1/external-data/(?P<provider>[a-z]+)/clear-cache",
+        "/easy-mcp-ai-admin/v1/external-data/(?P<provider>[a-z]+)/refresh-balance",
+        "/easy-mcp-ai-admin/v1/feedback-reports",
+        "/easy-mcp-ai-admin/v1/feedback-reports/(?P<id>[0-9a-f-]{36})/sent",
+        "/easy-mcp-ai-admin/v1/feedback-reports/(?P<id>[0-9a-f-]{36})/deny",
+        "/easy-mcp-ai-admin/v1/rest-namespaces"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T16:46:33+02:00",
+      "detail": "initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T16:46:28+02:00",
+      "detail": "http://localhost:8888/wp-json/easy-mcp-ai/v1/mcp: initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T16:46:28+02:00",
+      "detail": "mcp-adapter, reads-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "mcp-adapter",
+        "reads-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T16:46:36+02:00",
+      "detail": "initialize 200, tools/list 200, 131 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "bearer",
+        "tool_count": 131,
+        "tools": [
+          "wp_ability_core_get_site_info",
+          "wp_ability_core_get_user_info",
+          "wp_ability_core_get_environment_info",
+          "wp_list_posts",
+          "wp_get_post",
+          "wp_create_post",
+          "wp_update_post",
+          "wp_delete_post",
+          "wp_search_posts",
+          "wp_list_pages",
+          "wp_get_page",
+          "wp_create_page",
+          "wp_update_page",
+          "wp_delete_page",
+          "wp_list_media",
+          "wp_get_media",
+          "wp_upload_media",
+          "wp_update_media",
+          "wp_delete_media",
+          "wp_edit_media_image",
+          "wp_regenerate_media_sizes",
+          "wp_list_categories",
+          "wp_get_category",
+          "wp_create_category",
+          "wp_update_category",
+          "wp_delete_category",
+          "wp_list_tags",
+          "wp_get_tag",
+          "wp_create_tag",
+          "wp_update_tag",
+          "wp_delete_tag",
+          "wp_list_comments",
+          "wp_get_comment",
+          "wp_create_comment",
+          "wp_update_comment",
+          "wp_delete_comment",
+          "wp_approve_comment",
+          "wp_unapprove_comment",
+          "wp_spam_comment",
+          "wp_unspam_comment",
+          "wp_trash_comment",
+          "wp_untrash_comment",
+          "wp_reply_to_comment",
+          "wp_bulk_moderate_comments",
+          "wp_list_users",
+          "wp_get_user",
+          "wp_get_site_settings",
+          "wp_get_post_types",
+          "wp_get_taxonomies",
+          "wp_list_menus",
+          "wp_get_menu",
+          "wp_list_menu_items",
+          "wp_create_menu_item",
+          "wp_list_plugins",
+          "wp_list_plugin_updates",
+          "wp_list_themes",
+          "wp_get_active_theme",
+          "wp_list_revisions",
+          "wp_get_revision",
+          "wp_delete_revision",
+          "wp_get_post_meta",
+          "wp_update_post_meta",
+          "wp_search",
+          "wp_list_blocks",
+          "wp_get_block",
+          "wp_create_block",
+          "wp_update_block",
+          "wp_delete_block",
+          "wp_list_patterns",
+          "wp_get_post_blocks",
+          "wp_update_post_blocks",
+          "wp_list_block_types",
+          "wp_get_post_statuses",
+          "wp_list_cpt_items",
+          "wp_get_cpt_item",
+          "wp_create_cpt_item",
+          "wp_update_cpt_item",
+          "wp_delete_cpt_item",
+          "wp_create_menu",
+          "wp_update_menu",
+          "wp_delete_menu",
+          "wp_update_menu_item",
+          "wp_delete_menu_item",
+          "wp_reorder_menu_items",
+          "wp_list_templates",
+          "wp_get_template",
+          "wp_get_global_styles",
+          "wp_get_theme_mods",
+          "wp_get_custom_css",
+          "wp_list_sidebars",
+          "wp_list_widgets",
+          "wp_get_widget",
+          "wp_list_widget_types",
+          "wp_create_widget",
+          "wp_update_widget",
+          "wp_delete_widget",
+          "wp_count_posts",
+          "wp_count_terms",
+          "wp_count_media",
+          "wp_restore_revision",
+          "wp_delete_post_meta",
+          "wp_get_term_meta",
+          "wp_update_term_meta",
+          "wp_delete_term_meta",
+          "wp_add_post_terms",
+          "wp_get_user_meta",
+          "wp_get_post_full",
+          "wp_upload_media_from_url",
+          "wp_get_term",
+          "wp_create_term",
+          "wp_update_term",
+          "wp_delete_term",
+          "wp_replace_in_post",
+          "wp_create_preview_link",
+          "wp_clear_cache",
+          "wp_list_terms",
+          "wp_history_list",
+          "wp_history_get",
+          "wp_history_diff",
+          "wp_history_apply",
+          "wp_audit_list",
+          "wp_send_feedback",
+          "wp_get_skill",
+          "wp_list_disabled_tools",
+          "wp_get_site_health",
+          "wp_list_cron_events",
+          "wp_get_error_log",
+          "wp_get_easy_mcp_diagnostics",
+          "wp_rest_routes",
+          "wp_rest_read",
+          "wp_rest_write"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T16:46:36+02:00",
+      "detail": "posts, pages, media, taxonomies, users, plugins, settings, blocks, woocommerce",
+      "source": "auto",
+      "status": "9/9",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "plugins",
+        "settings",
+        "blocks",
+        "woocommerce"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T16:46:33+02:00",
+      "detail": "66 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8888/wp-json/easy-mcp-ai/v1/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T16:46:23+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "2.2.1"
+    }
+  },
+  "iato-mcp": {
+    "A2": {
+      "at": "2026-10-19T16:49:11+02:00",
+      "detail": "3 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/iato-mcp/v1",
+        "/iato-mcp/v1/message",
+        "/iato-mcp/v1/rollback"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T16:49:15+02:00",
+      "detail": "initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T16:49:12+02:00",
+      "detail": "http://localhost:8898/wp-json/iato-mcp/v1/message: initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T16:49:12+02:00",
+      "detail": "registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T16:49:18+02:00",
+      "detail": "initialize 200, tools/list 200, 46 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "basic",
+        "tool_count": 46,
+        "tools": [
+          "get_site_info",
+          "get_site_settings",
+          "get_posts",
+          "get_post",
+          "create_post",
+          "update_post",
+          "search_posts",
+          "get_seo_data",
+          "update_seo_data",
+          "get_media",
+          "update_alt_text",
+          "get_comments",
+          "get_menus",
+          "get_menu_items",
+          "update_menu_item",
+          "create_menu_item",
+          "delete_menu_item",
+          "update_menu_item_details",
+          "get_terms",
+          "assign_term",
+          "create_term",
+          "update_term",
+          "delete_term",
+          "update_taxonomy",
+          "get_page_builder",
+          "get_elementor_data",
+          "update_elementor_data",
+          "list_elementor_widgets",
+          "get_elementor_widget",
+          "update_elementor_widget",
+          "update_elementor_patch",
+          "update_elementor_widgets_bulk",
+          "find_elementor_widgets",
+          "set_heading_level",
+          "set_widget_setting",
+          "list_elementor_templates",
+          "resolve_url",
+          "update_canonical",
+          "update_structured_data",
+          "update_redirect",
+          "rollback",
+          "get_post_meta",
+          "update_post_meta",
+          "set_page_settings",
+          "set_featured_image",
+          "create_media"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T16:49:18+02:00",
+      "detail": "posts, pages, media, taxonomies, settings",
+      "source": "auto",
+      "status": "5/9",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "settings"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T16:49:15+02:00",
+      "detail": "3 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8898/wp-json/iato-mcp/v1/message"
+    },
+    "S1": {
+      "at": "2026-10-19T16:49:03+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.14.0"
+    }
+  },
+  "invizo-mcp": {
+    "A2": {
+      "at": "2026-10-19T17:18:42+02:00",
+      "detail": "0 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Disabled",
+      "value": []
+    },
+    "A3": {
+      "at": "2026-10-19T17:24:18+02:00",
+      "detail": "initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "Sorry, you are not allowed to do that.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:18:42+02:00",
+      "detail": "no MCP endpoint before enabling",
+      "source": "auto",
+      "status": "Disabled",
+      "value": {
+        "hard_fail": false
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:24:13+02:00",
+      "detail": "mcp-adapter, registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "mcp-adapter",
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:24:23+02:00",
+      "detail": "initialize 200, tools/list 200, 3 tools, 91 abilities behind the Adapter meta-tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "abilities": [
+          "core/get-site-info",
+          "core/get-user-info",
+          "core/get-environment-info",
+          "invizo/blocks-create",
+          "invizo/blocks-delete",
+          "invizo/blocks-get",
+          "invizo/blocks-list",
+          "invizo/blocks-update",
+          "invizo/categories-create",
+          "invizo/categories-delete",
+          "invizo/categories-get",
+          "invizo/categories-list",
+          "invizo/categories-update",
+          "invizo/comments-create",
+          "invizo/comments-delete",
+          "invizo/comments-get",
+          "invizo/comments-list",
+          "invizo/comments-update",
+          "invizo/cpt-get",
+          "invizo/cpt-items-create",
+          "invizo/cpt-items-delete",
+          "invizo/cpt-items-get",
+          "invizo/cpt-items-list",
+          "invizo/cpt-items-update",
+          "invizo/cpt-list",
+          "invizo/cpt-types-create",
+          "invizo/cpt-types-delete",
+          "invizo/cpt-types-get",
+          "invizo/cpt-types-list",
+          "invizo/cpt-types-update",
+          "invizo/media-delete",
+          "invizo/media-get",
+          "invizo/media-list",
+          "invizo/media-update",
+          "invizo/media-upload",
+          "invizo/menu-items-create",
+          "invizo/menu-items-delete",
+          "invizo/menu-items-list",
+          "invizo/menu-items-update",
+          "invizo/menus-create",
+          "invizo/menus-delete",
+          "invizo/menus-get",
+          "invizo/menus-list",
+          "invizo/menus-update",
+          "invizo/meta-fields-create",
+          "invizo/meta-fields-get",
+          "invizo/meta-fields-list",
+          "invizo/meta-fields-update",
+          "invizo/pages-create",
+          "invizo/pages-delete",
+          "invizo/pages-get",
+          "invizo/pages-list",
+          "invizo/pages-update",
+          "invizo/patterns-list",
+          "invizo/plugins-list",
+          "invizo/post-meta-get",
+          "invizo/post-meta-update",
+          "invizo/posts-create",
+          "invizo/posts-delete",
+          "invizo/posts-get",
+          "invizo/posts-list",
+          "invizo/posts-search",
+          "invizo/posts-update",
+          "invizo/revisions-delete",
+          "invizo/revisions-get",
+          "invizo/revisions-list",
+          "invizo/search-content",
+          "invizo/site-get-settings",
+          "invizo/site-post-statuses-list",
+          "invizo/site-post-types-list",
+          "invizo/site-settings-get",
+          "invizo/site-settings-update",
+          "invizo/site-taxonomies-list",
+          "invizo/site-update-settings",
+          "invizo/styles-get",
+          "invizo/styles-update",
+          "invizo/tags-create",
+          "invizo/tags-delete",
+          "invizo/tags-get",
+          "invizo/tags-list",
+          "invizo/tags-update",
+          "invizo/templates-get",
+          "invizo/templates-list",
+          "invizo/templates-update",
+          "invizo/themes-get-active",
+          "invizo/themes-list",
+          "invizo/users-create",
+          "invizo/users-delete",
+          "invizo/users-get",
+          "invizo/users-list",
+          "invizo/users-update"
+        ],
+        "ability_count": 91,
+        "auth_method": "basic",
+        "tool_count": 3,
+        "tools": [
+          "mcp-adapter-discover-abilities",
+          "mcp-adapter-get-ability-info",
+          "mcp-adapter-execute-ability"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T17:24:23+02:00",
+      "detail": "posts, pages, media, taxonomies, users, plugins, settings, blocks",
+      "source": "auto",
+      "status": "8/9",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "plugins",
+        "settings",
+        "blocks"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T17:24:18+02:00",
+      "detail": "2 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8916/wp-json/mcp/invizo"
+    },
+    "S1": {
+      "at": "2026-10-19T17:24:06+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "2.0.8"
+    }
+  },
+  "mcp-for-woocommerce": {
+    "A2": {
+      "at": "2026-10-19T16:21:41+02:00",
+      "detail": "0 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Disabled",
+      "value": []
+    },
+    "A3": {
+      "at": "2026-10-19T16:29:52+02:00",
+      "detail": "initialize 200, tools/list 200, 31 tools. Evidence: includes/Core/McpStreamableTransport.php:58-61: permission_callback __return_true, commented 'Intentionally public: every tool returns only storefront data a visitor can already see, nothing is written'",
+      "source": "auto",
+      "status": "Public by design",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 200,
+        "list_status": 200
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T16:21:41+02:00",
+      "detail": "no MCP endpoint before enabling",
+      "source": "auto",
+      "status": "Disabled",
+      "value": {
+        "hard_fail": false
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T16:29:49+02:00",
+      "detail": "no markers found",
+      "source": "auto",
+      "status": "N",
+      "value": []
+    },
+    "AUTH": {
+      "at": "2026-10-19T16:29:52+02:00",
+      "detail": "initialize 200, tools/list 200, 31 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "none",
+        "tool_count": 31,
+        "tools": [
+          "wc_products_search",
+          "wc_get_product",
+          "wc_get_product_variations",
+          "wc_get_product_variation",
+          "wc_get_categories",
+          "wc_get_tags",
+          "wc_analyze_search_intent",
+          "wc_intelligent_search",
+          "wc_analyze_search_intent_helper",
+          "wc_get_products_by_brand",
+          "wc_get_products_by_category",
+          "wc_get_products_by_attributes",
+          "wc_get_products_filtered",
+          "wc_get_product_detailed",
+          "wc_get_product_reviews",
+          "wc_get_product_review",
+          "wc_get_product_attributes",
+          "wc_get_product_attribute",
+          "wc_get_attribute_terms",
+          "wc_get_shipping_zones",
+          "wc_get_shipping_zone",
+          "wc_get_shipping_methods",
+          "wc_get_shipping_locations",
+          "wc_get_tax_classes",
+          "wc_get_tax_rates",
+          "wc_get_payment_gateways",
+          "wc_get_payment_gateway",
+          "wordpress_posts_list",
+          "wordpress_posts_get",
+          "wordpress_pages_list",
+          "wordpress_pages_get"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T16:29:52+02:00",
+      "detail": "posts, pages, taxonomies, woocommerce",
+      "source": "auto",
+      "status": "4/9",
+      "value": [
+        "posts",
+        "pages",
+        "taxonomies",
+        "woocommerce"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T16:29:52+02:00",
+      "detail": "2 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8884/wp-json/wp/v2/wpmcp/streamable"
+    },
+    "S1": {
+      "at": "2026-10-19T16:29:46+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.3.0"
+    }
+  },
+  "miniorange-secure-mcp-server": {
+    "A2": {
+      "at": "2026-10-19T16:46:45+02:00",
+      "detail": "23 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/mosmcp/v1",
+        "/mosmcp/v1/mcp",
+        "/mosmcp/v1/health",
+        "/mosmcp/v1/register",
+        "/mosmcp/v1/token",
+        "/mosmcp/v1/contact",
+        "/mosmcp/v1/deactivation-feedback",
+        "/mosmcp/v1/stats",
+        "/mosmcp/v1/nhi",
+        "/mosmcp/v1/nhi/(?P<uuid>[0-9a-f\\-]{36})",
+        "/mosmcp/v1/me/access",
+        "/mosmcp/v1/nhi/(?P<uuid>[0-9a-f\\-]{36})/members",
+        "/mosmcp/v1/roles",
+        "/mosmcp/v1/rest-routes",
+        "/mosmcp/v1/nhi/ability-owners",
+        "/mosmcp/v1/audit",
+        "/mosmcp/v1/audit/summary",
+        "/mosmcp/v1/debug-logs",
+        "/mosmcp/v1/debug-logs/channels",
+        "/mosmcp/v1/debug-logs/status",
+        "/mosmcp/v1/connectivity-test",
+        "/mosmcp/v1/connectivity-guide",
+        "/mosmcp/v1/rest-bridge-settings"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T16:46:48+02:00",
+      "detail": "initialize 401, tools/list 401 (A valid OAuth bearer token is required.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "A valid OAuth bearer token is required.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T16:46:45+02:00",
+      "detail": "http://localhost:8889/wp-json/mosmcp/v1/mcp: initialize 401, tools/list 401 (A valid OAuth bearer token is required.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "A valid OAuth bearer token is required.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T16:46:45+02:00",
+      "detail": "reads-abilities, registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "reads-abilities",
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T16:46:48+02:00",
+      "detail": "OAuth only: needs the browser consent flow, use the manual sheet",
+      "source": "auto",
+      "status": "Manual",
+      "value": {
+        "auth_method": "oauth"
+      }
+    },
+    "EN": {
+      "at": "2026-10-19T16:46:48+02:00",
+      "detail": "23 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8889/wp-json/mosmcp/v1/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T16:46:40+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.5.2"
+    }
+  },
+  "mountdev-ai-mcp-connector": {
+    "A2": {
+      "at": "2026-10-19T16:48:54+02:00",
+      "detail": "7 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/mountdev-ai-mcp-connector/v1",
+        "/mountdev-ai-mcp-connector/v1/messages",
+        "/mountdev-ai-mcp-connector/v1/bridge",
+        "/mountdev-ai-mcp-connector/v1/.well-known/oauth-authorization-server",
+        "/mountdev-ai-mcp-connector/v1/oauth/authorize",
+        "/mountdev-ai-mcp-connector/v1/oauth/token",
+        "/mountdev-ai-mcp-connector/v1/oauth/revoke"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T16:48:57+02:00",
+      "detail": "initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T16:48:54+02:00",
+      "detail": "http://localhost:8897/wp-json/mountdev-ai-mcp-connector/v1/messages: initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T16:48:54+02:00",
+      "detail": "reads-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "reads-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T16:49:00+02:00",
+      "detail": "initialize 200, tools/list 200, 19 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "basic",
+        "tool_count": 19,
+        "tools": [
+          "list_posts",
+          "get_post",
+          "search_posts",
+          "list_media",
+          "get_media",
+          "list_terms",
+          "get_term",
+          "list_comments",
+          "get_comment",
+          "list_users",
+          "get_user",
+          "get_current_user",
+          "list_roles",
+          "check_capability",
+          "get_option",
+          "get_site_info",
+          "search",
+          "fetch",
+          "ping"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T16:49:00+02:00",
+      "detail": "posts, media, taxonomies, users, settings",
+      "source": "auto",
+      "status": "5/9",
+      "value": [
+        "posts",
+        "media",
+        "taxonomies",
+        "users",
+        "settings"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T16:48:57+02:00",
+      "detail": "7 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8897/wp-json/mountdev-ai-mcp-connector/v1/messages"
+    },
+    "S1": {
+      "at": "2026-10-19T16:48:45+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "2.2.0"
+    }
+  },
+  "nibwp": {
+    "A2": {
+      "at": "2026-10-19T16:48:34+02:00",
+      "detail": "0 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Disabled",
+      "value": []
+    },
+    "A3": {
+      "at": "2026-10-19T17:23:43+02:00",
+      "detail": "initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "Sorry, you are not allowed to do that.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T16:48:34+02:00",
+      "detail": "no MCP endpoint before enabling",
+      "source": "auto",
+      "status": "Disabled",
+      "value": {
+        "hard_fail": false
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:23:40+02:00",
+      "detail": "mcp-adapter, reads-abilities, registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "mcp-adapter",
+        "reads-abilities",
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:23:47+02:00",
+      "detail": "initialize 200, tools/list 200, 3 tools, 68 abilities behind the Adapter meta-tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "abilities": [
+          "nibwp/design-direction",
+          "nibwp/load-skill-playbook",
+          "nibwp/read-file",
+          "nibwp/list-directory",
+          "mcp-adapter/discover-abilities",
+          "nibwp/find-tools",
+          "nibwp/skill-preflight",
+          "nibwp/read-audit-log",
+          "nibwp/memory-store",
+          "nibwp/memory-recall",
+          "nibwp/memory-delete",
+          "nibwp/memory-list-keys",
+          "nibwp/visual-open",
+          "nibwp/visual-read",
+          "nibwp/visual-click",
+          "nibwp/visual-hover",
+          "nibwp/visual-screenshot",
+          "nibwp/visual-capabilities",
+          "nibwp/visual-fill",
+          "nibwp/visual-viewport",
+          "nibwp/visual-audit",
+          "nibwp/visual-console",
+          "nibwp/visual-blocks",
+          "nibwp/visual-block-insert",
+          "nibwp/visual-block-update",
+          "nibwp/visual-block-delete",
+          "nibwp/visual-block-schema",
+          "nibwp/visual-batch",
+          "nibwp/visual-tabs",
+          "nibwp/wp-list-posts",
+          "nibwp/wp-get-post",
+          "nibwp/wp-create-post",
+          "nibwp/wp-update-post",
+          "nibwp/wp-delete-post",
+          "nibwp/wp-list-media",
+          "nibwp/wp-upload-media",
+          "nibwp/wp-replace-media",
+          "nibwp/wp-delete-media",
+          "nibwp/design-system-detect",
+          "nibwp/wp-list-terms",
+          "nibwp/wp-create-term",
+          "nibwp/wp-update-term",
+          "nibwp/wp-delete-term",
+          "nibwp/wp-list-comments",
+          "nibwp/wp-create-comment",
+          "nibwp/wp-update-comment",
+          "nibwp/wp-delete-comment",
+          "nibwp/wp-list-menus",
+          "nibwp/wp-get-menu-items",
+          "nibwp/wp-create-menu",
+          "nibwp/wp-add-menu-item",
+          "nibwp/wp-list-users",
+          "nibwp/wp-get-user",
+          "nibwp/wp-get-site-info",
+          "nibwp/wp-get-site-stats",
+          "nibwp/wp-update-option",
+          "nibwp/wp-get-option",
+          "nibwp/wp-search",
+          "nibwp/wp-get-meta",
+          "nibwp/wp-update-meta",
+          "nibwp/wp-list-plugins",
+          "nibwp/load-integration-playbook",
+          "nibwp/integration-feedback",
+          "nibwp/preferences-get",
+          "nibwp/preferences-set",
+          "nibwp/templates-list",
+          "nibwp/templates-apply",
+          "nibwp/multi-execute"
+        ],
+        "ability_count": 68,
+        "auth_method": "basic",
+        "tool_count": 3,
+        "tools": [
+          "mcp-adapter-discover-abilities",
+          "mcp-adapter-get-ability-info",
+          "mcp-adapter-execute-ability"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T17:23:47+02:00",
+      "detail": "posts, media, taxonomies, users, plugins, settings, blocks",
+      "source": "auto",
+      "status": "7/9",
+      "value": [
+        "posts",
+        "media",
+        "taxonomies",
+        "users",
+        "plugins",
+        "settings",
+        "blocks"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T17:23:43+02:00",
+      "detail": "3 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8896/wp-json/mcp/nibwp"
+    },
+    "S1": {
+      "at": "2026-10-19T17:23:37+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.2.11"
+    }
+  },
+  "publishio": {
+    "A2": {
+      "at": "2026-10-19T17:08:15+02:00",
+      "detail": "3 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/mcp",
+        "/mcp/publishio",
+        "/mcp/mcp-adapter-default-server"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T17:08:18+02:00",
+      "detail": "initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:08:15+02:00",
+      "detail": "http://localhost:8919/wp-json/mcp/publishio: initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:08:15+02:00",
+      "detail": "mcp-adapter, reads-abilities, registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "mcp-adapter",
+        "reads-abilities",
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:08:21+02:00",
+      "detail": "initialize 200, tools/list 200, 25 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "basic",
+        "tool_count": 25,
+        "tools": [
+          "publishio-get-patterns",
+          "publishio-get-pattern",
+          "publishio-get-pattern-schema",
+          "publishio-apply-pattern-schema",
+          "publishio-preview-pattern",
+          "publishio-render-pattern",
+          "publishio-insert-pattern-confirmed",
+          "publishio-get-custom-blocks",
+          "publishio-get-block",
+          "publishio-render-block",
+          "publishio-create-post",
+          "publishio-get-post",
+          "publishio-update-post",
+          "publishio-set-featured-image",
+          "publishio-append-blocks",
+          "publishio-insert-blocks-at",
+          "publishio-delete-block-at",
+          "publishio-search-posts",
+          "publishio-search-attachments",
+          "publishio-upload-media",
+          "publishio-get-taxonomy-terms",
+          "publishio-get-post-terms",
+          "publishio-set-post-terms",
+          "publishio-get-yoast-meta",
+          "publishio-set-yoast-meta"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T17:08:21+02:00",
+      "detail": "posts, media, taxonomies, blocks",
+      "source": "auto",
+      "status": "4/9",
+      "value": [
+        "posts",
+        "media",
+        "taxonomies",
+        "blocks"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T17:08:18+02:00",
+      "detail": "3 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8919/wp-json/mcp/publishio"
+    },
+    "S1": {
+      "at": "2026-10-19T17:08:07+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.1.0"
+    }
+  },
+  "rectus-content-access-for-mcp": {
+    "A2": {
+      "at": "2026-10-19T17:08:32+02:00",
+      "detail": "8 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/rectus-content-access-for-mcp/v1",
+        "/rectus-content-access-for-mcp/v1/oauth/protected-resource",
+        "/rectus-content-access-for-mcp/v1/oauth/register",
+        "/rectus-content-access-for-mcp/v1/oauth/token",
+        "/rectus-content-access-for-mcp/v1/oauth/revoke",
+        "/rectus-content-access-for-mcp/v1/media-upload",
+        "/mcp",
+        "/mcp/mcp-adapter-default-server"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T17:23:58+02:00",
+      "detail": "initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "Sorry, you are not allowed to do that.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:08:32+02:00",
+      "detail": "http://localhost:8917/wp-json/mcp/mcp-adapter-default-server: initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:23:57+02:00",
+      "detail": "mcp-adapter, reads-abilities, registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "mcp-adapter",
+        "reads-abilities",
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:24:03+02:00",
+      "detail": "initialize 200, tools/list 200, 3 tools, 68 abilities behind the Adapter meta-tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "abilities": [
+          "rectus-content-access-for-mcp/post-list",
+          "rectus-content-access-for-mcp/post-get",
+          "rectus-content-access-for-mcp/post-type-list",
+          "rectus-content-access-for-mcp/term-list",
+          "rectus-content-access-for-mcp/term-create",
+          "rectus-content-access-for-mcp/term-update",
+          "rectus-content-access-for-mcp/term-delete",
+          "rectus-content-access-for-mcp/post-create",
+          "rectus-content-access-for-mcp/post-update",
+          "rectus-content-access-for-mcp/post-edit",
+          "rectus-content-access-for-mcp/post-delete",
+          "rectus-content-access-for-mcp/post-revision-list",
+          "rectus-content-access-for-mcp/post-revision-get",
+          "rectus-content-access-for-mcp/post-revision-restore",
+          "rectus-content-access-for-mcp/post-text-search",
+          "rectus-content-access-for-mcp/post-edit-batch",
+          "rectus-content-access-for-mcp/post-update-batch",
+          "rectus-content-access-for-mcp/post-duplicate",
+          "rectus-content-access-for-mcp/page-template-list",
+          "rectus-content-access-for-mcp/page-template-get",
+          "rectus-content-access-for-mcp/page-template-create",
+          "rectus-content-access-for-mcp/page-template-update",
+          "rectus-content-access-for-mcp/page-template-delete",
+          "rectus-content-access-for-mcp/navigation-menu-list",
+          "rectus-content-access-for-mcp/navigation-menu-get",
+          "rectus-content-access-for-mcp/navigation-menu-create",
+          "rectus-content-access-for-mcp/navigation-menu-update",
+          "rectus-content-access-for-mcp/navigation-menu-delete",
+          "rectus-content-access-for-mcp/navigation-menu-item-create",
+          "rectus-content-access-for-mcp/navigation-menu-item-update",
+          "rectus-content-access-for-mcp/navigation-menu-item-delete",
+          "rectus-content-access-for-mcp/navigation-menu-item-batch",
+          "rectus-content-access-for-mcp/navigation-menu-location-set",
+          "rectus-content-access-for-mcp/custom-css-get",
+          "rectus-content-access-for-mcp/custom-css-update",
+          "rectus-content-access-for-mcp/custom-css-edit",
+          "rectus-content-access-for-mcp/custom-css-delete",
+          "rectus-content-access-for-mcp/custom-css-revision-list",
+          "rectus-content-access-for-mcp/custom-css-revision-get",
+          "rectus-content-access-for-mcp/custom-css-revision-restore",
+          "rectus-content-access-for-mcp/site-info-get",
+          "rectus-content-access-for-mcp/comment-list",
+          "rectus-content-access-for-mcp/comment-moderate",
+          "rectus-content-access-for-mcp/block-template-list",
+          "rectus-content-access-for-mcp/block-template-get",
+          "rectus-content-access-for-mcp/block-template-update",
+          "rectus-content-access-for-mcp/block-template-revert",
+          "rectus-content-access-for-mcp/global-styles-get",
+          "rectus-content-access-for-mcp/global-styles-update",
+          "rectus-content-access-for-mcp/block-navigation-list",
+          "rectus-content-access-for-mcp/block-navigation-get",
+          "rectus-content-access-for-mcp/block-navigation-update",
+          "rectus-content-access-for-mcp/change-list",
+          "rectus-content-access-for-mcp/change-get",
+          "rectus-content-access-for-mcp/change-restore",
+          "rectus-content-access-for-mcp/cache-purge",
+          "rectus-content-access-for-mcp/redirect-list",
+          "rectus-content-access-for-mcp/redirect-delete",
+          "rectus-content-access-for-mcp/site-health-get",
+          "rectus-content-access-for-mcp/media-list",
+          "rectus-content-access-for-mcp/media-update",
+          "rectus-content-access-for-mcp/media-rename",
+          "rectus-content-access-for-mcp/media-delete",
+          "rectus-content-access-for-mcp/media-upload-ticket",
+          "rectus-content-access-for-mcp/media-upload",
+          "rectus-content-access-for-mcp/media-import",
+          "rectus-content-access-for-mcp/post-block-list",
+          "rectus-content-access-for-mcp/post-block-edit"
+        ],
+        "ability_count": 68,
+        "auth_method": "basic",
+        "tool_count": 3,
+        "tools": [
+          "mcp-adapter-discover-abilities",
+          "mcp-adapter-get-ability-info",
+          "mcp-adapter-execute-ability"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T17:24:03+02:00",
+      "detail": "posts, pages, media, taxonomies, blocks",
+      "source": "auto",
+      "status": "5/9",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "blocks"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T17:23:58+02:00",
+      "detail": "8 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8917/wp-json/mcp/mcp-adapter-default-server"
+    },
+    "S1": {
+      "at": "2026-10-19T17:23:50+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.7.2"
+    }
+  },
+  "royal-mcp": {
+    "A2": {
+      "at": "2026-10-19T16:21:55+02:00",
+      "detail": "12 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/royal-mcp/v1",
+        "/royal-mcp/v1/mcp",
+        "/royal-mcp",
+        "/royal-mcp/v1/sse",
+        "/royal-mcp/v1/messages",
+        "/royal-mcp/v1/discovery/server-card",
+        "/royal-mcp/v1/discovery/agent-skills",
+        "/royal-mcp/v1/.well-known/oauth-authorization-server",
+        "/royal-mcp/v1/.well-known/openid-configuration",
+        "/royal-mcp/v1/.well-known/oauth-protected-resource",
+        "/royal-mcp/v1/.well-known/oauth-protected-resource/(?P<resource_path>.+)",
+        "/royal-mcp/v1/diagnostics/header-echo"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T16:22:35+02:00",
+      "detail": "initialize 401, tools/list 401 (Authentication required. Use Authorization: Bearer <token> or X-Royal-MCP-API-Key header.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "Authentication required. Use Authorization: Bearer <token> or X-Royal-MCP-API-Key header.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T16:21:55+02:00",
+      "detail": "http://localhost:8885/wp-json/royal-mcp/v1/mcp: initialize 403, tools/list 403 (Royal MCP is currently disabled.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "Royal MCP is currently disabled.",
+        "hard_fail": false,
+        "init_status": 403,
+        "list_status": 403,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T16:22:31+02:00",
+      "detail": "mcp-adapter, reads-abilities, registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "mcp-adapter",
+        "reads-abilities",
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T16:22:35+02:00",
+      "detail": "initialize 200, tools/list 200, 259 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "header",
+        "tool_count": 259,
+        "tools": [
+          "wp_get_posts",
+          "wp_get_post",
+          "wp_create_post",
+          "wp_update_post",
+          "wp_replace_in_post",
+          "wp_get_post_types",
+          "wp_delete_post",
+          "wp_count_posts",
+          "wp_get_pages",
+          "wp_get_page",
+          "wp_create_page",
+          "wp_update_page",
+          "wp_replace_in_page",
+          "wp_delete_page",
+          "wp_get_media",
+          "wp_get_media_item",
+          "wp_find_media",
+          "wp_upload_media_from_url",
+          "wp_upload_media",
+          "wp_set_featured_image",
+          "wp_update_media",
+          "wp_delete_media",
+          "wp_count_media",
+          "wp_get_categories",
+          "wp_get_tags",
+          "wp_create_term",
+          "wp_update_term",
+          "wp_delete_term",
+          "wp_add_post_terms",
+          "wp_get_terms",
+          "wp_count_terms",
+          "wp_get_taxonomies",
+          "wp_get_term_meta",
+          "wp_update_term_meta",
+          "wp_delete_term_meta",
+          "wp_get_comments",
+          "wp_create_comment",
+          "wp_delete_comment",
+          "wp_get_pending_comments",
+          "wp_approve_comment",
+          "wp_spam_comment",
+          "wp_trash_comment",
+          "wp_get_users",
+          "wp_get_user",
+          "wp_get_post_meta",
+          "wp_get_post_terms",
+          "wp_update_post_meta",
+          "wp_add_post_meta",
+          "wp_delete_post_meta",
+          "wp_get_site_info",
+          "wp_get_site_status",
+          "wp_get_error_log_tail",
+          "wp_get_cron_schedule",
+          "royal_mcp_connection_health",
+          "discover_tools",
+          "get_tool_info",
+          "execute_tool",
+          "wp_verify_rendered_page",
+          "mcp_undo_last_operation",
+          "mcp_list_recent_changes",
+          "mcp_get_change",
+          "wp_search",
+          "wp_get_option",
+          "wp_get_plugin_settings",
+          "wp_update_option",
+          "wp_get_menus",
+          "wp_get_menu_items",
+          "wp_create_menu",
+          "wp_create_menu_item",
+          "wp_update_menu_item",
+          "wp_delete_menu_item",
+          "wp_reorder_menu_items",
+          "wp_get_plugins",
+          "wp_get_themes",
+          "wp_get_active_theme",
+          "wp_get_theme_mods",
+          "wp_update_theme_mod",
+          "wp_get_custom_css",
+          "wp_update_custom_css",
+          "wp_get_widgets",
+          "wp_get_sidebars",
+          "wp_update_widget",
+          "wp_get_seo_meta",
+          "wp_update_seo_meta",
+          "seo_audit_meta_tags",
+          "wp_get_permalink_structure",
+          "wp_update_permalink_structure",
+          "wp_get_post_revisions",
+          "wp_create_preview_link",
+          "wp_get_revision_content",
+          "wp_diff_revisions",
+          "wp_restore_revision",
+          "wp_get_block_outline",
+          "wp_list_block_types",
+          "wp_validate_blocks",
+          "wp_insert_blocks",
+          "wp_replace_block",
+          "wp_move_block",
+          "wp_delete_block",
+          "wp_replace_text_in_blocks",
+          "wp_update_block_attributes",
+          "wp_list_synced_patterns",
+          "wp_get_synced_pattern",
+          "wp_create_synced_pattern",
+          "wp_update_synced_pattern",
+          "wp_get_global_styles",
+          "wp_list_block_templates",
+          "wp_get_block_template",
+          "wc_get_products",
+          "wc_get_product",
+          "wc_create_product",
+          "wc_update_product",
+          "wc_get_orders",
+          "wc_get_order",
+          "wc_update_order_status",
+          "wc_create_order",
+          "wc_update_order",
+          "wc_add_order_note",
+          "wc_get_customers",
+          "wc_get_store_stats",
+          "wc_get_product_variations",
+          "wc_get_variation",
+          "wc_create_variation",
+          "wc_update_variation",
+          "wc_delete_variation",
+          "wc_batch_update_variations",
+          "wc_get_product_attributes",
+          "wc_get_attribute_terms",
+          "wc_create_product_attribute",
+          "wc_set_product_attributes",
+          "wc_get_coupons",
+          "wc_get_coupon",
+          "wc_get_coupon_count",
+          "wc_create_coupon",
+          "wc_update_coupon",
+          "wc_delete_coupon",
+          "wc_empty_coupon_trash",
+          "gp_get_security_status",
+          "gp_get_security_stats",
+          "gp_run_vulnerability_scan",
+          "gp_get_vulnerability_results",
+          "gp_get_failed_logins",
+          "gp_get_blocked_ips",
+          "gp_get_audit_log",
+          "sv_get_backups",
+          "sv_get_backup",
+          "sv_create_backup",
+          "sv_get_backup_status",
+          "sv_get_backup_stats",
+          "sv_get_schedules",
+          "rl_get_costs",
+          "rl_create_cost",
+          "rl_get_renewals",
+          "rl_get_keys",
+          "fc_clear_cache",
+          "fc_get_cache_stats",
+          "fc_purge_url",
+          "fc_get_rum_stats",
+          "rlinks_get_links",
+          "rlinks_create_link",
+          "rlinks_get_link_stats",
+          "elementor_clone_page",
+          "elementor_replace_text",
+          "elementor_replace_image",
+          "elementor_get_page_outline",
+          "elementor_get_widget_settings",
+          "elementor_list_local_templates",
+          "elementor_import_template",
+          "elementor_add_widget",
+          "elementor_apply_template_to_page",
+          "elementor_rebuild_post_content",
+          "elementor_get_widget_schema",
+          "elementor_list_widget_schemas",
+          "elementor_list_dynamic_tags",
+          "elementor_rebuild_post_content_bulk",
+          "acf_get_field",
+          "acf_get_fields",
+          "acf_update_field",
+          "acf_get_field_groups",
+          "raif_get_dashboard_stats",
+          "raif_get_recent_hits",
+          "raif_get_bot_policies",
+          "raif_set_bot_policy",
+          "raif_get_daily_rollup",
+          "raif_block_all_ai_bots",
+          "redirection_list_redirects",
+          "redirection_create_redirect",
+          "redirection_update_redirect",
+          "redirection_list_groups",
+          "divi_get_page_format",
+          "divi_validate_layout",
+          "divi_get_page_outline",
+          "divi_list_local_templates",
+          "divi_library_get",
+          "divi_replace_text",
+          "divi_clone_page",
+          "divi_replace_image",
+          "divi_import_template",
+          "wp_publish_and_promote",
+          "yoast_get_meta",
+          "yoast_get_schema",
+          "yoast_get_internal_links",
+          "yoast_get_redirects",
+          "yoast_update_meta",
+          "updraftplus_list_backups",
+          "updraftplus_get_backup_status",
+          "updraftplus_trigger_backup",
+          "updraftplus_get_schedule",
+          "wpforms_list_forms",
+          "wpforms_get_form",
+          "wpforms_list_submissions",
+          "wpforms_get_submission",
+          "solid_get_security_status",
+          "solid_list_blocked_ips",
+          "solid_list_events",
+          "solid_block_ip",
+          "wordfence_get_security_status",
+          "wordfence_get_blocked_ips",
+          "wordfence_block_ip",
+          "wordfence_unblock_ip",
+          "wordfence_get_failed_logins",
+          "wordfence_get_blocked_requests",
+          "wordfence_get_scan_results",
+          "wordfence_run_scan",
+          "litespeed_get_cache_status",
+          "litespeed_get_config",
+          "litespeed_purge_cache",
+          "litespeed_purge_urls",
+          "cf7_list_forms",
+          "cf7_get_form",
+          "cf7_list_submissions",
+          "monsterinsights_get_summary",
+          "monsterinsights_get_top_pages",
+          "monsterinsights_get_traffic_sources",
+          "monsterinsights_get_search_queries",
+          "tablepress_list_tables",
+          "tablepress_get_table",
+          "tablepress_create_table",
+          "tablepress_update_cells",
+          "tablepress_copy_table",
+          "tablepress_export_table",
+          "snippets_list",
+          "snippets_get",
+          "snippets_recently_active",
+          "snippets_deactivate",
+          "snippets_update_metadata",
+          "wpcode_list_snippets",
+          "wpcode_get_snippet",
+          "wpcode_get_snippet_status",
+          "w3tc_get_cache_status",
+          "w3tc_purge_cache",
+          "w3tc_get_stats",
+          "duplicator_list_packages",
+          "duplicator_get_package_status",
+          "duplicator_get_installer",
+          "bp_list_members",
+          "bp_get_member",
+          "bp_list_groups",
+          "bp_get_activity_feed"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T16:22:35+02:00",
+      "detail": "posts, pages, media, taxonomies, users, plugins, settings, blocks, woocommerce",
+      "source": "auto",
+      "status": "9/9",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "plugins",
+        "settings",
+        "blocks",
+        "woocommerce"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T16:22:35+02:00",
+      "detail": "12 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8885/wp-json/royal-mcp/v1/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T16:22:28+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.5.10"
+    }
+  },
+  "saddle": {
+    "A2": {
+      "at": "2026-10-19T17:08:50+02:00",
+      "detail": "2 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/saddle/v1/mcp-diagnostics",
+        "/saddle/v1/mcp"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T17:08:53+02:00",
+      "detail": "initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:08:50+02:00",
+      "detail": "http://localhost:8914/wp-json/saddle/v1/mcp: initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:08:50+02:00",
+      "detail": "mcp-adapter, reads-abilities, registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "mcp-adapter",
+        "reads-abilities",
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:08:56+02:00",
+      "detail": "initialize 200, tools/list 200, 41 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "basic",
+        "tool_count": 41,
+        "tools": [
+          "saddle-context-bundle",
+          "saddle-get-block-schema",
+          "saddle-get-blocks",
+          "saddle-get-design-system",
+          "saddle-get-design-tokens",
+          "saddle-get-global-styles",
+          "saddle-get-instructions",
+          "saddle-get-media",
+          "saddle-get-menu",
+          "saddle-get-module-settings",
+          "saddle-get-page",
+          "saddle-get-post",
+          "saddle-get-preview-url",
+          "saddle-get-section-recipe",
+          "saddle-get-site-info",
+          "saddle-get-skill",
+          "saddle-get-template",
+          "saddle-get-user",
+          "saddle-lint-page",
+          "saddle-list-block-patterns",
+          "saddle-list-block-types",
+          "saddle-list-categories",
+          "saddle-list-media",
+          "saddle-list-menus",
+          "saddle-list-modules",
+          "saddle-list-pages",
+          "saddle-list-post-revisions",
+          "saddle-list-post-types",
+          "saddle-list-posts",
+          "saddle-list-saved-patterns",
+          "saddle-list-section-recipes",
+          "saddle-list-skills",
+          "saddle-list-tags",
+          "saddle-list-templates",
+          "saddle-list-users",
+          "saddle-recall",
+          "saddle-recall-changes",
+          "saddle-render-node",
+          "saddle-search-content",
+          "saddle-self-check",
+          "saddle-verify-page"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T17:08:56+02:00",
+      "detail": "posts, pages, media, taxonomies, users, settings, blocks",
+      "source": "auto",
+      "status": "7/9",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "settings",
+        "blocks"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T17:08:53+02:00",
+      "detail": "2 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8914/wp-json/saddle/v1/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T17:08:42+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.5.2"
+    }
+  },
+  "siteskite": {
+    "A2": {
+      "at": "2026-10-19T17:09:07+02:00",
+      "detail": "3 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/siteskite/v1/mcp-guest/pair",
+        "/mcp",
+        "/mcp/siteskite"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T17:22:31+02:00",
+      "detail": "initialize 401, tools/list 401 (Authentication required. Connect this app with OAuth, or use a WordPress Application Password with Basic auth.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "Authentication required. Connect this app with OAuth, or use a WordPress Application Password with Basic auth.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:09:07+02:00",
+      "detail": "http://localhost:8899/wp-json/mcp/siteskite: initialize 403, tools/list 403",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 403,
+        "list_status": 403,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:22:28+02:00",
+      "detail": "no markers found",
+      "source": "auto",
+      "status": "N",
+      "value": []
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:22:31+02:00",
+      "detail": "OAuth only: needs the browser consent flow, use the manual sheet",
+      "source": "auto",
+      "status": "Manual",
+      "value": {
+        "auth_method": "oauth"
+      }
+    },
+    "EN": {
+      "at": "2026-10-19T17:22:31+02:00",
+      "detail": "3 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8899/wp-json/mcp/siteskite"
+    },
+    "S1": {
+      "at": "2026-10-19T17:22:21+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "2.2.11"
+    }
+  },
+  "sokket-site-connector-for-mcp": {
+    "A2": {
+      "at": "2026-10-19T17:16:47+02:00",
+      "detail": "1 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/sokket/v1/mcp"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T17:16:52+02:00",
+      "detail": "initialize 401, tools/list 401 (Authentication required. Provide a bearer token or an Application Password.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "Authentication required. Provide a bearer token or an Application Password.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:16:47+02:00",
+      "detail": "http://localhost:8905/wp-json/sokket/v1/mcp: initialize 503, tools/list 503 (The MCP server is disabled on this site.)",
+      "source": "auto",
+      "status": "Disabled",
+      "value": {
+        "error": "The MCP server is disabled on this site.",
+        "hard_fail": false,
+        "init_status": 503,
+        "list_status": 503,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:16:47+02:00",
+      "detail": "no markers found",
+      "source": "auto",
+      "status": "N",
+      "value": []
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:16:52+02:00",
+      "detail": "initialize 200, tools/list 200, 39 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "bearer",
+        "tool_count": 39,
+        "tools": [
+          "get_site_info",
+          "list_plugins",
+          "list_themes",
+          "get_php_error_log_tail",
+          "list_posts",
+          "get_post",
+          "search_content",
+          "create_post",
+          "update_post",
+          "delete_post",
+          "restore_post",
+          "set_post_meta",
+          "list_media",
+          "upload_media",
+          "set_featured_image",
+          "list_taxonomies",
+          "list_terms",
+          "create_term",
+          "update_term",
+          "delete_term",
+          "assign_terms",
+          "list_comments",
+          "moderate_comment",
+          "reply_to_comment",
+          "update_site_settings",
+          "get_site_settings",
+          "get_theme_json",
+          "update_global_styles",
+          "reset_global_styles",
+          "list_block_types",
+          "validate_block_markup",
+          "render_block_template",
+          "list_navigation_menus",
+          "create_navigation_menu",
+          "update_navigation_menu",
+          "list_block_templates",
+          "get_block_template",
+          "update_block_template",
+          "revert_block_template"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T17:16:52+02:00",
+      "detail": "posts, media, taxonomies, plugins, settings, blocks",
+      "source": "auto",
+      "status": "6/9",
+      "value": [
+        "posts",
+        "media",
+        "taxonomies",
+        "plugins",
+        "settings",
+        "blocks"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T17:16:52+02:00",
+      "detail": "1 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8905/wp-json/sokket/v1/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T17:16:40+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.4.1"
+    }
+  },
+  "stifli-flex-mcp": {
+    "A2": {
+      "at": "2026-10-19T16:47:30+02:00",
+      "detail": "9 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/stifli-flex-mcp/v1",
+        "/stifli-flex-mcp/v1/sse",
+        "/stifli-flex-mcp/v1/messages",
+        "/stifli-flex-mcp/v1/.well-known/oauth-protected-resource",
+        "/stifli-flex-mcp/v1/.well-known/oauth-authorization-server",
+        "/stifli-flex-mcp/v1/.well-known/openid-configuration",
+        "/stifli-flex-mcp/v1/oauth/register",
+        "/stifli-flex-mcp/v1/oauth/token",
+        "/stifli-flex-mcp/v1/oauth/revoke"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T16:47:33+02:00",
+      "detail": "initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T16:47:30+02:00",
+      "detail": "http://localhost:8892/wp-json/stifli-flex-mcp/v1/messages: initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T16:47:30+02:00",
+      "detail": "no markers found",
+      "source": "auto",
+      "status": "N",
+      "value": []
+    },
+    "AUTH": {
+      "at": "2026-10-19T16:47:36+02:00",
+      "detail": "initialize 200, tools/list 200, 80 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "basic",
+        "tool_count": 80,
+        "tools": [
+          "wp_verify_rendered_page",
+          "mcp_ping",
+          "wp_get_posts",
+          "wp_get_post",
+          "wp_create_post",
+          "wp_update_post",
+          "wp_publish_and_promote",
+          "wp_create_preview_link",
+          "wp_set_featured_image",
+          "wp_delete_post",
+          "wp_get_comments",
+          "wp_create_comment",
+          "wp_update_comment",
+          "wp_delete_comment",
+          "wp_get_users",
+          "wp_get_media",
+          "wp_get_media_item",
+          "wp_upload_image_from_url",
+          "wp_upload_image",
+          "wp_list_plugins",
+          "wp_get_themes",
+          "wp_get_taxonomies",
+          "wp_get_terms",
+          "wp_create_term",
+          "wp_update_term",
+          "wp_delete_term",
+          "wp_get_term_meta",
+          "wp_update_term_meta",
+          "wp_delete_term_meta",
+          "wp_get_nav_menus",
+          "wp_create_nav_menu",
+          "wp_create_menu",
+          "wp_reorder_menu_items",
+          "wp_css_get_global",
+          "wp_css_set_global",
+          "wp_css_set_scoped",
+          "wp_get_option",
+          "wp_get_plugin_settings",
+          "wp_update_option",
+          "wp_get_post_meta",
+          "wp_update_post_meta",
+          "wp_add_post_meta",
+          "wp_delete_post_meta",
+          "wp_generate_image",
+          "wp_get_pages",
+          "wp_create_page",
+          "wp_update_page",
+          "wp_delete_page",
+          "wp_get_user_meta",
+          "wp_update_user_meta",
+          "wp_delete_user_meta",
+          "wp_get_categories",
+          "wp_create_category",
+          "wp_update_category",
+          "wp_delete_category",
+          "wp_get_tags",
+          "wp_create_tag",
+          "wp_update_tag",
+          "wp_delete_tag",
+          "wp_update_media_item",
+          "wp_delete_media_item",
+          "wp_get_menus",
+          "wp_get_menu",
+          "wp_get_settings",
+          "wp_update_settings",
+          "wp_get_post_revisions",
+          "wp_restore_post_revision",
+          "wp_get_post_types",
+          "wp_get_site_health",
+          "wp_get_cron_schedule",
+          "wp_get_error_log_tail",
+          "snippet_list",
+          "snippet_get",
+          "snippet_create",
+          "snippet_update",
+          "snippet_delete",
+          "snippet_activate",
+          "snippet_deactivate",
+          "divi_validate_layout",
+          "wp_upload_media"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T16:47:36+02:00",
+      "detail": "posts, pages, media, taxonomies, users, plugins, settings, woocommerce",
+      "source": "auto",
+      "status": "8/9",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "plugins",
+        "settings",
+        "woocommerce"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T16:47:33+02:00",
+      "detail": "9 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8892/wp-json/stifli-flex-mcp/v1/messages"
+    },
+    "S1": {
+      "at": "2026-10-19T16:47:22+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "3.6.1"
+    }
+  },
+  "strifebridge-mcp": {
+    "A2": {
+      "at": "2026-10-19T17:09:25+02:00",
+      "detail": "2 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/strifebridge/v1/mcp",
+        "/pressbridge/v1/mcp"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T17:16:37+02:00",
+      "detail": "initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "Sorry, you are not allowed to do that.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:09:25+02:00",
+      "detail": "http://localhost:8912/wp-json/strifebridge/v1/mcp: initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:16:34+02:00",
+      "detail": "registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:16:37+02:00",
+      "detail": "initialize 200, tools/list 200, 34 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "bearer",
+        "tool_count": 34,
+        "tools": [
+          "list_posts",
+          "list_pages",
+          "get_post",
+          "get_post_details",
+          "create_post",
+          "update_post",
+          "delete_post",
+          "list_media",
+          "get_media",
+          "upload_media",
+          "delete_media",
+          "get_option",
+          "update_option",
+          "list_options",
+          "list_users",
+          "list_plugins",
+          "activate_plugin",
+          "deactivate_plugin",
+          "delete_plugin",
+          "get_menus",
+          "get_menu_items",
+          "create_menu_item",
+          "update_menu_item",
+          "delete_menu_item",
+          "list_terms",
+          "create_term",
+          "update_term",
+          "delete_term",
+          "list_sidebars",
+          "get_widgets",
+          "update_widget",
+          "get_site_info",
+          "flush_rewrite_rules",
+          "server_ping"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T17:16:37+02:00",
+      "detail": "posts, pages, media, taxonomies, users, plugins, settings",
+      "source": "auto",
+      "status": "7/9",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "plugins",
+        "settings"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T17:16:37+02:00",
+      "detail": "2 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8912/wp-json/strifebridge/v1/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T17:16:28+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "3.1.0"
+    }
+  },
+  "track-debug": {
+    "A2": {
+      "at": "2026-10-19T17:09:41+02:00",
+      "detail": "1 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/track-debug/mcp"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T17:09:45+02:00",
+      "detail": "initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:09:42+02:00",
+      "detail": "http://localhost:8908/wp-json/track-debug/mcp: initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:09:42+02:00",
+      "detail": "mcp-adapter, reads-abilities, registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "mcp-adapter",
+        "reads-abilities",
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:09:48+02:00",
+      "detail": "initialize 200, tools/list 200, 6 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "basic",
+        "tool_count": 6,
+        "tools": [
+          "get-site-info",
+          "list-content",
+          "get-content",
+          "read-debug-log",
+          "save-content",
+          "batch"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T17:09:48+02:00",
+      "detail": "",
+      "source": "auto",
+      "status": "0/9",
+      "value": []
+    },
+    "EN": {
+      "at": "2026-10-19T17:09:45+02:00",
+      "detail": "1 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8908/wp-json/track-debug/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T17:09:34+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "3.1.1"
+    }
+  },
+  "vibe-ai": {
+    "A2": {
+      "at": "2026-10-19T16:46:20+02:00",
+      "detail": "0 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Disabled",
+      "value": []
+    },
+    "A3": {
+      "at": "2026-10-19T16:46:20+02:00",
+      "detail": "MCP server runs outside WordPress. Relays MCP through the hosted wpvibe.ai service using an application password; no MCP route on the site.",
+      "source": "auto",
+      "status": "N/A",
+      "value": null
+    },
+    "A3pre": {
+      "at": "2026-10-19T16:46:20+02:00",
+      "detail": "no MCP endpoint before enabling",
+      "source": "auto",
+      "status": "Disabled",
+      "value": {
+        "hard_fail": false
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T16:46:20+02:00",
+      "detail": "no markers found",
+      "source": "auto",
+      "status": "N",
+      "value": []
+    },
+    "AUTH": {
+      "at": "2026-10-19T16:46:20+02:00",
+      "detail": "MCP server runs outside WordPress. Relays MCP through the hosted wpvibe.ai service using an application password; no MCP route on the site.",
+      "source": "auto",
+      "status": "N/A",
+      "value": null
+    },
+    "EN": {
+      "at": "2026-10-19T16:46:20+02:00",
+      "detail": "MCP server runs outside WordPress. Relays MCP through the hosted wpvibe.ai service using an application password; no MCP route on the site.",
+      "source": "auto",
+      "status": "N/A",
+      "value": null
+    },
+    "S1": {
+      "at": "2026-10-19T16:46:15+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "1.20.5"
+    }
+  },
+  "vibe-ai easy-mcp-ai miniorange-secure-mcp-server wsp-mcp-ai-agents-connector cowboy-mcp stifli-flex-mcp agent-abilities-for-mcp diviops-agent ai-workflow-automation-ai-agent-hub nibwp mountdev-ai-mcp-connector iato-mcp": {
+    "S1": {
+      "at": "2026-10-19T16:46:04+02:00",
+      "detail": "no site at /Users/jonathanbossenger/Studio/mcp-tests/vibe-ai easy-mcp-ai miniorange-secure-mcp-server wsp-mcp-ai-agents-connector cowboy-mcp stifli-flex-mcp agent-abilities-for-mcp diviops-agent ai-workflow-automation-ai-agent-hub nibwp mountdev-ai-mcp-connector iato-mcp",
+      "source": "auto",
+      "status": "Fail",
+      "value": null
+    }
+  },
+  "webo-mcp": {
+    "A2": {
+      "at": "2026-10-19T17:09:59+02:00",
+      "detail": "11 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/webo-mcp/v1",
+        "/webo-mcp/v1/tools",
+        "/mcp/v1",
+        "/mcp/v1/router",
+        "/mcp/v1/router/sse",
+        "/mcp",
+        "/mcp/mcp-adapter-default-server",
+        "/webo-mcp/v1/health",
+        "/webo-mcp/v1/pair",
+        "/webo-mcp/v1/disconnect",
+        "/webo-mcp/v1/domain-proof"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T17:10:02+02:00",
+      "detail": "initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:09:59+02:00",
+      "detail": "http://localhost:8906/wp-json/mcp/v1/router: initialize 401, tools/list 401",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": null,
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:09:59+02:00",
+      "detail": "mcp-adapter, reads-abilities, registers-abilities",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "mcp-adapter",
+        "reads-abilities",
+        "registers-abilities"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:10:05+02:00",
+      "detail": "initialize 200, tools/list 200, 33 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "basic",
+        "tool_count": 33,
+        "tools": [
+          "webo_content-query",
+          "webo_content-mutate",
+          "webo_set-featured-image",
+          "webo-content_set-featured-image",
+          "webo_media-query",
+          "webo_media-mutate",
+          "webo_taxonomy-query",
+          "webo_taxonomy-mutate",
+          "webo_get-404-logs",
+          "webo_connector-query",
+          "webo_ai-prompt",
+          "webo_ability-query",
+          "webo_theme-context",
+          "webo_block-patterns",
+          "webo_activity-log",
+          "webo_usage-stats",
+          "webo_content-search",
+          "webo_deployment-review",
+          "webo_registry-consistency-check",
+          "webo_list-capabilities",
+          "webo_capabilities-search",
+          "webo_capabilities-describe",
+          "webo_capability-execute",
+          "webo_navigation-query",
+          "webo_navigation-mutate",
+          "webo_users-query",
+          "webo_users-mutate",
+          "webo_extensions-query",
+          "webo_extensions-mutate",
+          "webo_site-query",
+          "webo_site-mutate",
+          "webo_workflow-query",
+          "webo_workflow-run"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T17:10:05+02:00",
+      "detail": "media, taxonomies, users, blocks",
+      "source": "auto",
+      "status": "4/9",
+      "value": [
+        "media",
+        "taxonomies",
+        "users",
+        "blocks"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T17:10:02+02:00",
+      "detail": "11 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8906/wp-json/mcp/v1/router"
+    },
+    "S1": {
+      "at": "2026-10-19T17:09:51+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "3.0.32"
+    }
+  },
+  "wsp-mcp-ai-agents-connector": {
+    "A2": {
+      "at": "2026-10-19T16:46:56+02:00",
+      "detail": "2 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": [
+        "/wsp-mcp/v1",
+        "/wsp-mcp/v1/mcp"
+      ]
+    },
+    "A3": {
+      "at": "2026-10-19T16:51:57+02:00",
+      "detail": "initialize 401, tools/list 401 (Authentication required. Use an Application Password (Basic), Authorization: Bearer <api-key-or-oauth-token>, or the X-WSP-MCP-API-Key header.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "Authentication required. Use an Application Password (Basic), Authorization: Bearer <api-key-or-oauth-token>, or the X-WSP-MCP-API-Key header.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401
+      }
+    },
+    "A3pre": {
+      "at": "2026-10-19T16:46:56+02:00",
+      "detail": "http://localhost:8890/wp-json/wsp-mcp/v1/mcp: initialize 401, tools/list 401 (Authentication required. Use an Application Password (Basic), Authorization: Bearer <api-key-or-oauth-token>, or the X-WSP-MCP-API-Key header.)",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "error": "Authentication required. Use an Application Password (Basic), Authorization: Bearer <api-key-or-oauth-token>, or the X-WSP-MCP-API-Key header.",
+        "hard_fail": false,
+        "init_status": 401,
+        "list_status": 401,
+        "tools": null
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T16:51:54+02:00",
+      "detail": "mcp-adapter",
+      "source": "auto",
+      "status": "Y",
+      "value": [
+        "mcp-adapter"
+      ]
+    },
+    "AUTH": {
+      "at": "2026-10-19T16:52:02+02:00",
+      "detail": "initialize 200, tools/list 200, 100 tools",
+      "source": "auto",
+      "status": "Pass",
+      "value": {
+        "auth_method": "basic",
+        "tool_count": 100,
+        "tools": [
+          "wsp_update_site_context",
+          "wsp_get_posts",
+          "wsp_get_post",
+          "wsp_create_post",
+          "wsp_update_post",
+          "wsp_delete_post",
+          "wsp_get_pages",
+          "wsp_create_page",
+          "wsp_update_page",
+          "wsp_delete_page",
+          "wsp_get_categories",
+          "wsp_create_category",
+          "wsp_get_tags",
+          "wsp_create_tag",
+          "wsp_get_comments",
+          "wsp_approve_comment",
+          "wsp_delete_comment",
+          "wsp_list_media",
+          "wsp_get_media",
+          "wsp_count_media",
+          "wsp_update_media",
+          "wsp_delete_media",
+          "wsp_upload_media",
+          "wsp_upload_media_from_url",
+          "wsp_set_featured_image",
+          "wsp_get_users",
+          "wsp_create_user",
+          "wsp_update_user",
+          "wsp_search",
+          "wsp_get_site_info",
+          "wsp_get_plugins",
+          "wsp_update_site_info",
+          "wsp_update_permalink_structure",
+          "wsp_activate_plugin",
+          "wsp_deactivate_plugin",
+          "wsp_install_plugin",
+          "wsp_install_plugin_from_url",
+          "wsp_delete_plugin",
+          "wsp_update_plugin",
+          "wsp_get_themes",
+          "wsp_switch_theme",
+          "wsp_get_theme_file",
+          "wsp_update_theme_file",
+          "wsp_upload_theme_chunk",
+          "wsp_get_mcp_diagnostics",
+          "wsp_upload_theme",
+          "wsp_get_post_types",
+          "wsp_get_cpt_items",
+          "wsp_create_cpt_item",
+          "wsp_update_cpt_item",
+          "wsp_delete_cpt_item",
+          "wsp_get_menus",
+          "wsp_get_menu_items",
+          "wsp_create_menu",
+          "wsp_delete_menu",
+          "wsp_add_menu_item",
+          "wsp_update_menu_item",
+          "wsp_delete_menu_item",
+          "wsp_get_menu_locations",
+          "wsp_assign_menu_location",
+          "wsp_get_global_styles",
+          "wsp_update_global_styles",
+          "wsp_get_templates",
+          "wsp_get_template",
+          "wsp_create_template",
+          "wsp_update_template",
+          "wsp_get_sidebars",
+          "wsp_update_sidebar",
+          "wsp_get_widget_types",
+          "wsp_get_widgets",
+          "wsp_get_widget",
+          "wsp_create_widget",
+          "wsp_update_widget",
+          "wsp_delete_widget",
+          "wsp_get_site_health",
+          "wsp_get_cron_events",
+          "wsp_get_cron_event",
+          "wsp_run_cron_event",
+          "wsp_delete_cron_event",
+          "wsp_get_error_log",
+          "wsp_get_revisions",
+          "wsp_get_revision",
+          "wsp_restore_revision",
+          "wsp_get_post_meta",
+          "wsp_update_post_meta",
+          "wsp_delete_post_meta",
+          "wsp_list_blocks",
+          "wsp_get_block",
+          "wsp_create_block",
+          "wsp_update_block",
+          "wsp_delete_block",
+          "wsp_list_patterns",
+          "wsp_get_post_blocks",
+          "wsp_update_post_blocks",
+          "wsp_list_block_types",
+          "wsp_list_redirects",
+          "wsp_create_redirect",
+          "wsp_delete_redirect",
+          "wsp_get_404_logs",
+          "wsp_clear_404_logs"
+        ]
+      }
+    },
+    "BR": {
+      "at": "2026-10-19T16:52:02+02:00",
+      "detail": "posts, pages, media, taxonomies, users, plugins, blocks",
+      "source": "auto",
+      "status": "7/9",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "plugins",
+        "blocks"
+      ]
+    },
+    "EN": {
+      "at": "2026-10-19T16:51:57+02:00",
+      "detail": "2 MCP route(s) after enabling",
+      "source": "auto",
+      "status": "Pass",
+      "value": "http://localhost:8890/wp-json/wsp-mcp/v1/mcp"
+    },
+    "S1": {
+      "at": "2026-10-19T16:51:47+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "2.9.6"
+    }
+  },
+  "ylabs-ai-assistant-connector": {
+    "A2": {
+      "at": "2026-10-19T17:10:17+02:00",
+      "detail": "0 MCP route(s) before enabling",
+      "source": "auto",
+      "status": "Disabled",
+      "value": []
+    },
+    "A3": {
+      "at": "2026-10-19T17:10:17+02:00",
+      "detail": "MCP server runs outside WordPress. Adds wp-agent/v1 REST endpoints for an external assistant that authenticates with application passwords; no MCP endpoint on the site.",
+      "source": "auto",
+      "status": "N/A",
+      "value": null
+    },
+    "A3pre": {
+      "at": "2026-10-19T17:10:17+02:00",
+      "detail": "no MCP endpoint before enabling",
+      "source": "auto",
+      "status": "Disabled",
+      "value": {
+        "hard_fail": false
+      }
+    },
+    "ABIL": {
+      "at": "2026-10-19T17:10:17+02:00",
+      "detail": "no markers found",
+      "source": "auto",
+      "status": "N",
+      "value": []
+    },
+    "AUTH": {
+      "at": "2026-10-19T17:10:17+02:00",
+      "detail": "MCP server runs outside WordPress. Adds wp-agent/v1 REST endpoints for an external assistant that authenticates with application passwords; no MCP endpoint on the site.",
+      "source": "auto",
+      "status": "N/A",
+      "value": null
+    },
+    "EN": {
+      "at": "2026-10-19T17:10:17+02:00",
+      "detail": "MCP server runs outside WordPress. Adds wp-agent/v1 REST endpoints for an external assistant that authenticates with application passwords; no MCP endpoint on the site.",
+      "source": "auto",
+      "status": "N/A",
+      "value": null
+    },
+    "S1": {
+      "at": "2026-10-19T17:10:08+02:00",
+      "detail": "active",
+      "source": "auto",
+      "status": "Pass",
+      "value": "0.9.14"
+    }
+  }
+}

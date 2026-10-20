@@ -10,7 +10,8 @@ import json
 ESTABLISHED = """ai-engine vibe-ai easy-mcp-ai royal-mcp miniorange-secure-mcp-server
 wsp-mcp-ai-agents-connector cowboy-mcp stifli-flex-mcp agent-abilities-for-mcp diviops-agent
 ai-workflow-automation-ai-agent-hub nibwp mountdev-ai-mcp-connector iato-mcp siteskite
-invizo-mcp ylabs-connector-for-wpwriter ylabs-ai-assistant-connector""".split()
+invizo-mcp ylabs-ai-assistant-connector""".split()
+# ylabs-connector-for-wpwriter removed 2026-10-20: closed on WordPress.org, cannot be installed
 
 CHALLENGERS = """albert-ai-butler acrossai-mcp-manager sokket-site-connector-for-mcp webo-mcp
 alphabridge-mcp track-debug admindra-mcp devcubic-ai-bridge-for-mcp abilities-bridge

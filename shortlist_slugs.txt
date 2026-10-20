@@ -14,7 +14,6 @@ mountdev-ai-mcp-connector
 iato-mcp
 siteskite
 invizo-mcp
-ylabs-connector-for-wpwriter
 ylabs-ai-assistant-connector
 albert-ai-butler
 acrossai-mcp-manager

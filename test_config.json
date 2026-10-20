@@ -1,0 +1,222 @@
+{
+  "_comment": [
+    "Per-plugin settings for run_tests.py. Plugins not listed here still get route discovery, the unauthenticated probe and the source checks; enabling MCP and authenticated calls are skipped.",
+    "enable_php: run with 'wp --user=admin eval' to switch MCP on (as an admin would in the settings UI). {token} is replaced with a random secret generated for the run.",
+    "endpoint: path under /wp-json/ (or a full URL). Omit to pick one from the discovered routes.",
+    "enable_php may echo 'token:<value>' (e.g. a key made with the plugin's own create-key function); that value then replaces {token} in auth.",
+    "enable_php may be \"\" when the endpoint is on as soon as the plugin is activated. It can also create the credential the auth block uses.",
+    "auth.type: basic (admin application password, created per run) | header (auth.name: auth.value) | bearer (auth.value) | none | oauth (OAuth only: AUTH is left to the manual sheet).",
+    "transport: external when the MCP server runs outside WordPress (npm package or hosted relay): EN, A3 and AUTH are recorded as N/A.",
+    "notes: shown in the report, e.g. design decisions that explain a probe result.",
+    "public_by_design: the source code shows the endpoint is deliberately public (e.g. permission_callback __return_true with a comment saying why). Tools returned without credentials then do not count as a hard fail. Quote the evidence (file:line) in public_evidence."
+  ],
+  "mcp-for-woocommerce": {
+    "enable_php": "$o = get_option('mcpfowo_settings', []); if (!is_array($o)) { $o = []; } $o['enabled'] = 1; update_option('mcpfowo_settings', $o);",
+    "endpoint": "wp/v2/wpmcp/streamable",
+    "auth": {"type": "none"},
+    "public_by_design": true,
+    "public_evidence": "includes/Core/McpStreamableTransport.php:58-61: permission_callback __return_true, commented 'Intentionally public: every tool returns only storefront data a visitor can already see, nothing is written'",
+    "notes": "Endpoint is public by design; source says tools only return storefront data."
+  },
+  "royal-mcp": {
+    "enable_php": "$s = get_option('royal_mcp_settings', []); if (!is_array($s)) { $s = []; } $s['enabled'] = true; $s['api_key'] = ''; $s['api_key_hash'] = hash('sha256', '{token}'); $s['api_key_user_id'] = 1; update_option('royal_mcp_settings', $s);",
+    "endpoint": "royal-mcp/v1/mcp",
+    "auth": {"type": "header", "name": "X-Royal-MCP-API-Key", "value": "{token}"},
+    "notes": "API key is bound to a user (api_key_user_id). Activating via WP-CLI binds it to user 0, so the config binds it to admin."
+  },
+  "ai-engine": {
+    "enable_php": "$o = get_option('mwai_options', []); if (!is_array($o)) { $o = []; } $o['module_mcp'] = true; update_option('mwai_options', $o, false);",
+    "endpoint": "mcp/v1/http",
+    "auth": {"type": "basic"},
+    "notes": "Access requires manage_options; also supports a bearer token and OAuth."
+  },
+  "vibe-ai": {
+    "transport": "external",
+    "notes": "Relays MCP through the hosted wpvibe.ai service using an application password; no MCP route on the site."
+  },
+  "easy-mcp-ai": {
+    "enable_php": "$r = (new \\Easy_MCP_AI\\Auth\\Token_Manager())->create_token('run_tests', 1); echo is_array($r) ? 'token:' . $r['raw_token'] : 'error';",
+    "endpoint": "easy-mcp-ai/v1/mcp",
+    "auth": {"type": "bearer", "value": "{token}"},
+    "notes": "On by default. Per-token tool allow-lists; also OAuth and a URL-embedded key route."
+  },
+  "miniorange-secure-mcp-server": {
+    "enable_php": "",
+    "endpoint": "mosmcp/v1/mcp",
+    "auth": {"type": "oauth"},
+    "notes": "On by default; the endpoint only accepts OAuth bearer tokens."
+  },
+  "wsp-mcp-ai-agents-connector": {
+    "enable_php": "update_option(WSP_MCP_OPTION, array_fill_keys(array_keys(wsp_mcp_ability_registry()), true));",
+    "endpoint": "wsp-mcp/v1/mcp",
+    "auth": {"type": "basic"},
+    "notes": "Endpoint on by default with 6 read tools; the rest are off by default. Config switches every ability on. Accepts application passwords, a plugin API key or OAuth."
+  },
+  "cowboy-mcp": {
+    "enable_php": "$k = Cowboy_MCP_Auth::generate_key('run_tests'); echo 'token:' . $k['key'];",
+    "endpoint": "cowboy-mcp/v1/endpoint",
+    "auth": {"type": "bearer", "value": "{token}"},
+    "notes": "On by default ('enabled' => true at activation). API keys always act as the first administrator. Exposes 2 meta-tools (cowboy_discover, cowboy_run) that route to the real tools, so tool count and name-based breadth undercount: judge breadth manually."
+  },
+  "alphabridge-mcp": {
+    "enable_php": "echo 'token:' . AB_MCP_Settings::add_token(1, 'run_tests');",
+    "endpoint": "alphabridge/v1/mcp",
+    "auth": {"type": "bearer", "value": "{token}"},
+    "notes": "Tokens are bound to a user and scope (default full). Write access has a separate main switch, off by default."
+  },
+  "aicom": {
+    "enable_php": "$k = AICOM_Auth::create_key('run_tests', AICOM_Auth::scope_slugs()); echo 'token:' . $k['plain_key'];",
+    "endpoint": "aicom/v1/mcp",
+    "auth": {"type": "bearer", "value": "{token}"},
+    "notes": "Route is open; the router checks scoped API keys. Key created with every scope."
+  },
+  "stifli-flex-mcp": {
+    "enable_php": "",
+    "endpoint": "stifli-flex-mcp/v1/messages",
+    "auth": {"type": "basic"},
+    "notes": "On by default. OAuth 2.1 or application passwords; legacy SSE route too."
+  },
+  "agent-abilities-for-mcp": {
+    "enable_php": "update_option('aafm_enabled_abilities', array_keys(aafm_get_abilities_registry())); aafm_flush_registry_cache();",
+    "endpoint": "agent-abilities-for-mcp/mcp",
+    "auth": {"type": "basic"},
+    "notes": "Endpoint on by default but every tool is off until enabled (aafm_enabled_abilities, includes/registry.php). Config enables every registered ability; high-risk ones stay locked by the plugin's own floor."
+  },
+  "diviops-agent": {
+    "transport": "external",
+    "notes": "MCP server is the separate @diviops/mcp-server npm package; the plugin adds REST endpoints it calls with an application password."
+  },
+  "ai-workflow-automation-ai-agent-hub": {
+    "enable_php": "",
+    "endpoint": "awfah_mcp/mcp",
+    "auth": {"type": "basic"},
+    "notes": "On by default (MCP Adapter). OAuth 2.1, JWT or application passwords."
+  },
+  "nibwp": {
+    "enable_php": "update_option('nibwp_ai_abilities_enabled', '1'); update_option('nibwp_ai_abilities_domain', (string) wp_parse_url(home_url(), PHP_URL_HOST));",
+    "endpoint": "mcp/nibwp",
+    "auth": {"type": "basic"},
+    "notes": "Off by default: master switch nibwp_ai_abilities_enabled, locked to the domain it was enabled on (includes/helpers.php nibwp_is_enabled; same two options as nibwp_relock_domain). Exposes the MCP Adapter's 3 meta-tools; run_tests counts the abilities behind them via discover-abilities."
+  },
+  "mountdev-ai-mcp-connector": {
+    "enable_php": "",
+    "endpoint": "mountdev-ai-mcp-connector/v1/messages",
+    "auth": {"type": "basic"},
+    "notes": "On by default. OAuth for Claude/ChatGPT, application passwords for editors."
+  },
+  "iato-mcp": {
+    "enable_php": "",
+    "endpoint": "iato-mcp/v1/message",
+    "auth": {"type": "basic"},
+    "notes": "On by default. Application passwords, OAuth, or a plugin-generated bearer key."
+  },
+  "invizo-mcp": {
+    "enable_php": "$s = new Invizo_MCP_Settings(); $m = new ReflectionMethod($s, 'get_allowed_scope_options'); $m->setAccessible(true); update_option('invizo_mcp_settings', $s->sanitize(array('enabled' => 1, 'allowed_scopes' => array_keys($m->invoke($s)))));",
+    "endpoint": "mcp/invizo",
+    "auth": {"type": "basic"},
+    "notes": "Off by default ('enabled' => false, no scopes). Config enables the endpoint and every available scope. Packaging bug: v2.0.8 from WordPress.org ships without vendor/, so the bundled MCP Adapter is missing and /mcp/invizo never registers; config installs the MCP Adapter plugin to work around it. Exposes the Adapter's 3 meta-tools; run_tests counts the abilities behind them via discover-abilities.",
+    "install_plugins": ["mcp-adapter"]
+  },
+  "ylabs-ai-assistant-connector": {
+    "transport": "external",
+    "notes": "Adds wp-agent/v1 REST endpoints for an external assistant that authenticates with application passwords; no MCP endpoint on the site."
+  },
+  "abilities-bridge": {
+    "enable_php": "update_option('abilities_bridge_enable_abilities_api', true); update_option('abilities_bridge_enable_memory', true);",
+    "endpoint": "abilities-bridge-mcp/v1/mcp",
+    "auth": {"type": "basic"},
+    "notes": "Endpoint on by default; the route is open and the server checks OAuth bearer tokens or application passwords. Abilities API bridge and memory are off by default; config turns both on. Each ability still needs admin approval, so the tool count is what you get before approving any."
+  },
+  "acadium-agent-publisher": {
+    "enable_php": "",
+    "endpoint": "acadium-agent-publisher/mcp",
+    "auth": {"type": "basic"},
+    "notes": "On by default. Readme documents OAuth 2.1 only, but an application password works."
+  },
+  "albert-ai-butler": {
+    "enable_php": "",
+    "endpoint": "albert/v1/mcp",
+    "auth": {"type": "oauth"},
+    "notes": "On by default. OAuth 2.0 only: an application password gets 403 (changelog: app-password access to the tools was closed deliberately)."
+  },
+  "devcubic-ai-bridge-for-mcp": {
+    "enable_php": "",
+    "endpoint": "mcp-connector/v1/mcp",
+    "auth": {"type": "oauth"},
+    "notes": "On by default. OAuth 2.1 only: an application password gets 401 'A valid access token is required.'"
+  },
+  "publishio": {
+    "enable_php": "",
+    "endpoint": "mcp/publishio",
+    "auth": {"type": "basic"},
+    "notes": "On by default (MCP Adapter server). Readme documents OAuth, but an application password works."
+  },
+  "rectus-content-access-for-mcp": {
+    "enable_php": "",
+    "endpoint": "mcp/mcp-adapter-default-server",
+    "auth": {"type": "basic"},
+    "notes": "Uses the MCP Adapter default server. Readme documents OAuth 2.1, but an application password works. Exposes the Adapter's 3 meta-tools; run_tests counts the abilities behind them via discover-abilities."
+  },
+  "saddle": {
+    "enable_php": "",
+    "endpoint": "saddle/v1/mcp",
+    "auth": {"type": "basic"},
+    "notes": "On by default. OAuth or application passwords (readme: each key works only with Saddle)."
+  },
+  "siteskite": {
+    "enable_php": "\\SiteSkite\\Mcp\\McpSettings::set_enabled(true);",
+    "endpoint": "mcp/siteskite",
+    "auth": {"type": "oauth"},
+    "notes": "Off by default: siteskite_mcp_enabled, pinned to the host it was enabled on (includes/Mcp/McpSettings.php). Site MCP works without a SiteSkite account. An application password passes the endpoint check but tools/list is refused (403) until an AI app is connected via OAuth or a SiteSkite API key, so treat as OAuth only."
+  },
+  "strifebridge-mcp": {
+    "enable_php": "update_option('sbmcp_api_token', '{token}');",
+    "endpoint": "strifebridge/v1/mcp",
+    "auth": {"type": "bearer", "value": "{token}"},
+    "notes": "On by default but needs a token: OAuth 2.1 or the legacy token in sbmcp_api_token (stored in plain text). An application password gets 403."
+  },
+  "track-debug": {
+    "enable_php": "",
+    "endpoint": "track-debug/mcp",
+    "auth": {"type": "basic"},
+    "notes": "On by default. Application passwords via the WordPress MCP proxy. 6 generic tools (list-content, save-content, batch...), so name-based breadth undercounts."
+  },
+  "webo-mcp": {
+    "enable_php": "",
+    "endpoint": "mcp/v1/router",
+    "auth": {"type": "basic"},
+    "notes": "On by default. Application passwords or a logged-in session; optional API key / HMAC as an extra gate."
+  },
+  "sokket-site-connector-for-mcp": {
+    "enable_php": "$s = get_option('sokket_settings', []); if (!is_array($s)) { $s = []; } $s['enabled'] = true; update_option('sokket_settings', $s); $r = new \\SOKKET\\Tools\\Registry(); $k = (new \\SOKKET\\Auth\\TokenManager())->create('run_tests', 1, array_keys($r->get_tools()), false); echo is_array($k) ? 'token:' . $k['token'] : 'error';",
+    "endpoint": "sokket/v1/mcp",
+    "auth": {"type": "bearer", "value": "{token}"},
+    "notes": "Off by default (sokket_settings enabled => false, 503 until on). Bearer tokens are bound to a user with a per-token tool list; config allows every tool. OAuth is a separate opt-in."
+  },
+  "bcs-mcp-manager": {
+    "enable_php": "$s = get_option('bcs_mcp_settings', []); if (!is_array($s)) { $s = []; } $s['enabled'] = 1; update_option('bcs_mcp_settings', $s);",
+    "endpoint": "bcs-mcp/v1/mcp",
+    "auth": {"type": "oauth"},
+    "notes": "Off by default (bcs_mcp_settings enabled, 503 'MCP server is disabled.' until on). Readme documents OAuth 2.0 only. An application password gets 401."
+  },
+  "counterhand-mcp-for-woocommerce": {
+    "enable_php": "$s = get_option('counterhand_settings', []); if (!is_array($s)) { $s = []; } $s['enabled'] = true; update_option('counterhand_settings', $s); flush_rewrite_rules();",
+    "endpoint": "counterhand/v1/mcp",
+    "auth": {"type": "oauth"},
+    "notes": "Off by default (counterhand_settings enabled, src/Features/McpServer/McpServerFeature.php). Pretty /mcp URL plus a REST fallback; the route is open and process() returns 401 without an OAuth 2.1 token. OAuth only (CIMD consent flow)."
+  },
+  "admindra-mcp": {
+    "install_plugins": ["mcp-adapter"],
+    "enable_php": "",
+    "endpoint": "mcp/mcp-oauth-server",
+    "auth": {"type": "oauth"},
+    "notes": "Needs the separate MCP Adapter plugin (readme Installation step 2; no Requires Plugins header). Bundles an OAuth server that requires HTTPS, so OAuth cannot complete on a plain-http Studio site. Content edits off by default (admindra_mcp_content_edits)."
+  },
+  "acrossai-mcp-manager": {
+    "enable_php": "global $wpdb; $wpdb->update($wpdb->prefix . 'acrossai_mcp_servers', array('is_enabled' => 1), array('server_slug' => 'acrossai-mcp-server'));",
+    "endpoint": "acrossai/mcp",
+    "auth": {"type": "basic"},
+    "notes": "Off by default: both seeded servers have is_enabled = 0 (wp_acrossai_mcp_servers). Config enables the recommended AcrossAI server, whose toolset needs the companion plugin acrossai-abilities-manager (the quick-connect wizard installs it). Bundles the MCP Adapter. OAuth, application passwords, CLI or WP-CLI STDIO. The recommended server exposes 14 grouped toolset tools, so the tool count undercounts.",
+    "install_plugins": ["acrossai-abilities-manager"]
+  }
+}

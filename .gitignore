@@ -1,3 +1,4 @@
 .idea/
 setup_results.tsv
 venv/
+.~lock.*
