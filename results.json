@@ -1,7 +1,7 @@
 {
   "abilities-bridge": {
     "A2": {
-      "at": "2026-10-19T17:07:06+02:00",
+      "at": "2026-10-21T13:34:27+02:00",
       "detail": "9 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -18,7 +18,7 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T17:18:26+02:00",
+      "at": "2026-10-21T13:34:33+02:00",
       "detail": "initialize 401, tools/list 401 (Authentication required. Use OAuth Bearer token or WordPress Application Password.)",
       "source": "auto",
       "status": "Pass",
@@ -30,8 +30,8 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:07:06+02:00",
-      "detail": "http://localhost:8911/wp-json/abilities-bridge-mcp/v1/mcp: initialize 401, tools/list 401 (Authentication required. Use OAuth Bearer token or WordPress Application Password.)",
+      "at": "2026-10-21T13:34:27+02:00",
+      "detail": "http://localhost:8908/wp-json/abilities-bridge-mcp/v1/mcp: initialize 401, tools/list 401 (Authentication required. Use OAuth Bearer token or WordPress Application Password.)",
       "source": "auto",
       "status": "Pass",
       "value": {
@@ -43,7 +43,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:18:23+02:00",
+      "at": "2026-10-21T13:34:27+02:00",
       "detail": "mcp-adapter, reads-abilities, registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -54,32 +54,34 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T17:18:31+02:00",
+      "at": "2026-10-21T13:34:36+02:00",
       "detail": "initialize 200, tools/list 200, 0 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "basic",
         "tool_count": 0,
         "tools": []
       }
     },
     "BR": {
-      "at": "2026-10-19T17:18:31+02:00",
+      "at": "2026-10-21T13:34:36+02:00",
       "detail": "",
       "source": "auto",
       "status": "0/9",
       "value": []
     },
     "EN": {
-      "at": "2026-10-19T17:18:26+02:00",
+      "at": "2026-10-21T13:34:33+02:00",
       "detail": "9 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8911/wp-json/abilities-bridge-mcp/v1/mcp"
+      "value": "http://localhost:8908/wp-json/abilities-bridge-mcp/v1/mcp"
     },
     "S1": {
-      "at": "2026-10-19T17:18:16+02:00",
+      "at": "2026-10-21T13:34:18+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -88,7 +90,7 @@
   },
   "acadium-agent-publisher": {
     "A2": {
-      "at": "2026-10-19T17:07:22+02:00",
+      "at": "2026-10-21T13:35:47+02:00",
       "detail": "3 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -99,24 +101,24 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T17:07:26+02:00",
-      "detail": "initialize 401, tools/list 401",
+      "at": "2026-10-21T13:35:51+02:00",
+      "detail": "initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Sorry, you are not allowed to do that.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:07:23+02:00",
-      "detail": "http://localhost:8915/wp-json/acadium-agent-publisher/mcp: initialize 401, tools/list 401",
+      "at": "2026-10-21T13:35:47+02:00",
+      "detail": "http://localhost:8912/wp-json/acadium-agent-publisher/mcp: initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Sorry, you are not allowed to do that.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401,
@@ -124,7 +126,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:07:23+02:00",
+      "at": "2026-10-21T13:35:47+02:00",
       "detail": "mcp-adapter, reads-abilities, registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -135,11 +137,13 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T17:07:29+02:00",
+      "at": "2026-10-21T13:35:55+02:00",
       "detail": "initialize 200, tools/list 200, 27 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "basic",
         "tool_count": 27,
         "tools": [
@@ -174,7 +178,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T17:07:29+02:00",
+      "at": "2026-10-21T13:35:55+02:00",
       "detail": "posts, media, taxonomies",
       "source": "auto",
       "status": "3/9",
@@ -185,14 +189,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T17:07:26+02:00",
+      "at": "2026-10-21T13:35:51+02:00",
       "detail": "3 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8915/wp-json/acadium-agent-publisher/mcp"
+      "value": "http://localhost:8912/wp-json/acadium-agent-publisher/mcp"
     },
     "S1": {
-      "at": "2026-10-19T17:07:14+02:00",
+      "at": "2026-10-21T13:35:37+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -201,7 +205,7 @@
   },
   "acrossai-mcp-manager": {
     "A2": {
-      "at": "2026-10-19T17:18:04+02:00",
+      "at": "2026-10-21T13:31:55+02:00",
       "detail": "35 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -244,7 +248,7 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T17:21:48+02:00",
+      "at": "2026-10-21T13:32:12+02:00",
       "detail": "initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
       "source": "auto",
       "status": "Pass",
@@ -256,8 +260,8 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:18:04+02:00",
-      "detail": "http://localhost:8904/wp-json/acrossai/mcp: initialize 404, tools/list 404 (No route was found matching the URL and request method.)",
+      "at": "2026-10-21T13:31:56+02:00",
+      "detail": "http://localhost:8901/wp-json/acrossai/mcp: initialize 404, tools/list 404 (No route was found matching the URL and request method.)",
       "source": "auto",
       "status": "Disabled",
       "value": {
@@ -269,7 +273,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:21:35+02:00",
+      "at": "2026-10-21T13:31:56+02:00",
       "detail": "mcp-adapter, reads-abilities, registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -280,11 +284,13 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T17:21:53+02:00",
+      "at": "2026-10-21T13:32:16+02:00",
       "detail": "initialize 200, tools/list 200, 14 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "basic",
         "tool_count": 14,
         "tools": [
@@ -306,7 +312,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T17:21:53+02:00",
+      "at": "2026-10-21T13:32:16+02:00",
       "detail": "users, blocks",
       "source": "auto",
       "status": "2/9",
@@ -316,14 +322,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T17:21:48+02:00",
+      "at": "2026-10-21T13:32:12+02:00",
       "detail": "35 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8904/wp-json/acrossai/mcp"
+      "value": "http://localhost:8901/wp-json/acrossai/mcp"
     },
     "S1": {
-      "at": "2026-10-19T17:21:28+02:00",
+      "at": "2026-10-21T13:31:46+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -332,14 +338,14 @@
   },
   "admindra-mcp": {
     "A2": {
-      "at": "2026-10-19T17:17:39+02:00",
+      "at": "2026-10-21T13:33:46+02:00",
       "detail": "0 MCP route(s) before enabling",
       "source": "auto",
       "status": "Disabled",
       "value": []
     },
     "A3": {
-      "at": "2026-10-19T17:17:52+02:00",
+      "at": "2026-10-21T13:33:57+02:00",
       "detail": "initialize 401, tools/list 401 (MCP authentication required.)",
       "source": "auto",
       "status": "Pass",
@@ -351,7 +357,7 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:17:39+02:00",
+      "at": "2026-10-21T13:33:46+02:00",
       "detail": "no MCP endpoint before enabling",
       "source": "auto",
       "status": "Disabled",
@@ -360,7 +366,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:17:39+02:00",
+      "at": "2026-10-21T13:33:46+02:00",
       "detail": "mcp-adapter, reads-abilities, registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -371,7 +377,7 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T17:17:52+02:00",
+      "at": "2026-10-21T13:33:57+02:00",
       "detail": "OAuth only: needs the browser consent flow, use the manual sheet",
       "source": "auto",
       "status": "Manual",
@@ -380,14 +386,14 @@
       }
     },
     "EN": {
-      "at": "2026-10-19T17:17:52+02:00",
+      "at": "2026-10-21T13:33:57+02:00",
       "detail": "3 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8909/wp-json/mcp/mcp-oauth-server"
+      "value": "http://localhost:8906/wp-json/mcp/mcp-oauth-server"
     },
     "S1": {
-      "at": "2026-10-19T17:17:31+02:00",
+      "at": "2026-10-21T13:33:37+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -396,7 +402,7 @@
   },
   "agent-abilities-for-mcp": {
     "A2": {
-      "at": "2026-10-19T16:47:48+02:00",
+      "at": "2026-10-21T13:28:38+02:00",
       "detail": "6 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -410,24 +416,24 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T16:53:56+02:00",
-      "detail": "initialize 401, tools/list 401",
+      "at": "2026-10-21T13:28:44+02:00",
+      "detail": "initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Sorry, you are not allowed to do that.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401
       }
     },
     "A3pre": {
-      "at": "2026-10-19T16:47:48+02:00",
-      "detail": "http://localhost:8893/wp-json/agent-abilities-for-mcp/mcp: initialize 401, tools/list 401",
+      "at": "2026-10-21T13:28:38+02:00",
+      "detail": "http://localhost:8891/wp-json/agent-abilities-for-mcp/mcp: initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Sorry, you are not allowed to do that.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401,
@@ -435,7 +441,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T16:53:53+02:00",
+      "at": "2026-10-21T13:28:38+02:00",
       "detail": "mcp-adapter, reads-abilities, registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -446,11 +452,13 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T16:54:01+02:00",
+      "at": "2026-10-21T13:28:48+02:00",
       "detail": "initialize 200, tools/list 200, 85 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "basic",
         "tool_count": 85,
         "tools": [
@@ -543,7 +551,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T16:54:01+02:00",
+      "at": "2026-10-21T13:28:48+02:00",
       "detail": "posts, pages, media, taxonomies, users, plugins, settings, blocks",
       "source": "auto",
       "status": "8/9",
@@ -559,14 +567,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T16:53:56+02:00",
+      "at": "2026-10-21T13:28:44+02:00",
       "detail": "6 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8893/wp-json/agent-abilities-for-mcp/mcp"
+      "value": "http://localhost:8891/wp-json/agent-abilities-for-mcp/mcp"
     },
     "S1": {
-      "at": "2026-10-19T16:53:50+02:00",
+      "at": "2026-10-21T13:28:28+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -575,26 +583,26 @@
   },
   "ai-engine": {
     "A2": {
-      "at": "2026-10-19T16:22:07+02:00",
+      "at": "2026-10-21T13:26:06+02:00",
       "detail": "0 MCP route(s) before enabling",
       "source": "auto",
       "status": "Disabled",
       "value": []
     },
     "A3": {
-      "at": "2026-10-19T16:22:43+02:00",
-      "detail": "initialize 401, tools/list 401",
+      "at": "2026-10-21T13:26:12+02:00",
+      "detail": "initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Sorry, you are not allowed to do that.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401
       }
     },
     "A3pre": {
-      "at": "2026-10-19T16:22:07+02:00",
+      "at": "2026-10-21T13:26:06+02:00",
       "detail": "no MCP endpoint before enabling",
       "source": "auto",
       "status": "Disabled",
@@ -603,7 +611,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T16:22:40+02:00",
+      "at": "2026-10-21T13:26:06+02:00",
       "detail": "reads-abilities",
       "source": "auto",
       "status": "Y",
@@ -612,11 +620,13 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T16:22:48+02:00",
+      "at": "2026-10-21T13:26:15+02:00",
       "detail": "initialize 200, tools/list 200, 46 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "basic",
         "tool_count": 46,
         "tools": [
@@ -670,7 +680,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T16:22:48+02:00",
+      "at": "2026-10-21T13:26:15+02:00",
       "detail": "posts, media, taxonomies, users, plugins, settings, blocks",
       "source": "auto",
       "status": "7/9",
@@ -685,14 +695,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T16:22:43+02:00",
+      "at": "2026-10-21T13:26:11+02:00",
       "detail": "11 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8886/wp-json/mcp/v1/http"
+      "value": "http://localhost:8881/wp-json/mcp/v1/http"
     },
     "S1": {
-      "at": "2026-10-19T16:22:38+02:00",
+      "at": "2026-10-21T13:25:56+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -701,7 +711,7 @@
   },
   "ai-workflow-automation-ai-agent-hub": {
     "A2": {
-      "at": "2026-10-19T16:48:17+02:00",
+      "at": "2026-10-21T13:29:14+02:00",
       "detail": "2 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -711,24 +721,24 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T16:48:20+02:00",
-      "detail": "initialize 401, tools/list 401",
+      "at": "2026-10-21T13:29:18+02:00",
+      "detail": "initialize 401, tools/list 401 (Authentication required. Please provide a Bearer token or log in as an administrator.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Authentication required. Please provide a Bearer token or log in as an administrator.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401
       }
     },
     "A3pre": {
-      "at": "2026-10-19T16:48:17+02:00",
-      "detail": "http://localhost:8895/wp-json/awfah_mcp/mcp: initialize 401, tools/list 401",
+      "at": "2026-10-21T13:29:14+02:00",
+      "detail": "http://localhost:8893/wp-json/awfah_mcp/mcp: initialize 401, tools/list 401 (Authentication required. Please provide a Bearer token or log in as an administrator.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Authentication required. Please provide a Bearer token or log in as an administrator.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401,
@@ -736,7 +746,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T16:48:17+02:00",
+      "at": "2026-10-21T13:29:14+02:00",
       "detail": "mcp-adapter, reads-abilities, registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -747,11 +757,13 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T16:48:23+02:00",
+      "at": "2026-10-21T13:29:22+02:00",
       "detail": "initialize 200, tools/list 200, 57 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "basic",
         "tool_count": 57,
         "tools": [
@@ -816,7 +828,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T16:48:23+02:00",
+      "at": "2026-10-21T13:29:22+02:00",
       "detail": "posts, pages, media, taxonomies, users, plugins, settings",
       "source": "auto",
       "status": "7/9",
@@ -831,23 +843,23 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T16:48:20+02:00",
+      "at": "2026-10-21T13:29:18+02:00",
       "detail": "2 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8895/wp-json/awfah_mcp/mcp"
+      "value": "http://localhost:8893/wp-json/awfah_mcp/mcp"
     },
     "S1": {
-      "at": "2026-10-19T16:48:09+02:00",
+      "at": "2026-10-21T13:29:04+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
-      "value": "1.9.3"
+      "value": "1.9.4"
     }
   },
   "aicom": {
     "A2": {
-      "at": "2026-10-19T17:19:02+02:00",
+      "at": "2026-10-21T13:36:07+02:00",
       "detail": "1 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -856,7 +868,7 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T17:19:06+02:00",
+      "at": "2026-10-21T13:36:13+02:00",
       "detail": "initialize 200, tools/list 200 (API key missing)",
       "source": "auto",
       "status": "Pass",
@@ -868,8 +880,8 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:19:02+02:00",
-      "detail": "http://localhost:8900/wp-json/aicom/v1/mcp: initialize 200, tools/list 200 (API key missing)",
+      "at": "2026-10-21T13:36:07+02:00",
+      "detail": "http://localhost:8913/wp-json/aicom/v1/mcp: initialize 200, tools/list 200 (API key missing)",
       "source": "auto",
       "status": "Pass",
       "value": {
@@ -881,18 +893,20 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:19:02+02:00",
+      "at": "2026-10-21T13:36:07+02:00",
       "detail": "no markers found",
       "source": "auto",
       "status": "N",
       "value": []
     },
     "AUTH": {
-      "at": "2026-10-19T17:19:07+02:00",
+      "at": "2026-10-21T13:36:13+02:00",
       "detail": "initialize 200, tools/list 200, 93 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "bearer",
         "tool_count": 93,
         "tools": [
@@ -993,7 +1007,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T17:19:07+02:00",
+      "at": "2026-10-21T13:36:13+02:00",
       "detail": "posts, media, taxonomies, users, plugins, settings",
       "source": "auto",
       "status": "6/9",
@@ -1007,14 +1021,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T17:19:06+02:00",
+      "at": "2026-10-21T13:36:13+02:00",
       "detail": "1 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8900/wp-json/aicom/v1/mcp"
+      "value": "http://localhost:8913/wp-json/aicom/v1/mcp"
     },
     "S1": {
-      "at": "2026-10-19T17:18:53+02:00",
+      "at": "2026-10-21T13:35:58+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -1023,7 +1037,7 @@
   },
   "albert-ai-butler": {
     "A2": {
-      "at": "2026-10-19T17:07:40+02:00",
+      "at": "2026-10-21T13:31:39+02:00",
       "detail": "3 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -1034,7 +1048,7 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T17:25:50+02:00",
+      "at": "2026-10-21T13:31:42+02:00",
       "detail": "initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
       "source": "auto",
       "status": "Pass",
@@ -1046,12 +1060,12 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:07:40+02:00",
-      "detail": "http://localhost:8903/wp-json/albert/v1/mcp: initialize 401, tools/list 401",
+      "at": "2026-10-21T13:31:39+02:00",
+      "detail": "http://localhost:8900/wp-json/albert/v1/mcp: initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Sorry, you are not allowed to do that.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401,
@@ -1059,7 +1073,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:25:48+02:00",
+      "at": "2026-10-21T13:31:39+02:00",
       "detail": "mcp-adapter, reads-abilities, registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -1070,7 +1084,7 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T17:25:50+02:00",
+      "at": "2026-10-21T13:31:42+02:00",
       "detail": "OAuth only: needs the browser consent flow, use the manual sheet",
       "source": "auto",
       "status": "Manual",
@@ -1079,14 +1093,14 @@
       }
     },
     "EN": {
-      "at": "2026-10-19T17:25:50+02:00",
+      "at": "2026-10-21T13:31:42+02:00",
       "detail": "3 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8903/wp-json/albert/v1/mcp"
+      "value": "http://localhost:8900/wp-json/albert/v1/mcp"
     },
     "S1": {
-      "at": "2026-10-19T17:25:42+02:00",
+      "at": "2026-10-21T13:31:29+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -1095,7 +1109,7 @@
   },
   "alphabridge-mcp": {
     "A2": {
-      "at": "2026-10-19T17:19:18+02:00",
+      "at": "2026-10-21T13:33:08+02:00",
       "detail": "2 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -1105,7 +1119,7 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T17:19:23+02:00",
+      "at": "2026-10-21T13:33:14+02:00",
       "detail": "initialize 401, tools/list 401 (Invalid or missing bearer token. Send the connection's token as \"Authorization: Bearer \u2026\" or connect again; an administrator manages connections under Settings \u2192 AlphaBridge MCP.)",
       "source": "auto",
       "status": "Pass",
@@ -1117,8 +1131,8 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:19:18+02:00",
-      "detail": "http://localhost:8907/wp-json/alphabridge/v1/mcp: initialize 401, tools/list 401 (Invalid or missing bearer token. Send the connection's token as \"Authorization: Bearer \u2026\" or connect again; an administrator manages connections under Settings \u2192 AlphaBridge MCP.)",
+      "at": "2026-10-21T13:33:08+02:00",
+      "detail": "http://localhost:8904/wp-json/alphabridge/v1/mcp: initialize 401, tools/list 401 (Invalid or missing bearer token. Send the connection's token as \"Authorization: Bearer \u2026\" or connect again; an administrator manages connections under Settings \u2192 AlphaBridge MCP.)",
       "source": "auto",
       "status": "Pass",
       "value": {
@@ -1130,18 +1144,20 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:19:18+02:00",
+      "at": "2026-10-21T13:33:08+02:00",
       "detail": "no markers found",
       "source": "auto",
       "status": "N",
       "value": []
     },
     "AUTH": {
-      "at": "2026-10-19T17:19:23+02:00",
+      "at": "2026-10-21T13:33:14+02:00",
       "detail": "initialize 200, tools/list 200, 40 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "bearer",
         "tool_count": 40,
         "tools": [
@@ -1189,7 +1205,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T17:19:23+02:00",
+      "at": "2026-10-21T13:33:14+02:00",
       "detail": "posts, media, taxonomies, users, settings",
       "source": "auto",
       "status": "5/9",
@@ -1202,14 +1218,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T17:19:23+02:00",
+      "at": "2026-10-21T13:33:14+02:00",
       "detail": "2 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8907/wp-json/alphabridge/v1/mcp"
+      "value": "http://localhost:8904/wp-json/alphabridge/v1/mcp"
     },
     "S1": {
-      "at": "2026-10-19T17:19:10+02:00",
+      "at": "2026-10-21T13:32:59+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -1218,7 +1234,7 @@
   },
   "bcs-mcp-manager": {
     "A2": {
-      "at": "2026-10-19T17:17:03+02:00",
+      "at": "2026-10-21T13:35:08+02:00",
       "detail": "5 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -1231,7 +1247,7 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T17:22:43+02:00",
+      "at": "2026-10-21T13:35:13+02:00",
       "detail": "initialize 401, tools/list 401 (Authentication required.)",
       "source": "auto",
       "status": "Pass",
@@ -1243,8 +1259,8 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:17:03+02:00",
-      "detail": "http://localhost:8913/wp-json/bcs-mcp/v1/mcp: initialize 503, tools/list 503 (MCP server is disabled.)",
+      "at": "2026-10-21T13:35:08+02:00",
+      "detail": "http://localhost:8910/wp-json/bcs-mcp/v1/mcp: initialize 503, tools/list 503 (MCP server is disabled.)",
       "source": "auto",
       "status": "Disabled",
       "value": {
@@ -1256,14 +1272,14 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:22:40+02:00",
+      "at": "2026-10-21T13:35:08+02:00",
       "detail": "no markers found",
       "source": "auto",
       "status": "N",
       "value": []
     },
     "AUTH": {
-      "at": "2026-10-19T17:22:43+02:00",
+      "at": "2026-10-21T13:35:13+02:00",
       "detail": "OAuth only: needs the browser consent flow, use the manual sheet",
       "source": "auto",
       "status": "Manual",
@@ -1272,14 +1288,14 @@
       }
     },
     "EN": {
-      "at": "2026-10-19T17:22:43+02:00",
+      "at": "2026-10-21T13:35:13+02:00",
       "detail": "5 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8913/wp-json/bcs-mcp/v1/mcp"
+      "value": "http://localhost:8910/wp-json/bcs-mcp/v1/mcp"
     },
     "S1": {
-      "at": "2026-10-19T17:22:34+02:00",
+      "at": "2026-10-21T13:34:58+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -1288,14 +1304,14 @@
   },
   "counterhand-mcp-for-woocommerce": {
     "A2": {
-      "at": "2026-10-19T17:17:23+02:00",
+      "at": "2026-10-21T13:37:10+02:00",
       "detail": "0 MCP route(s) before enabling",
       "source": "auto",
       "status": "Disabled",
       "value": []
     },
     "A3": {
-      "at": "2026-10-19T17:17:28+02:00",
+      "at": "2026-10-21T13:37:16+02:00",
       "detail": "initialize 401, tools/list 401 (Invalid or missing API token.)",
       "source": "auto",
       "status": "Pass",
@@ -1307,7 +1323,7 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:17:23+02:00",
+      "at": "2026-10-21T13:37:10+02:00",
       "detail": "no MCP endpoint before enabling",
       "source": "auto",
       "status": "Disabled",
@@ -1316,14 +1332,14 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:17:23+02:00",
+      "at": "2026-10-21T13:37:10+02:00",
       "detail": "no markers found",
       "source": "auto",
       "status": "N",
       "value": []
     },
     "AUTH": {
-      "at": "2026-10-19T17:17:28+02:00",
+      "at": "2026-10-21T13:37:16+02:00",
       "detail": "OAuth only: needs the browser consent flow, use the manual sheet",
       "source": "auto",
       "status": "Manual",
@@ -1332,14 +1348,14 @@
       }
     },
     "EN": {
-      "at": "2026-10-19T17:17:28+02:00",
+      "at": "2026-10-21T13:37:16+02:00",
       "detail": "1 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8918/wp-json/counterhand/v1/mcp"
+      "value": "http://localhost:8916/wp-json/counterhand/v1/mcp"
     },
     "S1": {
-      "at": "2026-10-19T17:17:14+02:00",
+      "at": "2026-10-21T13:36:59+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -1348,7 +1364,7 @@
   },
   "cowboy-mcp": {
     "A2": {
-      "at": "2026-10-19T16:47:14+02:00",
+      "at": "2026-10-21T13:27:57+02:00",
       "detail": "4 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -1360,24 +1376,24 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T16:47:19+02:00",
-      "detail": "initialize 401, tools/list 401",
+      "at": "2026-10-21T13:28:03+02:00",
+      "detail": "initialize 401, tools/list 401 (Missing or invalid Authorization header.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Missing or invalid Authorization header.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401
       }
     },
     "A3pre": {
-      "at": "2026-10-19T16:47:14+02:00",
-      "detail": "http://localhost:8891/wp-json/cowboy-mcp/v1/endpoint: initialize 401, tools/list 401",
+      "at": "2026-10-21T13:27:57+02:00",
+      "detail": "http://localhost:8889/wp-json/cowboy-mcp/v1/endpoint: initialize 401, tools/list 401 (Missing or invalid Authorization header.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Missing or invalid Authorization header.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401,
@@ -1385,7 +1401,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T16:47:14+02:00",
+      "at": "2026-10-21T13:27:57+02:00",
       "detail": "mcp-adapter, reads-abilities, registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -1396,11 +1412,13 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T16:47:19+02:00",
+      "at": "2026-10-21T13:28:04+02:00",
       "detail": "initialize 200, tools/list 200, 2 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "bearer",
         "tool_count": 2,
         "tools": [
@@ -1410,21 +1428,21 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T16:47:19+02:00",
+      "at": "2026-10-21T13:28:04+02:00",
       "detail": "",
       "source": "auto",
       "status": "0/9",
       "value": []
     },
     "EN": {
-      "at": "2026-10-19T16:47:19+02:00",
+      "at": "2026-10-21T13:28:03+02:00",
       "detail": "4 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8891/wp-json/cowboy-mcp/v1/endpoint"
+      "value": "http://localhost:8889/wp-json/cowboy-mcp/v1/endpoint"
     },
     "S1": {
-      "at": "2026-10-19T16:47:06+02:00",
+      "at": "2026-10-21T13:27:47+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -1433,7 +1451,7 @@
   },
   "devcubic-ai-bridge-for-mcp": {
     "A2": {
-      "at": "2026-10-19T17:07:58+02:00",
+      "at": "2026-10-21T13:34:11+02:00",
       "detail": "4 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -1445,7 +1463,7 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T17:26:01+02:00",
+      "at": "2026-10-21T13:34:14+02:00",
       "detail": "initialize 401, tools/list 401 (A valid access token is required.)",
       "source": "auto",
       "status": "Pass",
@@ -1457,12 +1475,12 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:07:58+02:00",
-      "detail": "http://localhost:8910/wp-json/mcp-connector/v1/mcp: initialize 401, tools/list 401",
+      "at": "2026-10-21T13:34:11+02:00",
+      "detail": "http://localhost:8907/wp-json/mcp-connector/v1/mcp: initialize 401, tools/list 401 (A valid access token is required.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "A valid access token is required.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401,
@@ -1470,14 +1488,14 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:25:59+02:00",
+      "at": "2026-10-21T13:34:11+02:00",
       "detail": "no markers found",
       "source": "auto",
       "status": "N",
       "value": []
     },
     "AUTH": {
-      "at": "2026-10-19T17:26:01+02:00",
+      "at": "2026-10-21T13:34:14+02:00",
       "detail": "OAuth only: needs the browser consent flow, use the manual sheet",
       "source": "auto",
       "status": "Manual",
@@ -1486,14 +1504,14 @@
       }
     },
     "EN": {
-      "at": "2026-10-19T17:26:01+02:00",
+      "at": "2026-10-21T13:34:14+02:00",
       "detail": "4 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8910/wp-json/mcp-connector/v1/mcp"
+      "value": "http://localhost:8907/wp-json/mcp-connector/v1/mcp"
     },
     "S1": {
-      "at": "2026-10-19T17:25:53+02:00",
+      "at": "2026-10-21T13:34:01+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -1502,21 +1520,21 @@
   },
   "diviops-agent": {
     "A2": {
-      "at": "2026-10-19T16:48:05+02:00",
+      "at": "2026-10-21T13:29:00+02:00",
       "detail": "0 MCP route(s) before enabling",
       "source": "auto",
       "status": "Disabled",
       "value": []
     },
     "A3": {
-      "at": "2026-10-19T16:48:05+02:00",
+      "at": "2026-10-21T13:29:00+02:00",
       "detail": "MCP server runs outside WordPress. MCP server is the separate @diviops/mcp-server npm package; the plugin adds REST endpoints it calls with an application password.",
       "source": "auto",
       "status": "N/A",
       "value": null
     },
     "A3pre": {
-      "at": "2026-10-19T16:48:05+02:00",
+      "at": "2026-10-21T13:29:00+02:00",
       "detail": "no MCP endpoint before enabling",
       "source": "auto",
       "status": "Disabled",
@@ -1525,37 +1543,37 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T16:48:05+02:00",
+      "at": "2026-10-21T13:29:00+02:00",
       "detail": "no markers found",
       "source": "auto",
       "status": "N",
       "value": []
     },
     "AUTH": {
-      "at": "2026-10-19T16:48:05+02:00",
+      "at": "2026-10-21T13:29:00+02:00",
       "detail": "MCP server runs outside WordPress. MCP server is the separate @diviops/mcp-server npm package; the plugin adds REST endpoints it calls with an application password.",
       "source": "auto",
       "status": "N/A",
       "value": null
     },
     "EN": {
-      "at": "2026-10-19T16:48:05+02:00",
+      "at": "2026-10-21T13:29:00+02:00",
       "detail": "MCP server runs outside WordPress. MCP server is the separate @diviops/mcp-server npm package; the plugin adds REST endpoints it calls with an application password.",
       "source": "auto",
       "status": "N/A",
       "value": null
     },
     "S1": {
-      "at": "2026-10-19T16:47:57+02:00",
+      "at": "2026-10-21T13:28:51+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
-      "value": "1.5.46"
+      "value": "1.5.47"
     }
   },
   "easy-mcp-ai": {
     "A2": {
-      "at": "2026-10-19T16:46:28+02:00",
+      "at": "2026-10-21T13:26:40+02:00",
       "detail": "66 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -1629,7 +1647,7 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T16:46:33+02:00",
+      "at": "2026-10-21T13:26:46+02:00",
       "detail": "initialize 401, tools/list 401",
       "source": "auto",
       "status": "Pass",
@@ -1641,8 +1659,8 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T16:46:28+02:00",
-      "detail": "http://localhost:8888/wp-json/easy-mcp-ai/v1/mcp: initialize 401, tools/list 401",
+      "at": "2026-10-21T13:26:41+02:00",
+      "detail": "http://localhost:8885/wp-json/easy-mcp-ai/v1/mcp: initialize 401, tools/list 401",
       "source": "auto",
       "status": "Pass",
       "value": {
@@ -1654,7 +1672,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T16:46:28+02:00",
+      "at": "2026-10-21T13:26:41+02:00",
       "detail": "mcp-adapter, reads-abilities",
       "source": "auto",
       "status": "Y",
@@ -1664,11 +1682,13 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T16:46:36+02:00",
+      "at": "2026-10-21T13:26:46+02:00",
       "detail": "initialize 200, tools/list 200, 131 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "bearer",
         "tool_count": 131,
         "tools": [
@@ -1807,7 +1827,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T16:46:36+02:00",
+      "at": "2026-10-21T13:26:46+02:00",
       "detail": "posts, pages, media, taxonomies, users, plugins, settings, blocks, woocommerce",
       "source": "auto",
       "status": "9/9",
@@ -1824,23 +1844,23 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T16:46:33+02:00",
+      "at": "2026-10-21T13:26:46+02:00",
       "detail": "66 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8888/wp-json/easy-mcp-ai/v1/mcp"
+      "value": "http://localhost:8885/wp-json/easy-mcp-ai/v1/mcp"
     },
     "S1": {
-      "at": "2026-10-19T16:46:23+02:00",
+      "at": "2026-10-21T13:26:31+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
-      "value": "2.2.1"
+      "value": "2.2.2"
     }
   },
   "iato-mcp": {
     "A2": {
-      "at": "2026-10-19T16:49:11+02:00",
+      "at": "2026-10-21T13:30:17+02:00",
       "detail": "3 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -1851,24 +1871,24 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T16:49:15+02:00",
-      "detail": "initialize 401, tools/list 401",
+      "at": "2026-10-21T13:30:20+02:00",
+      "detail": "initialize 401, tools/list 401 (Authentication required. Use Authorization: Bearer <your-mcp-key> or a WordPress Application Password (Basic auth).)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Authentication required. Use Authorization: Bearer <your-mcp-key> or a WordPress Application Password (Basic auth).",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401
       }
     },
     "A3pre": {
-      "at": "2026-10-19T16:49:12+02:00",
-      "detail": "http://localhost:8898/wp-json/iato-mcp/v1/message: initialize 401, tools/list 401",
+      "at": "2026-10-21T13:30:17+02:00",
+      "detail": "http://localhost:8896/wp-json/iato-mcp/v1/message: initialize 401, tools/list 401 (Authentication required. Use Authorization: Bearer <your-mcp-key> or a WordPress Application Password (Basic auth).)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Authentication required. Use Authorization: Bearer <your-mcp-key> or a WordPress Application Password (Basic auth).",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401,
@@ -1876,7 +1896,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T16:49:12+02:00",
+      "at": "2026-10-21T13:30:17+02:00",
       "detail": "registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -1885,11 +1905,13 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T16:49:18+02:00",
+      "at": "2026-10-21T13:30:24+02:00",
       "detail": "initialize 200, tools/list 200, 46 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "basic",
         "tool_count": 46,
         "tools": [
@@ -1943,7 +1965,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T16:49:18+02:00",
+      "at": "2026-10-21T13:30:24+02:00",
       "detail": "posts, pages, media, taxonomies, settings",
       "source": "auto",
       "status": "5/9",
@@ -1956,14 +1978,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T16:49:15+02:00",
+      "at": "2026-10-21T13:30:20+02:00",
       "detail": "3 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8898/wp-json/iato-mcp/v1/message"
+      "value": "http://localhost:8896/wp-json/iato-mcp/v1/message"
     },
     "S1": {
-      "at": "2026-10-19T16:49:03+02:00",
+      "at": "2026-10-21T13:30:07+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -1972,14 +1994,14 @@
   },
   "invizo-mcp": {
     "A2": {
-      "at": "2026-10-19T17:18:42+02:00",
+      "at": "2026-10-21T13:30:55+02:00",
       "detail": "0 MCP route(s) before enabling",
       "source": "auto",
       "status": "Disabled",
       "value": []
     },
     "A3": {
-      "at": "2026-10-19T17:24:18+02:00",
+      "at": "2026-10-21T13:31:09+02:00",
       "detail": "initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
       "source": "auto",
       "status": "Pass",
@@ -1991,7 +2013,7 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:18:42+02:00",
+      "at": "2026-10-21T13:30:55+02:00",
       "detail": "no MCP endpoint before enabling",
       "source": "auto",
       "status": "Disabled",
@@ -2000,7 +2022,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:24:13+02:00",
+      "at": "2026-10-21T13:30:55+02:00",
       "detail": "mcp-adapter, registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -2010,7 +2032,7 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T17:24:23+02:00",
+      "at": "2026-10-21T13:31:13+02:00",
       "detail": "initialize 200, tools/list 200, 3 tools, 91 abilities behind the Adapter meta-tools",
       "source": "auto",
       "status": "Pass",
@@ -2119,7 +2141,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T17:24:23+02:00",
+      "at": "2026-10-21T13:31:13+02:00",
       "detail": "posts, pages, media, taxonomies, users, plugins, settings, blocks",
       "source": "auto",
       "status": "8/9",
@@ -2135,14 +2157,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T17:24:18+02:00",
+      "at": "2026-10-21T13:31:09+02:00",
       "detail": "2 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8916/wp-json/mcp/invizo"
+      "value": "http://localhost:8898/wp-json/mcp/invizo"
     },
     "S1": {
-      "at": "2026-10-19T17:24:06+02:00",
+      "at": "2026-10-21T13:30:45+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -2151,14 +2173,14 @@
   },
   "mcp-for-woocommerce": {
     "A2": {
-      "at": "2026-10-19T16:21:41+02:00",
+      "at": "2026-10-21T13:36:48+02:00",
       "detail": "0 MCP route(s) before enabling",
       "source": "auto",
       "status": "Disabled",
       "value": []
     },
     "A3": {
-      "at": "2026-10-19T16:29:52+02:00",
+      "at": "2026-10-21T13:36:55+02:00",
       "detail": "initialize 200, tools/list 200, 31 tools. Evidence: includes/Core/McpStreamableTransport.php:58-61: permission_callback __return_true, commented 'Intentionally public: every tool returns only storefront data a visitor can already see, nothing is written'",
       "source": "auto",
       "status": "Public by design",
@@ -2170,7 +2192,7 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T16:21:41+02:00",
+      "at": "2026-10-21T13:36:48+02:00",
       "detail": "no MCP endpoint before enabling",
       "source": "auto",
       "status": "Disabled",
@@ -2179,18 +2201,20 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T16:29:49+02:00",
+      "at": "2026-10-21T13:36:48+02:00",
       "detail": "no markers found",
       "source": "auto",
       "status": "N",
       "value": []
     },
     "AUTH": {
-      "at": "2026-10-19T16:29:52+02:00",
+      "at": "2026-10-21T13:36:55+02:00",
       "detail": "initialize 200, tools/list 200, 31 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "none",
         "tool_count": 31,
         "tools": [
@@ -2229,7 +2253,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T16:29:52+02:00",
+      "at": "2026-10-21T13:36:55+02:00",
       "detail": "posts, pages, taxonomies, woocommerce",
       "source": "auto",
       "status": "4/9",
@@ -2241,14 +2265,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T16:29:52+02:00",
+      "at": "2026-10-21T13:36:54+02:00",
       "detail": "2 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8884/wp-json/wp/v2/wpmcp/streamable"
+      "value": "http://localhost:8915/wp-json/wp/v2/wpmcp/streamable"
     },
     "S1": {
-      "at": "2026-10-19T16:29:46+02:00",
+      "at": "2026-10-21T13:36:37+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -2257,7 +2281,7 @@
   },
   "miniorange-secure-mcp-server": {
     "A2": {
-      "at": "2026-10-19T16:46:45+02:00",
+      "at": "2026-10-21T13:27:18+02:00",
       "detail": "23 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -2288,7 +2312,7 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T16:46:48+02:00",
+      "at": "2026-10-21T13:27:22+02:00",
       "detail": "initialize 401, tools/list 401 (A valid OAuth bearer token is required.)",
       "source": "auto",
       "status": "Pass",
@@ -2300,8 +2324,8 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T16:46:45+02:00",
-      "detail": "http://localhost:8889/wp-json/mosmcp/v1/mcp: initialize 401, tools/list 401 (A valid OAuth bearer token is required.)",
+      "at": "2026-10-21T13:27:18+02:00",
+      "detail": "http://localhost:8887/wp-json/mosmcp/v1/mcp: initialize 401, tools/list 401 (A valid OAuth bearer token is required.)",
       "source": "auto",
       "status": "Pass",
       "value": {
@@ -2313,7 +2337,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T16:46:45+02:00",
+      "at": "2026-10-21T13:27:18+02:00",
       "detail": "reads-abilities, registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -2323,7 +2347,7 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T16:46:48+02:00",
+      "at": "2026-10-21T13:27:22+02:00",
       "detail": "OAuth only: needs the browser consent flow, use the manual sheet",
       "source": "auto",
       "status": "Manual",
@@ -2332,14 +2356,14 @@
       }
     },
     "EN": {
-      "at": "2026-10-19T16:46:48+02:00",
+      "at": "2026-10-21T13:27:22+02:00",
       "detail": "23 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8889/wp-json/mosmcp/v1/mcp"
+      "value": "http://localhost:8887/wp-json/mosmcp/v1/mcp"
     },
     "S1": {
-      "at": "2026-10-19T16:46:40+02:00",
+      "at": "2026-10-21T13:27:08+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -2348,7 +2372,7 @@
   },
   "mountdev-ai-mcp-connector": {
     "A2": {
-      "at": "2026-10-19T16:48:54+02:00",
+      "at": "2026-10-21T13:29:56+02:00",
       "detail": "7 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -2363,24 +2387,24 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T16:48:57+02:00",
-      "detail": "initialize 401, tools/list 401",
+      "at": "2026-10-21T13:30:00+02:00",
+      "detail": "initialize 401, tools/list 401 (Authentication credentials are required.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Authentication credentials are required.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401
       }
     },
     "A3pre": {
-      "at": "2026-10-19T16:48:54+02:00",
-      "detail": "http://localhost:8897/wp-json/mountdev-ai-mcp-connector/v1/messages: initialize 401, tools/list 401",
+      "at": "2026-10-21T13:29:56+02:00",
+      "detail": "http://localhost:8895/wp-json/mountdev-ai-mcp-connector/v1/messages: initialize 401, tools/list 401 (Authentication credentials are required.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Authentication credentials are required.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401,
@@ -2388,7 +2412,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T16:48:54+02:00",
+      "at": "2026-10-21T13:29:56+02:00",
       "detail": "reads-abilities",
       "source": "auto",
       "status": "Y",
@@ -2397,11 +2421,13 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T16:49:00+02:00",
+      "at": "2026-10-21T13:30:03+02:00",
       "detail": "initialize 200, tools/list 200, 19 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "basic",
         "tool_count": 19,
         "tools": [
@@ -2428,7 +2454,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T16:49:00+02:00",
+      "at": "2026-10-21T13:30:03+02:00",
       "detail": "posts, media, taxonomies, users, settings",
       "source": "auto",
       "status": "5/9",
@@ -2441,14 +2467,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T16:48:57+02:00",
+      "at": "2026-10-21T13:30:00+02:00",
       "detail": "7 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8897/wp-json/mountdev-ai-mcp-connector/v1/messages"
+      "value": "http://localhost:8895/wp-json/mountdev-ai-mcp-connector/v1/messages"
     },
     "S1": {
-      "at": "2026-10-19T16:48:45+02:00",
+      "at": "2026-10-21T13:29:47+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -2457,14 +2483,14 @@
   },
   "nibwp": {
     "A2": {
-      "at": "2026-10-19T16:48:34+02:00",
+      "at": "2026-10-21T13:29:35+02:00",
       "detail": "0 MCP route(s) before enabling",
       "source": "auto",
       "status": "Disabled",
       "value": []
     },
     "A3": {
-      "at": "2026-10-19T17:23:43+02:00",
+      "at": "2026-10-21T13:29:40+02:00",
       "detail": "initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
       "source": "auto",
       "status": "Pass",
@@ -2476,7 +2502,7 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T16:48:34+02:00",
+      "at": "2026-10-21T13:29:35+02:00",
       "detail": "no MCP endpoint before enabling",
       "source": "auto",
       "status": "Disabled",
@@ -2485,7 +2511,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:23:40+02:00",
+      "at": "2026-10-21T13:29:35+02:00",
       "detail": "mcp-adapter, reads-abilities, registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -2496,7 +2522,7 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T17:23:47+02:00",
+      "at": "2026-10-21T13:29:44+02:00",
       "detail": "initialize 200, tools/list 200, 3 tools, 68 abilities behind the Adapter meta-tools",
       "source": "auto",
       "status": "Pass",
@@ -2582,7 +2608,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T17:23:47+02:00",
+      "at": "2026-10-21T13:29:44+02:00",
       "detail": "posts, media, taxonomies, users, plugins, settings, blocks",
       "source": "auto",
       "status": "7/9",
@@ -2597,14 +2623,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T17:23:43+02:00",
+      "at": "2026-10-21T13:29:40+02:00",
       "detail": "3 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8896/wp-json/mcp/nibwp"
+      "value": "http://localhost:8894/wp-json/mcp/nibwp"
     },
     "S1": {
-      "at": "2026-10-19T17:23:37+02:00",
+      "at": "2026-10-21T13:29:25+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -2613,7 +2639,7 @@
   },
   "publishio": {
     "A2": {
-      "at": "2026-10-19T17:08:15+02:00",
+      "at": "2026-10-21T13:37:29+02:00",
       "detail": "3 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -2624,24 +2650,24 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T17:08:18+02:00",
-      "detail": "initialize 401, tools/list 401",
+      "at": "2026-10-21T13:37:33+02:00",
+      "detail": "initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Sorry, you are not allowed to do that.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:08:15+02:00",
-      "detail": "http://localhost:8919/wp-json/mcp/publishio: initialize 401, tools/list 401",
+      "at": "2026-10-21T13:37:29+02:00",
+      "detail": "http://localhost:8917/wp-json/mcp/publishio: initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Sorry, you are not allowed to do that.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401,
@@ -2649,7 +2675,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:08:15+02:00",
+      "at": "2026-10-21T13:37:29+02:00",
       "detail": "mcp-adapter, reads-abilities, registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -2660,11 +2686,13 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T17:08:21+02:00",
+      "at": "2026-10-21T13:37:36+02:00",
       "detail": "initialize 200, tools/list 200, 25 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "basic",
         "tool_count": 25,
         "tools": [
@@ -2697,7 +2725,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T17:08:21+02:00",
+      "at": "2026-10-21T13:37:36+02:00",
       "detail": "posts, media, taxonomies, blocks",
       "source": "auto",
       "status": "4/9",
@@ -2709,14 +2737,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T17:08:18+02:00",
+      "at": "2026-10-21T13:37:32+02:00",
       "detail": "3 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8919/wp-json/mcp/publishio"
+      "value": "http://localhost:8917/wp-json/mcp/publishio"
     },
     "S1": {
-      "at": "2026-10-19T17:08:07+02:00",
+      "at": "2026-10-21T13:37:19+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -2725,7 +2753,7 @@
   },
   "rectus-content-access-for-mcp": {
     "A2": {
-      "at": "2026-10-19T17:08:32+02:00",
+      "at": "2026-10-21T13:36:26+02:00",
       "detail": "8 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -2741,7 +2769,7 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T17:23:58+02:00",
+      "at": "2026-10-21T13:36:30+02:00",
       "detail": "initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
       "source": "auto",
       "status": "Pass",
@@ -2753,12 +2781,12 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:08:32+02:00",
-      "detail": "http://localhost:8917/wp-json/mcp/mcp-adapter-default-server: initialize 401, tools/list 401",
+      "at": "2026-10-21T13:36:27+02:00",
+      "detail": "http://localhost:8914/wp-json/mcp/mcp-adapter-default-server: initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Sorry, you are not allowed to do that.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401,
@@ -2766,7 +2794,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:23:57+02:00",
+      "at": "2026-10-21T13:36:27+02:00",
       "detail": "mcp-adapter, reads-abilities, registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -2777,7 +2805,7 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T17:24:03+02:00",
+      "at": "2026-10-21T13:36:34+02:00",
       "detail": "initialize 200, tools/list 200, 3 tools, 68 abilities behind the Adapter meta-tools",
       "source": "auto",
       "status": "Pass",
@@ -2863,7 +2891,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T17:24:03+02:00",
+      "at": "2026-10-21T13:36:34+02:00",
       "detail": "posts, pages, media, taxonomies, blocks",
       "source": "auto",
       "status": "5/9",
@@ -2876,14 +2904,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T17:23:58+02:00",
+      "at": "2026-10-21T13:36:30+02:00",
       "detail": "8 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8917/wp-json/mcp/mcp-adapter-default-server"
+      "value": "http://localhost:8914/wp-json/mcp/mcp-adapter-default-server"
     },
     "S1": {
-      "at": "2026-10-19T17:23:50+02:00",
+      "at": "2026-10-21T13:36:17+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -2892,7 +2920,7 @@
   },
   "royal-mcp": {
     "A2": {
-      "at": "2026-10-19T16:21:55+02:00",
+      "at": "2026-10-21T13:26:59+02:00",
       "detail": "12 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -2912,7 +2940,7 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T16:22:35+02:00",
+      "at": "2026-10-21T13:27:05+02:00",
       "detail": "initialize 401, tools/list 401 (Authentication required. Use Authorization: Bearer <token> or X-Royal-MCP-API-Key header.)",
       "source": "auto",
       "status": "Pass",
@@ -2924,8 +2952,8 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T16:21:55+02:00",
-      "detail": "http://localhost:8885/wp-json/royal-mcp/v1/mcp: initialize 403, tools/list 403 (Royal MCP is currently disabled.)",
+      "at": "2026-10-21T13:26:59+02:00",
+      "detail": "http://localhost:8886/wp-json/royal-mcp/v1/mcp: initialize 403, tools/list 403 (Royal MCP is currently disabled.)",
       "source": "auto",
       "status": "Pass",
       "value": {
@@ -2937,7 +2965,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T16:22:31+02:00",
+      "at": "2026-10-21T13:26:59+02:00",
       "detail": "mcp-adapter, reads-abilities, registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -2948,11 +2976,13 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T16:22:35+02:00",
+      "at": "2026-10-21T13:27:05+02:00",
       "detail": "initialize 200, tools/list 200, 259 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "header",
         "tool_count": 259,
         "tools": [
@@ -3219,7 +3249,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T16:22:35+02:00",
+      "at": "2026-10-21T13:27:05+02:00",
       "detail": "posts, pages, media, taxonomies, users, plugins, settings, blocks, woocommerce",
       "source": "auto",
       "status": "9/9",
@@ -3236,14 +3266,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T16:22:35+02:00",
+      "at": "2026-10-21T13:27:05+02:00",
       "detail": "12 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8885/wp-json/royal-mcp/v1/mcp"
+      "value": "http://localhost:8886/wp-json/royal-mcp/v1/mcp"
     },
     "S1": {
-      "at": "2026-10-19T16:22:28+02:00",
+      "at": "2026-10-21T13:26:50+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -3252,7 +3282,7 @@
   },
   "saddle": {
     "A2": {
-      "at": "2026-10-19T17:08:50+02:00",
+      "at": "2026-10-21T13:35:27+02:00",
       "detail": "2 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -3262,24 +3292,24 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T17:08:53+02:00",
-      "detail": "initialize 401, tools/list 401",
+      "at": "2026-10-21T13:35:30+02:00",
+      "detail": "initialize 401, tools/list 401 (The request arrived without a sign-in key. If you did connect one, your host may be stripping the Authorization header \u2014 open Saddle and run the connection check to confirm and fix it.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "The request arrived without a sign-in key. If you did connect one, your host may be stripping the Authorization header \u2014 open Saddle and run the connection check to confirm and fix it.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:08:50+02:00",
-      "detail": "http://localhost:8914/wp-json/saddle/v1/mcp: initialize 401, tools/list 401",
+      "at": "2026-10-21T13:35:27+02:00",
+      "detail": "http://localhost:8911/wp-json/saddle/v1/mcp: initialize 401, tools/list 401 (The request arrived without a sign-in key. If you did connect one, your host may be stripping the Authorization header \u2014 open Saddle and run the connection check to confirm and fix it.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "The request arrived without a sign-in key. If you did connect one, your host may be stripping the Authorization header \u2014 open Saddle and run the connection check to confirm and fix it.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401,
@@ -3287,7 +3317,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:08:50+02:00",
+      "at": "2026-10-21T13:35:27+02:00",
       "detail": "mcp-adapter, reads-abilities, registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -3298,11 +3328,13 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T17:08:56+02:00",
+      "at": "2026-10-21T13:35:34+02:00",
       "detail": "initialize 200, tools/list 200, 41 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "basic",
         "tool_count": 41,
         "tools": [
@@ -3351,7 +3383,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T17:08:56+02:00",
+      "at": "2026-10-21T13:35:34+02:00",
       "detail": "posts, pages, media, taxonomies, users, settings, blocks",
       "source": "auto",
       "status": "7/9",
@@ -3366,14 +3398,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T17:08:53+02:00",
+      "at": "2026-10-21T13:35:30+02:00",
       "detail": "2 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8914/wp-json/saddle/v1/mcp"
+      "value": "http://localhost:8911/wp-json/saddle/v1/mcp"
     },
     "S1": {
-      "at": "2026-10-19T17:08:42+02:00",
+      "at": "2026-10-21T13:35:17+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -3382,7 +3414,7 @@
   },
   "siteskite": {
     "A2": {
-      "at": "2026-10-19T17:09:07+02:00",
+      "at": "2026-10-21T13:30:37+02:00",
       "detail": "3 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -3393,7 +3425,7 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T17:22:31+02:00",
+      "at": "2026-10-21T13:30:42+02:00",
       "detail": "initialize 401, tools/list 401 (Authentication required. Connect this app with OAuth, or use a WordPress Application Password with Basic auth.)",
       "source": "auto",
       "status": "Pass",
@@ -3405,12 +3437,12 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:09:07+02:00",
-      "detail": "http://localhost:8899/wp-json/mcp/siteskite: initialize 403, tools/list 403",
+      "at": "2026-10-21T13:30:37+02:00",
+      "detail": "http://localhost:8897/wp-json/mcp/siteskite: initialize 403, tools/list 403 (SiteSkite AI MCP is disabled. Enable it from the SiteSkite dashboard.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "SiteSkite AI MCP is disabled. Enable it from the SiteSkite dashboard.",
         "hard_fail": false,
         "init_status": 403,
         "list_status": 403,
@@ -3418,14 +3450,14 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:22:28+02:00",
+      "at": "2026-10-21T13:30:37+02:00",
       "detail": "no markers found",
       "source": "auto",
       "status": "N",
       "value": []
     },
     "AUTH": {
-      "at": "2026-10-19T17:22:31+02:00",
+      "at": "2026-10-21T13:30:42+02:00",
       "detail": "OAuth only: needs the browser consent flow, use the manual sheet",
       "source": "auto",
       "status": "Manual",
@@ -3434,14 +3466,14 @@
       }
     },
     "EN": {
-      "at": "2026-10-19T17:22:31+02:00",
+      "at": "2026-10-21T13:30:42+02:00",
       "detail": "3 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8899/wp-json/mcp/siteskite"
+      "value": "http://localhost:8897/wp-json/mcp/siteskite"
     },
     "S1": {
-      "at": "2026-10-19T17:22:21+02:00",
+      "at": "2026-10-21T13:30:27+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -3450,7 +3482,7 @@
   },
   "sokket-site-connector-for-mcp": {
     "A2": {
-      "at": "2026-10-19T17:16:47+02:00",
+      "at": "2026-10-21T13:32:29+02:00",
       "detail": "1 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -3459,7 +3491,7 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T17:16:52+02:00",
+      "at": "2026-10-21T13:32:35+02:00",
       "detail": "initialize 401, tools/list 401 (Authentication required. Provide a bearer token or an Application Password.)",
       "source": "auto",
       "status": "Pass",
@@ -3471,8 +3503,8 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:16:47+02:00",
-      "detail": "http://localhost:8905/wp-json/sokket/v1/mcp: initialize 503, tools/list 503 (The MCP server is disabled on this site.)",
+      "at": "2026-10-21T13:32:29+02:00",
+      "detail": "http://localhost:8902/wp-json/sokket/v1/mcp: initialize 503, tools/list 503 (The MCP server is disabled on this site.)",
       "source": "auto",
       "status": "Disabled",
       "value": {
@@ -3484,18 +3516,20 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:16:47+02:00",
+      "at": "2026-10-21T13:32:29+02:00",
       "detail": "no markers found",
       "source": "auto",
       "status": "N",
       "value": []
     },
     "AUTH": {
-      "at": "2026-10-19T17:16:52+02:00",
+      "at": "2026-10-21T13:32:35+02:00",
       "detail": "initialize 200, tools/list 200, 39 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "bearer",
         "tool_count": 39,
         "tools": [
@@ -3542,7 +3576,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T17:16:52+02:00",
+      "at": "2026-10-21T13:32:35+02:00",
       "detail": "posts, media, taxonomies, plugins, settings, blocks",
       "source": "auto",
       "status": "6/9",
@@ -3556,14 +3590,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T17:16:52+02:00",
+      "at": "2026-10-21T13:32:35+02:00",
       "detail": "1 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8905/wp-json/sokket/v1/mcp"
+      "value": "http://localhost:8902/wp-json/sokket/v1/mcp"
     },
     "S1": {
-      "at": "2026-10-19T17:16:40+02:00",
+      "at": "2026-10-21T13:32:20+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -3572,7 +3606,7 @@
   },
   "stifli-flex-mcp": {
     "A2": {
-      "at": "2026-10-19T16:47:30+02:00",
+      "at": "2026-10-21T13:28:17+02:00",
       "detail": "9 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -3589,24 +3623,24 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T16:47:33+02:00",
-      "detail": "initialize 401, tools/list 401",
+      "at": "2026-10-21T13:28:21+02:00",
+      "detail": "initialize 401, tools/list 401 (Authentication required. Use Authorization: Bearer <token>.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Authentication required. Use Authorization: Bearer <token>.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401
       }
     },
     "A3pre": {
-      "at": "2026-10-19T16:47:30+02:00",
-      "detail": "http://localhost:8892/wp-json/stifli-flex-mcp/v1/messages: initialize 401, tools/list 401",
+      "at": "2026-10-21T13:28:17+02:00",
+      "detail": "http://localhost:8890/wp-json/stifli-flex-mcp/v1/messages: initialize 401, tools/list 401 (Authentication required. Use Authorization: Bearer <token>.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Authentication required. Use Authorization: Bearer <token>.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401,
@@ -3614,18 +3648,20 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T16:47:30+02:00",
+      "at": "2026-10-21T13:28:17+02:00",
       "detail": "no markers found",
       "source": "auto",
       "status": "N",
       "value": []
     },
     "AUTH": {
-      "at": "2026-10-19T16:47:36+02:00",
+      "at": "2026-10-21T13:28:24+02:00",
       "detail": "initialize 200, tools/list 200, 80 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "basic",
         "tool_count": 80,
         "tools": [
@@ -3713,7 +3749,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T16:47:36+02:00",
+      "at": "2026-10-21T13:28:24+02:00",
       "detail": "posts, pages, media, taxonomies, users, plugins, settings, woocommerce",
       "source": "auto",
       "status": "8/9",
@@ -3729,14 +3765,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T16:47:33+02:00",
+      "at": "2026-10-21T13:28:21+02:00",
       "detail": "9 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8892/wp-json/stifli-flex-mcp/v1/messages"
+      "value": "http://localhost:8890/wp-json/stifli-flex-mcp/v1/messages"
     },
     "S1": {
-      "at": "2026-10-19T16:47:22+02:00",
+      "at": "2026-10-21T13:28:08+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -3745,7 +3781,7 @@
   },
   "strifebridge-mcp": {
     "A2": {
-      "at": "2026-10-19T17:09:25+02:00",
+      "at": "2026-10-21T13:34:49+02:00",
       "detail": "2 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -3755,7 +3791,7 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T17:16:37+02:00",
+      "at": "2026-10-21T13:34:54+02:00",
       "detail": "initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
       "source": "auto",
       "status": "Pass",
@@ -3767,12 +3803,12 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:09:25+02:00",
-      "detail": "http://localhost:8912/wp-json/strifebridge/v1/mcp: initialize 401, tools/list 401",
+      "at": "2026-10-21T13:34:49+02:00",
+      "detail": "http://localhost:8909/wp-json/strifebridge/v1/mcp: initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Sorry, you are not allowed to do that.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401,
@@ -3780,7 +3816,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:16:34+02:00",
+      "at": "2026-10-21T13:34:49+02:00",
       "detail": "registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -3789,11 +3825,13 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T17:16:37+02:00",
+      "at": "2026-10-21T13:34:54+02:00",
       "detail": "initialize 200, tools/list 200, 34 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "bearer",
         "tool_count": 34,
         "tools": [
@@ -3835,7 +3873,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T17:16:37+02:00",
+      "at": "2026-10-21T13:34:54+02:00",
       "detail": "posts, pages, media, taxonomies, users, plugins, settings",
       "source": "auto",
       "status": "7/9",
@@ -3850,14 +3888,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T17:16:37+02:00",
+      "at": "2026-10-21T13:34:54+02:00",
       "detail": "2 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8912/wp-json/strifebridge/v1/mcp"
+      "value": "http://localhost:8909/wp-json/strifebridge/v1/mcp"
     },
     "S1": {
-      "at": "2026-10-19T17:16:28+02:00",
+      "at": "2026-10-21T13:34:40+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -3866,7 +3904,7 @@
   },
   "track-debug": {
     "A2": {
-      "at": "2026-10-19T17:09:41+02:00",
+      "at": "2026-10-21T13:33:27+02:00",
       "detail": "1 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -3875,24 +3913,24 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T17:09:45+02:00",
-      "detail": "initialize 401, tools/list 401",
+      "at": "2026-10-21T13:33:30+02:00",
+      "detail": "initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Sorry, you are not allowed to do that.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:09:42+02:00",
-      "detail": "http://localhost:8908/wp-json/track-debug/mcp: initialize 401, tools/list 401",
+      "at": "2026-10-21T13:33:27+02:00",
+      "detail": "http://localhost:8905/wp-json/track-debug/mcp: initialize 401, tools/list 401 (Sorry, you are not allowed to do that.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Sorry, you are not allowed to do that.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401,
@@ -3900,7 +3938,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:09:42+02:00",
+      "at": "2026-10-21T13:33:27+02:00",
       "detail": "mcp-adapter, reads-abilities, registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -3911,11 +3949,13 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T17:09:48+02:00",
+      "at": "2026-10-21T13:33:34+02:00",
       "detail": "initialize 200, tools/list 200, 6 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "basic",
         "tool_count": 6,
         "tools": [
@@ -3929,21 +3969,21 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T17:09:48+02:00",
+      "at": "2026-10-21T13:33:34+02:00",
       "detail": "",
       "source": "auto",
       "status": "0/9",
       "value": []
     },
     "EN": {
-      "at": "2026-10-19T17:09:45+02:00",
+      "at": "2026-10-21T13:33:30+02:00",
       "detail": "1 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8908/wp-json/track-debug/mcp"
+      "value": "http://localhost:8905/wp-json/track-debug/mcp"
     },
     "S1": {
-      "at": "2026-10-19T17:09:34+02:00",
+      "at": "2026-10-21T13:33:17+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -3952,21 +3992,21 @@
   },
   "vibe-ai": {
     "A2": {
-      "at": "2026-10-19T16:46:20+02:00",
+      "at": "2026-10-21T13:26:28+02:00",
       "detail": "0 MCP route(s) before enabling",
       "source": "auto",
       "status": "Disabled",
       "value": []
     },
     "A3": {
-      "at": "2026-10-19T16:46:20+02:00",
+      "at": "2026-10-21T13:26:28+02:00",
       "detail": "MCP server runs outside WordPress. Relays MCP through the hosted wpvibe.ai service using an application password; no MCP route on the site.",
       "source": "auto",
       "status": "N/A",
       "value": null
     },
     "A3pre": {
-      "at": "2026-10-19T16:46:20+02:00",
+      "at": "2026-10-21T13:26:28+02:00",
       "detail": "no MCP endpoint before enabling",
       "source": "auto",
       "status": "Disabled",
@@ -3975,28 +4015,28 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T16:46:20+02:00",
+      "at": "2026-10-21T13:26:28+02:00",
       "detail": "no markers found",
       "source": "auto",
       "status": "N",
       "value": []
     },
     "AUTH": {
-      "at": "2026-10-19T16:46:20+02:00",
+      "at": "2026-10-21T13:26:28+02:00",
       "detail": "MCP server runs outside WordPress. Relays MCP through the hosted wpvibe.ai service using an application password; no MCP route on the site.",
       "source": "auto",
       "status": "N/A",
       "value": null
     },
     "EN": {
-      "at": "2026-10-19T16:46:20+02:00",
+      "at": "2026-10-21T13:26:28+02:00",
       "detail": "MCP server runs outside WordPress. Relays MCP through the hosted wpvibe.ai service using an application password; no MCP route on the site.",
       "source": "auto",
       "status": "N/A",
       "value": null
     },
     "S1": {
-      "at": "2026-10-19T16:46:15+02:00",
+      "at": "2026-10-21T13:26:18+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -4005,7 +4045,7 @@
   },
   "webo-mcp": {
     "A2": {
-      "at": "2026-10-19T17:09:59+02:00",
+      "at": "2026-10-21T13:32:48+02:00",
       "detail": "11 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -4024,24 +4064,24 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T17:10:02+02:00",
-      "detail": "initialize 401, tools/list 401",
+      "at": "2026-10-21T13:32:51+02:00",
+      "detail": "initialize 401, tools/list 401 (Authenticate with a WordPress Application Password (HTTP Basic), a logged-in session, a scoped MCP URL token, or (when enabled) a Bearer/JWT token.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Authenticate with a WordPress Application Password (HTTP Basic), a logged-in session, a scoped MCP URL token, or (when enabled) a Bearer/JWT token.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401
       }
     },
     "A3pre": {
-      "at": "2026-10-19T17:09:59+02:00",
-      "detail": "http://localhost:8906/wp-json/mcp/v1/router: initialize 401, tools/list 401",
+      "at": "2026-10-21T13:32:48+02:00",
+      "detail": "http://localhost:8903/wp-json/mcp/v1/router: initialize 401, tools/list 401 (Authenticate with a WordPress Application Password (HTTP Basic), a logged-in session, a scoped MCP URL token, or (when enabled) a Bearer/JWT token.)",
       "source": "auto",
       "status": "Pass",
       "value": {
-        "error": null,
+        "error": "Authenticate with a WordPress Application Password (HTTP Basic), a logged-in session, a scoped MCP URL token, or (when enabled) a Bearer/JWT token.",
         "hard_fail": false,
         "init_status": 401,
         "list_status": 401,
@@ -4049,7 +4089,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:09:59+02:00",
+      "at": "2026-10-21T13:32:48+02:00",
       "detail": "mcp-adapter, reads-abilities, registers-abilities",
       "source": "auto",
       "status": "Y",
@@ -4060,11 +4100,13 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T17:10:05+02:00",
+      "at": "2026-10-21T13:32:55+02:00",
       "detail": "initialize 200, tools/list 200, 33 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "basic",
         "tool_count": 33,
         "tools": [
@@ -4105,7 +4147,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T17:10:05+02:00",
+      "at": "2026-10-21T13:32:55+02:00",
       "detail": "media, taxonomies, users, blocks",
       "source": "auto",
       "status": "4/9",
@@ -4117,14 +4159,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T17:10:02+02:00",
+      "at": "2026-10-21T13:32:51+02:00",
       "detail": "11 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8906/wp-json/mcp/v1/router"
+      "value": "http://localhost:8903/wp-json/mcp/v1/router"
     },
     "S1": {
-      "at": "2026-10-19T17:09:51+02:00",
+      "at": "2026-10-21T13:32:38+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -4133,7 +4175,7 @@
   },
   "wsp-mcp-ai-agents-connector": {
     "A2": {
-      "at": "2026-10-19T16:46:56+02:00",
+      "at": "2026-10-21T13:27:35+02:00",
       "detail": "2 MCP route(s) before enabling",
       "source": "auto",
       "status": "Pass",
@@ -4143,7 +4185,7 @@
       ]
     },
     "A3": {
-      "at": "2026-10-19T16:51:57+02:00",
+      "at": "2026-10-21T13:27:41+02:00",
       "detail": "initialize 401, tools/list 401 (Authentication required. Use an Application Password (Basic), Authorization: Bearer <api-key-or-oauth-token>, or the X-WSP-MCP-API-Key header.)",
       "source": "auto",
       "status": "Pass",
@@ -4155,8 +4197,8 @@
       }
     },
     "A3pre": {
-      "at": "2026-10-19T16:46:56+02:00",
-      "detail": "http://localhost:8890/wp-json/wsp-mcp/v1/mcp: initialize 401, tools/list 401 (Authentication required. Use an Application Password (Basic), Authorization: Bearer <api-key-or-oauth-token>, or the X-WSP-MCP-API-Key header.)",
+      "at": "2026-10-21T13:27:35+02:00",
+      "detail": "http://localhost:8888/wp-json/wsp-mcp/v1/mcp: initialize 401, tools/list 401 (Authentication required. Use an Application Password (Basic), Authorization: Bearer <api-key-or-oauth-token>, or the X-WSP-MCP-API-Key header.)",
       "source": "auto",
       "status": "Pass",
       "value": {
@@ -4168,7 +4210,7 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T16:51:54+02:00",
+      "at": "2026-10-21T13:27:35+02:00",
       "detail": "mcp-adapter",
       "source": "auto",
       "status": "Y",
@@ -4177,11 +4219,13 @@
       ]
     },
     "AUTH": {
-      "at": "2026-10-19T16:52:02+02:00",
+      "at": "2026-10-21T13:27:44+02:00",
       "detail": "initialize 200, tools/list 200, 100 tools",
       "source": "auto",
       "status": "Pass",
       "value": {
+        "abilities": null,
+        "ability_count": null,
         "auth_method": "basic",
         "tool_count": 100,
         "tools": [
@@ -4289,7 +4333,7 @@
       }
     },
     "BR": {
-      "at": "2026-10-19T16:52:02+02:00",
+      "at": "2026-10-21T13:27:44+02:00",
       "detail": "posts, pages, media, taxonomies, users, plugins, blocks",
       "source": "auto",
       "status": "7/9",
@@ -4304,14 +4348,14 @@
       ]
     },
     "EN": {
-      "at": "2026-10-19T16:51:57+02:00",
+      "at": "2026-10-21T13:27:40+02:00",
       "detail": "2 MCP route(s) after enabling",
       "source": "auto",
       "status": "Pass",
-      "value": "http://localhost:8890/wp-json/wsp-mcp/v1/mcp"
+      "value": "http://localhost:8888/wp-json/wsp-mcp/v1/mcp"
     },
     "S1": {
-      "at": "2026-10-19T16:51:47+02:00",
+      "at": "2026-10-21T13:27:25+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",
@@ -4320,21 +4364,21 @@
   },
   "ylabs-ai-assistant-connector": {
     "A2": {
-      "at": "2026-10-19T17:10:17+02:00",
+      "at": "2026-10-21T13:31:26+02:00",
       "detail": "0 MCP route(s) before enabling",
       "source": "auto",
       "status": "Disabled",
       "value": []
     },
     "A3": {
-      "at": "2026-10-19T17:10:17+02:00",
+      "at": "2026-10-21T13:31:26+02:00",
       "detail": "MCP server runs outside WordPress. Adds wp-agent/v1 REST endpoints for an external assistant that authenticates with application passwords; no MCP endpoint on the site.",
       "source": "auto",
       "status": "N/A",
       "value": null
     },
     "A3pre": {
-      "at": "2026-10-19T17:10:17+02:00",
+      "at": "2026-10-21T13:31:26+02:00",
       "detail": "no MCP endpoint before enabling",
       "source": "auto",
       "status": "Disabled",
@@ -4343,28 +4387,28 @@
       }
     },
     "ABIL": {
-      "at": "2026-10-19T17:10:17+02:00",
+      "at": "2026-10-21T13:31:26+02:00",
       "detail": "no markers found",
       "source": "auto",
       "status": "N",
       "value": []
     },
     "AUTH": {
-      "at": "2026-10-19T17:10:17+02:00",
+      "at": "2026-10-21T13:31:26+02:00",
       "detail": "MCP server runs outside WordPress. Adds wp-agent/v1 REST endpoints for an external assistant that authenticates with application passwords; no MCP endpoint on the site.",
       "source": "auto",
       "status": "N/A",
       "value": null
     },
     "EN": {
-      "at": "2026-10-19T17:10:17+02:00",
+      "at": "2026-10-21T13:31:26+02:00",
       "detail": "MCP server runs outside WordPress. Adds wp-agent/v1 REST endpoints for an external assistant that authenticates with application passwords; no MCP endpoint on the site.",
       "source": "auto",
       "status": "N/A",
       "value": null
     },
     "S1": {
-      "at": "2026-10-19T17:10:08+02:00",
+      "at": "2026-10-21T13:31:16+02:00",
       "detail": "active",
       "source": "auto",
       "status": "Pass",

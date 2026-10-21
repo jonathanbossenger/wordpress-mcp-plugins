@@ -29,7 +29,28 @@ Checks per slug: S1 active/version, A2 MCP routes before enabling, A3pre unauth 
 - Breadth is name-based, so it undercounts generic tools (ai-engine handles pages through `wp_get_posts` with a post type).
 - Not automated yet: T1-T8 (LLM-driven client), T8 low-privilege user, audit-log diff, time to first tool call (an automated time says nothing about the human setup time).
 
-Setup script fixes this session: installs "Requires Plugins" dependencies before activating; no `mapfile` (macOS bash 3.2). Manual sheet: A3 has a "Disabled" option and says to re-probe after enabling; `xdg-open` replaced with `open || xdg-open`. Settings page guess in A4 is wrong for mcp-for-woocommerce (`mcpfowo-settings`) and ai-engine (`mwai_settings`).
+Setup script fixes this session: installs "Requires Plugins" dependencies before activating; no `mapfile` (macOS bash 3.2). Manual sheet: A3 has a "Disabled" option and says to re-probe after enabling; browser opening is `xdg-open ... || open ...` (works on Linux and macOS). Settings page guess in A4 is wrong for mcp-for-woocommerce (`mcpfowo-settings`) and ai-engine (`mwai_settings`).
+
+## Working across machines (Mac and Ubuntu)
+
+Git carries the scripts, configs, `results.json` and both workbooks. It does not carry the Studio sites, `venv/`, `setup_results.tsv` or Claude Desktop config (the last three are per-machine and git-ignored or outside the repo). Each machine has its own copy of the 35 sites.
+
+| | Mac (first machine) | Ubuntu (second machine, set up 2026-10-21) |
+|---|---|---|
+| Repo | wherever it was cloned | `~/development/wordpress/wordpress-mcp-plugins` |
+| Sites | `$HOME/Studio/mcp-tests/<slug>` | same path, recreated with `./setup_test_sites.sh setup` (all 35 ok) |
+| Python | `venv/` with openpyxl | same: `python3 -m venv venv && venv/bin/pip install openpyxl` |
+| Open a URL | `open` | `xdg-open` (the sheet tries `xdg-open` first, then `open`; Ubuntu's `open` is `openvt`, not a browser opener) |
+| Shell | bash 3.2: no `mapfile` | bash 5 |
+| LibreOffice | not installed | installed (`soffice`), so formulas can be recalculated |
+| Node | needed for `mcp-remote` | nvm, v24 |
+| Claude Desktop config | `~/Library/Application Support/Claude/claude_desktop_config.json` | `~/.config/Claude/claude_desktop_config.json` (not checked whether Claude Desktop itself is installed) |
+| Ports | assigned by Studio at start | different from the Mac (e.g. mcp-for-woocommerce 8915). Always use the URL A1 prints |
+
+Things that differ per machine, so do not copy them between machines:
+- `results.json` auto entries hold ports, timestamps and the Studio site's generated values. Running `python3 run_tests.py` on the other machine rewrites them, so the git diff is large. Commit it from whichever machine you finish on, and pull before running tests on the other. `source: manual` entries are never overwritten.
+- API keys and application passwords made by `run_tests.py` live only in that machine's sites. Royal MCP stores a hash only, so make a new key on each machine.
+- Switching machines mid-pilot: commit and push the manual sheet's Results tab, `results.json` and any script fixes first. Site state (posts created by T1-T8) does not travel; recreate the site with `./setup_test_sites.sh delete <slug>` then `setup <slug>`, and rerun `python3 run_tests.py <slug>`.
 
 ## What can be automated (original proposal)
 
