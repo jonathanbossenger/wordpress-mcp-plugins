@@ -1,0 +1,404 @@
+{
+  "slug": "ai-engine",
+  "version": "3.8.6",
+  "reviewed_at": "2026-10-22T21:06:27+02:00",
+  "duration_s": 176,
+  "cost_usd": 2.7223551999999995,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Partial",
+      "value": [
+        "oauth",
+        "application-password",
+        "cookie",
+        "bearer-token"
+      ],
+      "summary": "OAuth 2.1 tokens (with dynamic client registration) are tied to a WordPress user, and Application Passwords or a logged-in cookie work through the manage_options check. The optional static bearer token is one shared secret that always runs as the first administrator. It is also accepted in the URL path or a ?token= query parameter.",
+      "evidence": [
+        "labs/mcp.php:188",
+        "labs/mcp.php:197",
+        "labs/mcp.php:220",
+        "labs/mcp.php:244",
+        "labs/mcp.php:266",
+        "labs/mcp.php:152",
+        "labs/mcp.php:286"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "The /mcp/v1/http route's permission callback refuses requests without a valid credential, so tools cannot be listed or called anonymously. The only open route is /mcp/v1/upload/{token}, and it needs a one-time token that an authenticated wp_upload_request call creates.",
+      "evidence": [
+        "labs/mcp.php:134",
+        "labs/mcp.php:278",
+        "labs/mcp.php:165",
+        "labs/mcp.php:1554"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Administrators (OAuth, Application Password or bearer token) pass one manage_options check at the endpoint, and the core tools then run without their own capability checks. Only Editor sessions (an option that is off by default) get per-tool and per-object checks such as edit_post, publish_post and upload_files. Abilities keep their own permission callbacks.",
+      "evidence": [
+        "labs/mcp.php:193",
+        "labs/mcp-core.php:1373",
+        "labs/mcp.php:848",
+        "labs/mcp.php:948",
+        "labs/mcp-abilities.php:160"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Partial",
+      "value": null,
+      "summary": "OAuth access tokens, refresh tokens, client secrets and codes are stored only as SHA-256 hashes. The optional static bearer token is stored in plain text in the plugin options, sent back to the settings screen, and copyable from there (the commands show it masked).",
+      "evidence": [
+        "labs/mcp-oauth.php:804",
+        "labs/mcp-oauth.php:357",
+        "labs/mcp-oauth.php:577",
+        "labs/mcp.php:101",
+        "app/index.js \"type:\\\"password\\\",name:\\\"mcp_bearer_token\\\"\""
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The MCP module is off by default (module_mcp false) until an admin turns it on, either in Modules or with a nonce-protected notice. Abilities, Dynamic REST and Editor Access are also off by default, and no bearer token is set.",
+      "evidence": [
+        "constants/init.php:148",
+        "constants/init.php:243",
+        "constants/init.php:244",
+        "constants/init.php:246",
+        "classes/core.php:157",
+        "classes/admin.php:554"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Partial",
+      "value": null,
+      "summary": "An Access Level setting (Admin, Read-Write or Read-Only) filters both listing and calling, but it only applies to the shared bearer token. OAuth connections from administrators always get every tool.",
+      "evidence": [
+        "labs/mcp.php:838",
+        "labs/mcp.php:1057",
+        "labs/mcp.php:1381"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Partial",
+      "value": null,
+      "summary": "There are no per-tool switches, only coarse groups (Core, Abilities, Dynamic REST, plus Pro sets) and the bearer-only access level. Editors who connect through OAuth are limited to a fixed list of content tools, checked against their own capabilities.",
+      "evidence": [
+        "classes/core.php:161",
+        "classes/core.php:166",
+        "classes/core.php:171",
+        "labs/mcp.php:63",
+        "labs/mcp.php:1124"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "destructiveHint annotations on wp_delete_* tools and wp_update_user; no plugin-side confirmation for MCP clients"
+      },
+      "summary": "Delete tools carry destructiveHint so the client can ask before running them, but the server does not require a confirm argument or use an approval queue. The approval dialog mentioned in the readme belongs to the in-admin Workspace, not to external MCP clients.",
+      "evidence": [
+        "labs/mcp-core.php:1352",
+        "labs/mcp-core.php:2380"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "wp_delete_post moves posts to the trash unless force:true is passed, and wp_delete_comment works the same way. Two exceptions: wp_delete_media uses the same call but WordPress deletes attachments permanently unless MEDIA_TRASH is on, and wp_delete_note is always permanent.",
+      "evidence": [
+        "labs/mcp-core.php:916",
+        "labs/mcp-core.php:2386",
+        "labs/mcp-core.php:2835",
+        "labs/mcp-core.php:721"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Each tool call fires mwai_mcp_tool_called with the tool, arguments, status, user and client, and there is an MCP Logs view. However, the free plugin contains no code that writes these rows: logging needs the Insights (statistics) module, which is Pro. Without it, the only record is error_log output when MCP debug mode is on.",
+      "evidence": [
+        "labs/mcp.php:1516",
+        "classes/rest.php:2332",
+        "constants/init.php:140",
+        "app/index.js \"Enable it under Modules → Insights to start recording MCP tool calls\"",
+        "labs/mcp.php:1441"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 61,
+        "names": [
+          "mcp_ping",
+          "wp_list_plugins",
+          "wp_get_users",
+          "wp_create_user",
+          "wp_update_user",
+          "wp_get_comments",
+          "wp_create_comment",
+          "wp_update_comment",
+          "wp_delete_comment",
+          "wp_create_note",
+          "wp_update_note",
+          "wp_delete_note",
+          "wp_get_option",
+          "wp_update_option",
+          "wp_count_posts",
+          "wp_count_terms",
+          "wp_count_media",
+          "wp_get_post_types",
+          "wp_get_posts",
+          "wp_get_post",
+          "wp_get_post_snapshot",
+          "wp_create_post",
+          "wp_update_post",
+          "wp_delete_post",
+          "wp_alter_post",
+          "wp_write_blocks",
+          "wp_list_block_patterns",
+          "wp_insert_block_pattern",
+          "wp_get_post_meta",
+          "wp_update_post_meta",
+          "wp_delete_post_meta",
+          "wp_set_featured_image",
+          "wp_get_taxonomies",
+          "wp_get_terms",
+          "wp_create_term",
+          "wp_update_term",
+          "wp_delete_term",
+          "wp_get_post_terms",
+          "wp_add_post_terms",
+          "wp_get_media",
+          "wp_upload_media",
+          "wp_upload_request",
+          "wp_update_media",
+          "wp_delete_media",
+          "mwai_vision",
+          "mwai_image",
+          "list_posts",
+          "get_posts",
+          "create_posts",
+          "update_posts",
+          "delete_posts",
+          "list_pages",
+          "get_pages",
+          "create_pages",
+          "update_pages",
+          "delete_pages",
+          "list_media",
+          "get_media",
+          "create_media",
+          "update_media",
+          "delete_media"
+        ],
+        "plus": "every Abilities API ability marked mcp.public or show_in_rest when the Abilities option is on (varies by site); Pro adds plugin, theme, database, Polylang, WPML and WooCommerce tools"
+      },
+      "summary": "With every free option on, there are 46 core tools (including mcp_ping) and 15 Dynamic REST tools for posts, pages and media. Each public ability registered by other plugins becomes one more tool.",
+      "evidence": [
+        "labs/mcp.php:1075",
+        "labs/mcp-core.php:547",
+        "labs/mcp-rest.php:25",
+        "labs/mcp-abilities.php:83"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "comments",
+        "plugins",
+        "settings",
+        "blocks"
+      ],
+      "summary": "The free tools cover posts and pages (any post type), media, terms, users, comments and notes, options, block patterns and block layouts. For plugins there is only a read-only list. Theme and plugin management and WooCommerce tools are Pro-only.",
+      "evidence": [
+        "labs/mcp-core.php:551",
+        "labs/mcp-core.php:562",
+        "labs/mcp-core.php:733",
+        "labs/mcp-core.php:944",
+        "classes/core.php:176"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "wp_get_posts (limit 5, post_status any; returns ID, title, status)"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "wp_create_post + wp_upload_media + wp_write_blocks; HTML or block markup is stored as-is, plain prose is converted from Markdown, and wp_write_blocks writes real block markup"
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "wp_update_post (title) + wp_alter_post or wp_write_blocks mode=append"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "wp_upload_media (url)"
+        },
+        "T5": {
+          "status": "Partial",
+          "tool": "wp_list_plugins returns only Name and Version, with no active state"
+        },
+        "T6": {
+          "status": "Pass",
+          "tool": "wp_update_option key=blogdescription"
+        },
+        "T7": {
+          "status": "Partial",
+          "tool": "wp_delete_post trashes by default; only a destructiveHint asks for confirmation; tool-call logging needs Pro Insights"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "The endpoint needs manage_options; OAuth consent refuses non-admins unless Editor Access is on, and Editors may not publish without publish_post or trash posts"
+        }
+      },
+      "summary": "Most standard tasks work with the free core tools. The plugin list has no active state, and deletion has no server-side confirmation and no free logging.",
+      "evidence": [
+        "labs/mcp-core.php:1852",
+        "labs/mcp-core.php:54",
+        "labs/mcp-core.php:2706",
+        "labs/mcp-core.php:1845",
+        "labs/mcp-core.php:2386",
+        "labs/mcp.php:193",
+        "labs/mcp.php:956"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Partial",
+      "value": null,
+      "summary": "An optional Abilities setting (off by default) exposes Abilities API abilities marked mcp.public or show_in_rest as MCP tools, and each one keeps its own permission callback. The plugin does not register any abilities of its own and does not use the MCP Adapter.",
+      "evidence": [
+        "labs/mcp-abilities.php:36",
+        "constants/init.php:244",
+        "classes/core.php:166"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Partial",
+      "value": {
+        "transports": [
+          "streamable-http"
+        ],
+        "protocol_version": "2025-06-18 (also 2024-11-05)",
+        "runs_in_wordpress": true
+      },
+      "summary": "MCP is served as Streamable HTTP (POST, GET and DELETE) at /wp-json/mcp/v1/http inside WordPress. The newest version it negotiates is 2025-06-18. Clients that send 2026-07-28 requests get a 400 and are told to fall back to the initialize handshake.",
+      "evidence": [
+        "labs/mcp.php:34",
+        "labs/mcp.php:35",
+        "labs/mcp.php:134",
+        "labs/mcp.php:430"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Partial",
+      "value": [
+        "Plugin management tools",
+        "Theme management tools",
+        "Database/SQL tools",
+        "Polylang and WPML tools",
+        "WooCommerce tools",
+        "MCP call logging (Insights module)"
+      ],
+      "summary": "The server, OAuth and the core content tools are all free. The extra tool sets and recorded MCP logs need Pro.",
+      "evidence": [
+        "classes/core.php:176",
+        "classes/core.php:182",
+        "readme.txt:236"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Nothing in the code requires HTTPS or a public URL. Claude Desktop can reach http://localhost through mcp-remote, using the bearer token header (or OAuth), or through the URL-token endpoint. The plugin's own Claude flow uses claude.ai's custom connector, which does need a public URL, and the plugin does not document the local route.",
+      "evidence": [
+        "labs/mcp.php:134",
+        "labs/mcp.php:244",
+        "labs/mcp.php:152"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Several fallbacks cover common host problems: a URL-path or ?token= option when the Authorization header is stripped, CORS headers for claude.ai, OAuth metadata served both at the host root and via ?rest_route=, and a WWW-Authenticate header. The admin self-test also detects WAF blocks and cached .well-known 404s.",
+      "evidence": [
+        "labs/mcp.php:118",
+        "labs/mcp.php:152",
+        "labs/mcp.php:266",
+        "labs/mcp-oauth.php:71",
+        "labs/mcp-oauth.php:1174",
+        "app/index.js \"Your host blocks claude.ai\""
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 5,
+        "steps": [
+          "Click 'Turn on MCP' in the activation notice (or enable it in AI Engine → Modules)",
+          "Open AI Engine → Settings → MCP, Connect card, and choose Claude",
+          "Click 'Open Claude, already filled in' (claude.ai custom connector with this site's URL)",
+          "In Claude click Continue, Add, Connect",
+          "Sign in to WordPress on the consent page and click Approve; the tools are then available in Claude Desktop"
+        ]
+      },
+      "summary": "About five clicks with no terminal, using the guided Connect card and the Claude link that comes pre-filled.",
+      "evidence": [
+        "classes/admin.php:541",
+        "app/index.js \"https://claude.ai/customize/connectors?modal=add-custom-connector\"",
+        "app/index.js \"Click Continue, then Add, then Connect.\""
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "OAuth 2.1 with dynamic client registration lets Claude and ChatGPT connect by URL plus a WordPress sign-in and approval, with no config file. The admin screen links straight to Claude's Add custom connector dialog with this site already filled in.",
+      "evidence": [
+        "labs/mcp-oauth.php:154",
+        "labs/mcp-oauth.php:259",
+        "app/index.js \"connectorUrl=${encodeURIComponent(e)}\""
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The MCP settings have a 'Connect an AI assistant' card with step lists for Claude, ChatGPT and Claude Code, links pre-filled with this site's URL, Claude Code commands that include the token, and a self-test.",
+      "evidence": [
+        "app/index.js \"Open Claude, already filled in\"",
+        "app/index.js \"CLAUDE_TUTORIAL_URL\"",
+        "classes/rest.php:246"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "https://ai.thehiddendocs.com/mcp/",
+        "https://ai.thehiddendocs.com/mcp/mcp-server-claude/",
+        "https://ai.thehiddendocs.com/mcp/mcp-server-chatgpt/",
+        "https://ai.thehiddendocs.com/mcp/mcp-server-claude-code/",
+        "https://vibewithwp.ai/"
+      ],
+      "summary": "The readme links to MCP setup guides for each client, and the admin MCP screen links to the Claude tutorial.",
+      "evidence": [
+        "readme.txt:199",
+        "readme.txt:308",
+        "app/index.js \"CLAUDE_TUTORIAL_URL:\\\"https://ai.thehiddendocs.com/mcp/mcp-server-claude/\\\"\""
+      ]
+    }
+  },
+  "notes": "- Bearer token in the URL: when a bearer token is set, it becomes a REST route path (/wp-json/mcp/v1/<token>), and it is also accepted as a ?token= query parameter. That means it can end up in access logs and proxy logs. The code has a TODO to re-evaluate this after 2026-12-27, following a flag from the WP.org security review.\n- The bearer token and the URL token both run as the first administrator found by get_admin_user(), so every action they take is attributed to that one user.\n- Access Level (read-only / read-write) does not apply to OAuth connections. The readme says \"Administrators get full access\", which matches the code.\n- Readme vs. code: the readme lists \"Install and manage plugins\", \"Customize themes\", \"Run SQL queries\" and WooCommerce under \"What AI Agents Can Do\", but in the free plugin these are Pro-only. The readme also says each person connects with their own account, but the shared bearer token is still supported.\n- wp_delete_media: without force, WordPress deletes attachments permanently unless MEDIA_TRASH is defined, even though the tool description says \"Delete/trash\".\n- The upload fallback in handle_upload switches to user ID 1 when the token carries no user, which is a legacy path.\n- MCP Logs: the free plugin fires the mwai_mcp_tool_called action, but it contains no listener that writes the log rows, and the UI asks for the Insights module, which is Pro. So MCP Logs only records anything in Pro.\n- Dynamic REST tools: their schema is cached in a transient for a day, and delete_posts/pages/media go through the REST API, where deletes trash by default."
+}

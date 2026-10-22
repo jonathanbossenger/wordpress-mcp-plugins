@@ -2,3 +2,5 @@
 setup_results.tsv
 venv/
 .~lock.*
+sources/
+__pycache__/
