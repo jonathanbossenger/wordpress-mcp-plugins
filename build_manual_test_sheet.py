@@ -62,7 +62,7 @@ SECTIONS = [
          "curl -si -X POST '{endpoint}' -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' -d '{{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}}' | head -40",
          "HTTP status and whether any tools were returned. Feeds: Safe defaults, Auth method."),
         ("A4", "Setup", "Find the settings and connection UI",
-         "Open the plugin's admin page. Does it show a ready-to-copy Claude Desktop config or connector URL? Take a screenshot of the connection instructions and of every security-related setting (read-only, per-tool toggles, roles, confirmations, logging).",
+         "Open the plugin's admin page. Does it show a ready-to-copy Claude Desktop config or connector URL? Take a screenshot of the connection instructions and of every security-related setting (read-only, per-tool toggles, roles, confirmations, logging). Save screenshots in screenshots/<slug>/ in the repo, named by step (e.g. A4-connection.png).",
          "U='{url}/wp-admin/admin.php?page={slug}'; xdg-open \"$U\" 2>/dev/null || open \"$U\"",
          "Feeds: In-plugin connection guide, Permission scoping, Read-only mode, Audit log. If the guessed page URL is wrong, use the plugin's menu entry."),
         ("A5", "Security", "Dump the plugin's options",

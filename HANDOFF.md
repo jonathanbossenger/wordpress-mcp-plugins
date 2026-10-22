@@ -111,7 +111,7 @@ Assumptions and known caveats:
 6. Decide whether Safe defaults (A2/A3pre) and Abilities API / standards (ABIL) should be auto-scored from Checks. The evidence is on Checks; both are still manual inputs.
 7. Fold `setup_results.tsv` into the store.
 
-## Manual test pilot (next up, planned 2026-10-20)
+## Manual test pilot (started 2026-10-22 on Ubuntu, paused)
 
 Goal: run `mcp-manual-test-sheet.xlsx` end to end on three plugins to get first manual results and to find what is broken in the sheet itself (it has never been run against a live site). Note every command that fails or step that is unclear so the sheet can be fixed before the other plugins.
 
@@ -126,6 +126,25 @@ Plugins, chosen for different auth:
 Before starting:
 - `run_tests.py` already enabled MCP on these sites, so A2/A3 are covered by `results.json`: start at A4. "Minutes to first tool call" will read low because enabling is already done. For a real setup time on one plugin, recreate its site (`./setup_test_sites.sh delete <slug>`, then `setup <slug>`) and run from A1.
 - Run commands from the repo folder. Sites may have stopped since: A1 starts them.
+
+### Pilot progress (paused 2026-10-22, continuing on the Mac)
+
+Only ai-engine has been started. royal-mcp and miniorange not touched.
+
+ai-engine, done on Ubuntu (site `http://localhost:8881`, endpoint `http://localhost:8881/wp-json/mcp/v1/http`):
+- A1 site started. A2/A3 covered by `results.json` (A3 401 without credentials; 46 tools with Basic auth).
+- A4: `xdg-open` worked. Screenshot of the settings page saved in `screenshots/ai-engine/` (file still has the browser's default name; rename to `A4-connection.png`).
+- A5: ai-engine keeps everything in one serialized option, `mwai_options`, so the sheet's `*ai-engine*` / `*mcp*` searches miss it. Defaults seen: `module_mcp` true (set by `run_tests.py`, not the real default), `mcp_role` admin, `mcp_log_calls` true, `mcp_log_payloads` false, `mcp_abilities` false, `mcp_oauth_editors` false. No key or token in plain text in these options.
+- B1/B2 done: application password created and tested against `tools/list` (200, tools returned). That credential only exists in the Ubuntu site. On the Mac, rerun B1/B2 against the Mac's ai-engine site.
+
+Not done for ai-engine: B3 (Claude Desktop config; not checked whether Claude Desktop is installed on Ubuntu), B4, T1-T8, D1-D4, E1-E2, and the Results tab row. No stopwatch time was recorded.
+
+To continue on the Mac: pull, `./setup_test_sites.sh start ai-engine`, paste the URL it prints into B7 and the endpoint (check with the `EN` entry in `results.json` or the A2 command) into B8, rerun B1/B2, then B3. The Mac's ports differ from Ubuntu's.
+
+Sheet issues found so far (not yet fixed in `build_manual_test_sheet.py`):
+1. A4 settings URL guess is wrong for ai-engine (`?page=mwai_settings`; already known).
+2. A5 option search globs miss ai-engine's settings. Add `*mwai*` or dump the plugin's main option with `option get`.
+3. Step descriptions are literal text, not formatted per plugin (so `<slug>` appears as written in the A4 screenshot hint).
 
 Per plugin (Runbook sheet):
 1. Pick the slug in B4. A1: start the site, paste the URL into B7 and the endpoint into B8.
