@@ -1,0 +1,348 @@
+{
+  "slug": "aicom",
+  "version": "3.22.2",
+  "reviewed_at": "2026-10-23T17:25:24+02:00",
+  "duration_s": 94,
+  "cost_usd": 0.9734371,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Partial",
+      "value": [
+        "api-key"
+      ],
+      "summary": "The endpoint accepts only a plugin-issued API key (`Authorization: Bearer aicom_...` or `X-API-Key`). Keys are not tied to a WordPress user at request time: the request runs as no user, and the plugin grants WP capabilities from the key's scopes. Application passwords and cookies are not used.",
+      "evidence": [
+        "includes/class-auth.php:448",
+        "includes/class-tool-router.php:321",
+        "includes/class-tool-router.php:568",
+        "includes/class-tool-router.php:930"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Partial",
+      "value": {
+        "public_by_design": true
+      },
+      "summary": "Every tool call on `/mcp`, including `tools/list`, is refused without a key (401). Two things are open: `GET /wp-json/aicom/v1/mcp` returns version and lock state, and `GET /wp-json/aicom/v1/schema` returns the full OpenAPI spec of all registered tools with no auth and no per-key filtering. Tools cannot be called without credentials.",
+      "evidence": [
+        "includes/class-tool-router.php:321-325",
+        "aicom.php:326-330",
+        "aicom.php:370-377",
+        "includes/class-schema-generator.php:13"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Partial",
+      "value": {
+        "model": "per-tool scopes on the API key; no current_user_can() on the target object"
+      },
+      "summary": "Each tool declares required scopes (for example `delete.wp.posts` or `manage.plugins`), and the router checks them per call. WordPress capabilities are then granted wholesale from the scopes, with no per-object `current_user_can('delete_post', $id)` check in the handlers. `write.wp.posts` gives edit_others_posts and publish_posts for every post. Optional per-key allowlists exist for post types, taxonomies, meta keys, options and file paths. The options allowlist is empty by default, which means any option can be read or set.",
+      "evidence": [
+        "includes/class-tool-router.php:422-426",
+        "includes/class-tool-router.php:930-1026",
+        "includes/class-policy-engine.php:43-61",
+        "modules/class-wp-core.php:850",
+        "modules/class-wp-core.php:1358"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": "API keys are bcrypt-hashed (cost 12). The plain key is shown once at creation and never stored.",
+      "summary": "Only the hash and a lookup prefix are stored. Failed-auth attempts are rate limited per IP. Logged tool parameters have keys like password, token and secret masked. The AICOMBase and Hub connector secrets are stored encrypted (libsodium) per the code and readme.",
+      "evidence": [
+        "includes/class-auth.php:88-98",
+        "includes/class-auth.php:157-166",
+        "includes/class-tool-router.php:911-923",
+        "includes/class-tool-router.php:1154-1173"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": {
+        "mcp_default": "on, but no key exists until an admin creates one"
+      },
+      "summary": "The endpoint is registered as soon as the plugin is active, but it is useless without a key. Keys must be created by an admin. Soft Lock, Hard Lock and AICOM-only mode are off by default. Scopes are chosen per key; presets include Full Admin. The `options` allowlist is empty by default. A session must be opened before any write.",
+      "evidence": [
+        "aicom.php:316-323",
+        "includes/class-tool-router.php:366-401",
+        "includes/class-lock-manager.php:21-22",
+        "readme.txt:376-380"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Pass",
+      "value": {
+        "mechanism": "Soft Lock (site-wide), plus read-only scopes per key"
+      },
+      "summary": "Soft Lock allows only public, discovery and read tools for every key and is checked before auth. It can be toggled from the admin bar and the Safety page, and can be scheduled with Working Hours. Hard Lock permits only public tools. A key with only `read.*` scopes is also read-only.",
+      "evidence": [
+        "includes/class-policy-engine.php:14-27",
+        "includes/class-tool-router.php:297-318",
+        "includes/class-tool-registry.php:29-31"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Pass",
+      "value": {
+        "granularity": "per key: ~35 scopes, presets, allowlists, IP and time limits"
+      },
+      "summary": "Each API key gets its own set of scopes covering posts, taxonomies, meta, media, files, users, roles, plugins, settings, backups and each integration. Per-key allowlists limit post types, taxonomies, meta keys, options, file paths and languages. `tools/list` shows only the tools a key can call. Scopes are grouped (for example `write.wp.posts` covers all post-writing tools) rather than strictly per tool.",
+      "evidence": [
+        "includes/class-auth.php:23-70",
+        "includes/class-tool-registry.php:117-124",
+        "includes/class-policy-engine.php:43-98"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Pass",
+      "value": {
+        "mechanism": "required `confirm: true` argument on permanent-delete and sensitive tools, plus destructiveHint annotation, plus automatic pre-write snapshots"
+      },
+      "summary": "`wp.posts.delete`, `wp.terms.delete`, `wp.options.set` and `wp.plugins.update_all` are rejected with CONFIRM_REQUIRED unless `confirm` is true. The router also adds `destructiveHint` annotations and takes automatic backups before updates and deletes. Gaps: `wp.posts.trash`, `wp.meta.delete` and `files.delete` are not marked requires_confirm in wp-core (files.delete not checked), though trash is recoverable.",
+      "evidence": [
+        "includes/class-policy-engine.php:34-39",
+        "includes/class-tool-router.php:431-433",
+        "modules/class-wp-core.php:342-354",
+        "modules/class-wp-core.php:274-285",
+        "includes/class-tool-router.php:95-118"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": {
+        "trash_tool": "wp.posts.trash",
+        "permanent_tool": "wp.posts.delete (confirm=true)"
+      },
+      "summary": "`wp.posts.trash` uses `wp_trash_post`. Permanent deletion is a separate tool, `wp.posts.delete`, which needs `confirm: true` and always force-deletes (its `force` parameter is documented but ignored). Both take an automatic snapshot first, and `backup.post.restore` or session restore can undo them.",
+      "evidence": [
+        "modules/class-wp-core.php:322-354",
+        "modules/class-wp-core.php:850",
+        "modules/class-wp-core.php:897",
+        "includes/class-tool-router.php:96-98"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": {
+        "location": "AICOM → Audit Logs (wp-admin), DB table wp_aicom_logs"
+      },
+      "summary": "Every request, including rejected ones, is logged with time, IP, key label, tool, class, parameters, result and duration. Logs are grouped into named sessions and can be viewed, filtered and restored in wp-admin in the free plugin. Secret-looking parameters are masked.",
+      "evidence": [
+        "includes/class-tool-router.php:601-620",
+        "includes/class-audit-logger.php",
+        "admin/pages/audit-logs.php"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 206,
+        "names": [
+          "Core (wp-core): server.status, tools/list, tools/search, tools/describe, site.summary, wp.site.info, wp.post_types.list, wp.taxonomies.list, wp.posts.list/get/create/update/preview_url/trash/restore/delete, wp.terms.list/get/create/update/assign_to_post/remove_from_post/delete, wp.meta.get/set/set_many/delete, wp.options.get/set, wp.cache.purge, wp.plugins.list/update_all",
+          "Session: session.open/close/status",
+          "Media/files: media.list/get/upload/update_meta/attach_to_post/set_featured, files.list/upload/delete",
+          "Menus (10): wp.menus.list/get/create/rename/delete, wp.menus.items.add/update/remove, wp.menus.locations.get/set",
+          "Users (12): wp.users.list/get/create/update/delete/set_role/add_role/remove_role, wp.roles.list/create/update_caps/delete",
+          "Backup (8): backup.list/get_manifest/post.create/post.restore/term.create/term.restore/delete/purge_old",
+          "A11y (4): a11y.images_missing_alt/audit_post/set_image_alt/site_report",
+          "Skills (15): skills.* (13), skills.suggestions, aicom.recipes",
+          "Optional: WooCommerce (16 wc.*), Elementor (10 elementor.*), Polylang (14 pll.*), WPML (11 wpml.*), Yoast (9), SEOPress (9), ECS (26 ecs.*), Clautron (18 clautron.*)"
+        ]
+      },
+      "summary": "About 206 tools are registered when every optional integration is active (the admin help page says 170+). Around 120 are always on; the rest load only when WooCommerce, Elementor, Polylang, WPML, Yoast, SEOPress, ECS or Clautron is active. Counts come from the `register()` calls in modules/.",
+      "evidence": [
+        "aicom.php:221-257",
+        "modules/class-wp-core.php:24-380",
+        "modules/class-users.php",
+        "modules/class-media.php",
+        "admin/pages/help.php:132"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "comments",
+        "plugins",
+        "settings",
+        "woocommerce"
+      ],
+      "summary": "Covers posts and pages (any post type), media and files, terms, users and roles, plugin listing and bulk update, options (settings), menus, and WooCommerce. `comments` is listed in the readme-adjacent area only by name in the area list but no comment tools exist, so it is not covered. There are no themes or block-specific tools; content is passed as raw HTML or block markup. Elementor, SEO, translation and ECS tools are extras.",
+      "evidence": [
+        "modules/class-wp-core.php:24-380",
+        "modules/class-users.php",
+        "modules/class-media.php",
+        "modules/class-woocommerce.php"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "wp.posts.list"
+        },
+        "T2": {
+          "status": "Partial",
+          "tool": "wp.posts.create + media.upload + media.attach_to_post/set_featured"
+        },
+        "T3": {
+          "status": "Partial",
+          "tool": "wp.posts.get + wp.posts.update"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "media.upload (url)"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "wp.plugins.list"
+        },
+        "T6": {
+          "status": "Pass",
+          "tool": "wp.options.set (blogdescription)"
+        },
+        "T7": {
+          "status": "Pass",
+          "tool": "wp.posts.trash / wp.posts.delete"
+        },
+        "T8": {
+          "status": "Partial",
+          "tool": "scoped API keys (not WP user roles)"
+        }
+      },
+      "summary": "T1: `wp.posts.list` returns title and status. T2: a draft is created with `post_content` run through `wp_kses_post`, so the agent supplies raw block markup or HTML; there is no Markdown conversion. The image must be uploaded first and then referenced in the content. T3: `wp.posts.update` replaces `post_content` wholesale, so the agent must fetch the post and send back the full content to append (an auto-backup is taken). T4: `media.upload` accepts a `url` with an SSRF check and an extension blocklist. T5: `wp.plugins.list` shows version and active state but needs `manage.plugins`. T6: `wp.options.set` with `confirm:true` and `manage.wordpress.settings` works since the allowlist is empty by default. T7: trash is a separate tool; permanent delete needs `confirm`; both are logged. T8: there are no WordPress users behind keys; a key without `write.wp.posts` or `delete.wp.posts` scopes is refused, but that is key scoping, not a subscriber role.",
+      "evidence": [
+        "modules/class-wp-core.php:90-103",
+        "modules/class-wp-core.php:152-186",
+        "modules/class-wp-core.php:643-645",
+        "modules/class-wp-core.php:740",
+        "modules/class-media.php:159-231",
+        "modules/class-wp-core.php:298-319",
+        "modules/class-wp-core.php:274-285",
+        "modules/class-wp-core.php:322-354",
+        "includes/class-tool-router.php:422-426"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Fail",
+      "value": "Does not register or expose WordPress Abilities API abilities or use the MCP Adapter.",
+      "summary": "The plugin has its own custom tool registry and router and does not register abilities. It does not expose abilities from other plugins.",
+      "evidence": [
+        "includes/class-tool-registry.php:19-55",
+        "aicom.php:221-260"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Partial",
+      "value": {
+        "transports": [
+          "HTTP POST JSON-RPC (single response, no SSE stream)",
+          "JSON-RPC batch",
+          "OpenAPI REST wrapper"
+        ],
+        "protocol_version": "2025-06-18 (also 2024-11-05; default 2024-11-05)",
+        "runs_in_wordpress": true
+      },
+      "summary": "The MCP server runs inside WordPress as a stateless POST endpoint (`/wp-json/aicom/v1/mcp`, fallback `/?aicom=1`), with initialize, tools/list and tools/call. It negotiates 2025-06-18 or 2024-11-05, falling back to 2024-11-05. It lacks a streaming and session-header Streamable HTTP implementation (GET returns a health JSON, not an event stream), and the tools capability reports listChanged false only. Resources and prompts are not implemented.",
+      "evidence": [
+        "aicom.php:316-323",
+        "aicom.php:295-311",
+        "includes/class-tool-router.php:38-43",
+        "includes/class-tool-router.php:210-241"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [],
+      "summary": "The plugin is described as completely free; no Pro-gated MCP features were found in the code. Some tools depend on third-party plugins (WooCommerce, Elementor, ECS Pro or WPML), which are separate products. AICOMBase and AICOM Hub connectors are optional and not required for MCP use.",
+      "evidence": [
+        "readme.txt:191-193",
+        "aicom.php:221-257"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": "Direct HTTP URL with a Bearer header; no HTTPS or public URL requirement found in code",
+      "summary": "A local site works over plain `http://localhost` with an API key. The admin snippets for Claude Desktop use a `url` plus `headers` config. That depends on a Claude Desktop build that supports remote HTTP servers with custom headers, so a bridge such as `mcp-remote` may be needed. No such bridge is mentioned by the plugin, and I did not find any HTTPS check in the plugin code.",
+      "evidence": [
+        "admin/pages/help.php:113-119",
+        "admin/class-admin.php:317",
+        "aicom.php:349-363"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": "Fallback endpoint, `X-API-Key` header, REDIRECT_HTTP_AUTHORIZATION, htaccess hint, trusted-proxy IP filter, Test Connection check",
+      "summary": "Handles the common host problems. There is a `/?aicom=1` fallback for hosts without rewrite rules, an `X-API-Key` alternative for stripped Authorization headers, and a `.htaccess` `SetEnvIf` line shown on the API keys page. The admin Test Connection detects a stripped header and suggests the fallback. There are no CORS headers for browser clients and no explicit WAF or caching notes beyond a hint to resend browser-like headers.",
+      "evidence": [
+        "includes/class-auth.php:448-463",
+        "admin/pages/api-keys.php:737",
+        "admin/class-admin.php:534-537",
+        "includes/class-tool-router.php:1028-1042",
+        "readme.txt:143-145"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Pass",
+      "value": {
+        "count": 3,
+        "steps": [
+          "Activate the plugin and open AICOM → API Keys, then generate a key with a preset",
+          "Copy the key once and the client snippet shown in the Key Created modal",
+          "Paste the snippet into the client config (or run `claude mcp add`), restart it, and call a tool (open a session first for writes)"
+        ]
+      },
+      "summary": "The key modal gives a paste-ready snippet for the client. The readme lists seven steps, but they cover the same actions. Writes also need a `session.open` call, which the server instructions explain. For Claude Desktop the config file still has to be edited.",
+      "evidence": [
+        "readme.txt:135-141",
+        "admin/class-admin.php:300-340",
+        "admin/pages/help.php:182-209"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Fail",
+      "value": "No OAuth or connector URL. Claude Desktop needs a JSON config file edit; Claude Code needs a terminal command.",
+      "summary": "Connecting needs either a terminal (`claude mcp add`) or editing `claude_desktop_config.json`. The plugin has no OAuth, dynamic client registration or one-URL custom connector flow. ChatGPT users import the OpenAPI schema URL in the Custom GPT builder instead, which needs no terminal.",
+      "evidence": [
+        "admin/pages/help.php:106-119",
+        "admin/pages/help.php:127-133"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": "Help page, Key Created modal with per-client tabs, dashboard endpoint display, Test Connection button, onboarding wizard and Dudee guide",
+      "summary": "wp-admin shows the site's own endpoint and fallback URLs, a copyable per-client snippet with the new key filled in (Claude Code, Claude Desktop, Cursor, generic, OpenAPI), a Test Connection check, and an onboarding wizard with a guided tour.",
+      "evidence": [
+        "admin/class-admin.php:300-340",
+        "admin/class-admin.php:516-537",
+        "admin/pages/help.php:105-148",
+        "admin/pages/api-keys.php:737-751",
+        "admin/pages/onboarding.php"
+      ]
+    },
+    "DOCS": {
+      "status": "Partial",
+      "value": [
+        "readme.txt (Installation, FAQ, endpoint, auth, scopes)",
+        "https://wordpress.org/plugins/aicom/",
+        "AICOM → Help page",
+        "MANAGEMENT-CHANNEL.md",
+        "AICOMBASE-CONNECTOR.md"
+      ],
+      "summary": "Setup, scopes, endpoints, safety features and an FAQ are documented in the readme, and the Help page in wp-admin is detailed and linked from the menu. No external docs site was found in the code. The repo-level docs are about the optional Hub and AICOMBase connectors. The readme's version and tool counts do not fully match the code.",
+      "evidence": [
+        "readme.txt:104-147",
+        "aicom.php:5",
+        "admin/pages/help.php:1-209",
+        "admin/pages/help.php:374"
+      ]
+    }
+  },
+  "notes": "1) Version mismatch: the plugin header says 3.22.2, but AICOM_VERSION and the readme say 3.23.1 (aicom.php:6 vs aicom.php:21, readme.txt:6). The code reviewed is the shipped 3.23.1 content.\n\n2) The options allowlist is empty by default, so `check_option_allowlist` allows any option. A key with `manage.wordpress.settings` plus `confirm:true` can set any option, including `users_can_register`, `default_role` or `active_plugins` (modules/class-wp-core.php:1342-1366, includes/class-policy-engine.php:58-61).\n\n3) `wp.posts.delete` documents a `force` parameter (default true) but the handler always force-deletes and ignores it (modules/class-wp-core.php:350, :897).\n\n4) The unauthenticated `/schema` endpoint returns every registered tool, including those that depend on inactive modules, with no per-key filtering (aicom.php:326, includes/class-schema-generator.php:13).\n\n5) CAP-AREAS: my value list names `comments`, but I found no comment tools. Please drop `comments` from that list. Themes and blocks also have no dedicated tools.\n\n6) The router grants WP capabilities through a `user_has_cap` filter for the duration of a call; handlers do not check ownership of individual posts. `write.wp.posts` therefore allows editing any post, including other authors' posts, and publishing.\n\n7) The REST callback always returns HTTP 200 with errors in the body, and `rest_pre_dispatch` bypasses WP's JSON validation for `/mcp` (aicom.php:295-311, :386).\n\n8) The sodium-based AICOMBase and Hub connectors send signed heartbeats and capability inventory to a third party only after an admin pairs the site (readme.txt:256-265). They are inert by default.\n\n9) The audit-logs admin page and `class-audit-logger.php` were located but not read in full, so the SAFE-LOG evidence rests on the router's call sites and the readme.\""
+}

@@ -1,0 +1,300 @@
+{
+  "slug": "track-debug",
+  "version": "3.1.1",
+  "reviewed_at": "2026-10-23T17:27:34+02:00",
+  "duration_s": 49,
+  "cost_usd": 0.5232744,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "application-password",
+        "cookie"
+      ],
+      "summary": "The MCP route is a REST route whose permission callback requires a logged-in user with the 'read' capability, so WordPress's normal REST authentication applies. The plugin's dashboard and generated config use application passwords. The plugin adds no auth of its own.",
+      "evidence": [
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:122",
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:129",
+        "includes/class-track-mcp.php:301"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "An unauthenticated request fails the 'read' capability check at the transport and is refused. Nothing in the code makes the endpoint public.",
+      "evidence": [
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:129",
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:139"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": "Per tool and per object: list-content uses the post type's edit_posts cap and filters rows by edit_post. get-content and save-content check edit_post on the id, and publish_posts for publish/private. read-debug-log needs manage_options. get-site-info and batch only need 'read'. Batch re-checks each inner tool's permission.",
+      "summary": "Each ability has its own permission callback, and content tools check per-post capabilities. get-site-info (which lists tool names, PHP and WP versions) is open to any logged-in user, including subscribers. That's a minor information leak.",
+      "evidence": [
+        "includes/class-track-abilities.php:350",
+        "includes/class-track-abilities.php:361",
+        "includes/class-track-abilities.php:365",
+        "includes/class-track-abilities.php:397",
+        "includes/class-track-abilities.php:760"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": "No plugin-issued secrets; uses WordPress core application passwords (hashed by core). The Freemius license key is handled by the Freemius SDK.",
+      "summary": "The plugin stores no API keys or tokens of its own. Credentials are WordPress application passwords, which core hashes and never shows again.",
+      "evidence": [
+        "includes/class-track-admin.php:145",
+        "readme.txt:41"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": "The MCP server is registered as soon as the plugin is active. There is no on/off setting. Requests must be authenticated.",
+      "summary": "MCP is on by default, with no admin toggle, but every request needs a logged-in user. Pro Power Mode is a separate option that defaults to off.",
+      "evidence": [
+        "includes/class-track-mcp.php:85",
+        "includes/class-track-mcp.php:301",
+        "includes/class-track-power.php:241"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Fail",
+      "value": "No read-only mode found.",
+      "summary": "The code has no setting that blocks write tools for every connection. save-content stays available to anyone with the capability.",
+      "evidence": [
+        "includes/class-track-abilities.php:229",
+        "includes/class-track-mcp.php:102"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Partial",
+      "value": "The only control is the developer filter `track_debug_mcp_abilities`. Capabilities scope what each user can do. There is no admin UI for per-tool control.",
+      "summary": "A site owner cannot switch tools on or off from wp-admin. A developer can use a PHP filter, and WordPress roles limit what each credential can do.",
+      "evidence": [
+        "includes/class-track-mcp.php:111"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "Annotations only. Free tools are all marked destructive=false. Batch refuses non-readonly tools unless they are explicitly non-destructive."
+      },
+      "summary": "The plugin has no confirmation step or approval queue. Its annotations are the only safeguard, and Pro destructive tools are not in the free code. The free save-content can overwrite a post and set it to publish, and it is annotated non-destructive.",
+      "evidence": [
+        "includes/class-track-abilities.php:322",
+        "includes/class-track-abilities.php:748"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "N/A",
+      "value": "No delete tools in the free plugin.",
+      "summary": "The free plugin has no delete tool. Deleting is only possible through Pro Power Mode (run-php and others), which is not in this code.",
+      "evidence": [
+        "includes/class-track-abilities.php:81"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Partial",
+      "value": "Free tool calls are not logged. Only adapter errors go to debug.log through ErrorLogMcpErrorHandler, and registration failures go to error_log. The read-debug-log audit level reads that log.",
+      "summary": "There is no admin-viewable record of who called which tool. The plugin only writes errors to debug.log, and admins can read them through the read-debug-log tool.",
+      "evidence": [
+        "includes/class-track-mcp.php:312",
+        "includes/class-track-abilities.php:884",
+        "includes/class-track-power.php:321"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 6,
+        "names": [
+          "get-site-info",
+          "list-content",
+          "get-content",
+          "read-debug-log",
+          "save-content",
+          "batch"
+        ]
+      },
+      "summary": "The free server exposes 6 tools. Pro adds more through the `track_debug_mcp_abilities` filter: Elementor, WooCommerce, Yoast, Rank Math, Site Kit, cache purge, run-php, get-option, list-plugins and others. The Pro code is not in this plugin.",
+      "evidence": [
+        "includes/class-track-abilities.php:81",
+        "includes/class-track-mcp.php:111"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages"
+      ],
+      "summary": "The free plugin covers posts and pages only. Pro lists media, plugins, themes, users, settings and WooCommerce.",
+      "evidence": [
+        "includes/class-track-abilities.php:156",
+        "readme.txt:136"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "list-content"
+        },
+        "T2": {
+          "status": "Partial",
+          "tool": "save-content (HTML or block markup, run through wp_kses_post; no image upload in free)"
+        },
+        "T3": {
+          "status": "Partial",
+          "tool": "get-content + save-content (content replaces the whole field, so the client must send the full text; no append mode)"
+        },
+        "T4": {
+          "status": "Fail",
+          "tool": "Pro only (image upload)"
+        },
+        "T5": {
+          "status": "Fail",
+          "tool": "Pro only (list-plugins)"
+        },
+        "T6": {
+          "status": "Fail",
+          "tool": "Pro only (option update)"
+        },
+        "T7": {
+          "status": "Fail",
+          "tool": "No free delete tool"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "save-content: publish needs publish_posts; contributors and subscribers cannot publish. Subscribers fail edit_posts."
+        }
+      },
+      "summary": "The free plugin handles listing and drafting. Media upload, plugin list, settings and delete are Pro-only.",
+      "evidence": [
+        "includes/class-track-abilities.php:397",
+        "includes/class-track-abilities.php:617",
+        "includes/class-track-abilities.php:636"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": "Registers 6 abilities with wp_register_ability under the track-debug category and exposes them through a scoped copy of wordpress/mcp-adapter.",
+      "summary": "It uses the Abilities API and ships its own namespaced copy of the MCP Adapter.",
+      "evidence": [
+        "includes/class-track-abilities.php:135",
+        "includes/class-track-mcp.php:301"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http"
+        ],
+        "protocol_version": "2025-11-25",
+        "runs_in_wordpress": true
+      },
+      "summary": "MCP runs in WordPress at /wp-json/track-debug/mcp through the adapter's HttpTransport, which targets the 2025-11-25 spec.",
+      "evidence": [
+        "includes/class-track-mcp.php:311",
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:143"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Partial",
+      "value": [
+        "Elementor tools",
+        "WooCommerce tools",
+        "Yoast/Rank Math SEO tools",
+        "Site Kit reports",
+        "cache purge",
+        "option/plugin/theme/user management",
+        "media upload",
+        "run-php",
+        "Power Mode"
+      ],
+      "summary": "The MCP connection and basic post/page tools are free. Everything beyond posts and pages needs the paid add-on (Pro with a Freemius license).",
+      "evidence": [
+        "readme.txt:55",
+        "readme.txt:61",
+        "includes/class-track-power.php:310"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": "Generated config uses @automattic/mcp-wordpress-remote with WP_API_URL and an application password. WordPress allows application passwords over HTTP on local environments.",
+      "summary": "Claude Desktop can connect to a local site with an application password and the bridge. The readme says local development follows WordPress configuration.",
+      "evidence": [
+        "readme.txt:151",
+        "readme.txt:175",
+        "build/index.js (\"mcp-wordpress-remote\")"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Partial",
+      "value": "Relies on core application passwords and REST. No handling of a stripped Authorization header, CORS, or WAF/caching notes was found in the PHP.",
+      "summary": "It works on hosts that pass the Authorization header and allow application passwords. The plugin has no fallback for stripped headers or other common host problems.",
+      "evidence": [
+        "includes/class-track-admin.php:145",
+        "readme.txt:173"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 6,
+        "steps": [
+          "Activate the plugin",
+          "Open Track Debug in wp-admin",
+          "Create an application password",
+          "Pick the client and copy the config",
+          "Paste it into the Claude Desktop JSON config (needs Node/npx)",
+          "Restart the client and ask for site info"
+        ]
+      },
+      "summary": "The readme lists 7 steps. It takes about 6 once the dashboard walks you through the password and config.",
+      "evidence": [
+        "readme.txt:161",
+        "readme.txt:39"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Fail",
+      "value": "Requires pasting JSON or TOML into the client config and having Node/npx installed. No OAuth or connector-URL flow was found.",
+      "summary": "A site owner has to edit a client config file and have npx on their computer. The plugin offers no connector URL for Claude's custom connector.",
+      "evidence": [
+        "readme.txt:37",
+        "readme.txt:39",
+        "build/index.js (\"WP_API_URL\")"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": "The dashboard has a Connection tab that generates client-specific config and prompts with the site's own endpoint, and an Overview tab that shows the endpoint URL.",
+      "summary": "The admin screen provides copyable, site-specific configs for Claude Desktop, Cursor and Codex, and shows the endpoint URL.",
+      "evidence": [
+        "includes/class-track-admin.php:136",
+        "readme.txt:140",
+        "readme.txt:145"
+      ]
+    },
+    "DOCS": {
+      "status": "Partial",
+      "value": [
+        "readme.txt installation and FAQ",
+        "Freemius checkout URLs in the dashboard"
+      ],
+      "summary": "Setup is documented in the readme and in the dashboard. No docs site link was found in the PHP, and the dashboard links mostly point to purchase pages.",
+      "evidence": [
+        "readme.txt:159",
+        "includes/class-track-admin.php:161"
+      ]
+    }
+  },
+  "notes": "I did not read the built admin JavaScript in full (build/index.js is minified), so the dashboard claims rest on the readme and the strings I found. The server instructions field tells the model about Pro tools (run-php, get-option, elementor-*, wc-*), but those abilities are not in the free code, so the free tool list is only the 6 shown. The plugin's tool-call \"audit log\" mentioned in the read-debug-log description is written by the Pro add-on, not the free plugin. The batch runner would allow any registered ability whose annotations say it does not change data, or that is marked non-destructive, so a Pro or third-party ability with a loose annotation could run inside batch. The 'destructive' annotation on save-content is false even though it can overwrite post content and publish. get-site-info is callable by any logged-in user with the 'read' capability, such as a subscriber. The HttpTransport default permission is only 'read', so every authenticated user can connect to the MCP endpoint."
+}

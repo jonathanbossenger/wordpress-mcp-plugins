@@ -1,0 +1,331 @@
+{
+  "slug": "diviops-agent",
+  "version": "1.5.47",
+  "reviewed_at": "2026-10-23T17:04:59+02:00",
+  "duration_s": 46,
+  "cost_usd": 0.7696381999999999,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "application-password"
+      ],
+      "summary": "The plugin is a REST bridge under diviops/v1, and its own comments and readme say all routes need WordPress Application Password auth. Every route has a permission callback that checks a capability or a logged-in user. Nothing is open.",
+      "evidence": [
+        "diviops-agent.php:394",
+        "diviops-agent.php:648",
+        "diviops-agent.php:663",
+        "readme.txt:100"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "Every route, including the handshake and the Divi-unavailable catch-all, requires a capability or a logged-in user. A request without credentials is refused.",
+      "evidence": [
+        "diviops-agent.php:400",
+        "diviops-agent.php:663",
+        "diviops-agent.php:672",
+        "diviops-agent.php:683"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": "Tiered route-level capabilities (edit_posts / edit_pages / manage_options / edit_theme_options) plus per-object edit_post, delete_post and create/publish checks in handlers.",
+      "summary": "Routes use capability tiers, and the handlers add per-object checks such as `edit_post` and `delete_post` on the specific post ID. Create and publish also check the mapped post-type capabilities. This is the per-tool, per-object pattern.",
+      "evidence": [
+        "diviops-agent.php:400",
+        "diviops-agent.php:404",
+        "diviops-agent.php:602",
+        "diviops-agent.php:622",
+        "includes/trait-page.php:3922",
+        "includes/trait-page.php:224",
+        "includes/trait-seo.php:287"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "N/A",
+      "value": null,
+      "summary": "The plugin issues no keys or tokens. It relies on core WordPress Application Passwords.",
+      "evidence": []
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": "Routes are active as soon as the plugin is active. There is no on/off setting. Every route requires authentication.",
+      "summary": "There is no MCP switch to turn on. The REST routes exist once the plugin is active, but every one needs a logged-in user with a capability. Rate limits (120 read and 30 write per minute per user) are on by default.",
+      "evidence": [
+        "diviops-agent.php:230",
+        "diviops-agent.php:302",
+        "diviops-agent.php:660"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Fail",
+      "value": null,
+      "summary": "There is no read-only mode in the plugin. The only restriction is the WordPress role of the user whose Application Password is used.",
+      "evidence": [
+        "diviops-agent.php:394"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Partial",
+      "value": "Only WordPress capability tiers by role. Rate limits are the other control.",
+      "summary": "The site owner cannot enable or disable individual tools. The only scoping is through the WordPress role of the credential: edit_posts for reads, edit_pages for writes, manage_options for admin routes.",
+      "evidence": [
+        "diviops-agent.php:396",
+        "diviops-agent.php:652",
+        "diviops-agent.php:656"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "dry_run parameter on destructive routes (preview before apply). Exact-set preset deletion needs a reviewed checksum. The MCP server, which is external, may add destructiveHint annotations. No plugin-side approval queue."
+      },
+      "summary": "Destructive routes such as page trash accept `dry_run` to preview, and some such as preset cleanup require a checksum. The plugin has no confirmation or approval step. The agent chooses whether to preview first.",
+      "evidence": [
+        "diviops-agent.php:1465",
+        "includes/trait-page.php:3951",
+        "readme.txt:220"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": "page/trash defaults to wp_trash_post. force=true is needed for wp_delete_post.",
+      "summary": "The page trash route moves content to the trash by default and only deletes permanently when `force` is true. Theme Builder template trash follows the same pattern. Canvas delete and library cleanup call permanent deletion.",
+      "evidence": [
+        "diviops-agent.php:1459",
+        "includes/trait-page.php:3970",
+        "includes/trait-page.php:4001",
+        "includes/trait-theme-builder.php:2570",
+        "includes/trait-canvas.php:1274"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Partial",
+      "value": "No audit log of calls. Rollback snapshots of content writes are shown read-only on the dashboard.",
+      "summary": "Tool calls are not logged with who, what and when. The dashboard lists rollback snapshots of content writes and shows rate-limit settings. That is recovery data, not an audit trail.",
+      "evidence": [
+        "diviops-agent.php:2136"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": "about 95 REST routes (the MCP server tools map onto them)",
+        "names": [
+          "handshake",
+          "page/list|get|get-layout|create|update-content|update-meta|set-meta|update-status|trash|settings",
+          "section/append|replace|remove|get",
+          "module/get|update|move|lock|unlock|clone",
+          "render",
+          "validate/blocks",
+          "schema/modules|module|settings|dump-all",
+          "global-color/list|upsert|delete|audit-storage",
+          "global-font/list|create|update|delete|audit-storage",
+          "variable/list|create|delete|scan-orphans|create-fluid-system|used-on-page",
+          "preset/list|audit|inspect|create|update|delete|cleanup|reassign|set-default|registry-doctor|scan-orphans",
+          "rollback-snapshot/list|get|delete|restore",
+          "library/items|item|save",
+          "theme-builder/template/list|create|trash, layout/get|update|block-insert",
+          "cross-env/target-context|source-export",
+          "canvas/create|list|get|update|delete|duplicate|orphan-audit",
+          "menu/list|get|create|item/add-page|item/add-custom|location/assign",
+          "custom-css|upsert|restore",
+          "seo/provider/list|metadata get/set|storage",
+          "scf/text-value/update",
+          "theme-options",
+          "meta/find-icon|flush-cache"
+        ]
+      },
+      "summary": "The plugin registers REST routes, not MCP tools. The external `@diviops/mcp-server` npm package turns them into tools, and its tool list is not in this plugin. The route list is Divi-focused, and some features are Pro-gated.",
+      "evidence": [
+        "diviops-agent.php:660",
+        "diviops-agent.php:1350",
+        "diviops-agent.php:1453",
+        "diviops-agent.php:2009"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "settings",
+        "blocks",
+        "themes"
+      ],
+      "summary": "Coverage is Divi-centred: pages and posts (status, trash), Divi modules and blocks, Divi presets, variables, fonts and colours, theme options, Theme Builder, menus, custom CSS and SEO meta. There are no media, user, comment or plugin tools. Taxonomy reads are only indirect.",
+      "evidence": [
+        "diviops-agent.php:1350",
+        "diviops-agent.php:933",
+        "diviops-agent.php:1285",
+        "diviops-agent.php:1370"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "page/list"
+        },
+        "T2": {
+          "status": "Partial",
+          "tool": "page/create (Divi block markup, no media upload)"
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "page/update-content, section/append, module/update"
+        },
+        "T4": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T5": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T6": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T7": {
+          "status": "Pass",
+          "tool": "page/trash (trash default, dry_run, delete_post cap; no audit log)"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "edit_pages/publish/delete_post capability checks"
+        }
+      },
+      "summary": "The plugin handles page listing, draft creation, editing and trashing. It has no media upload, plugin list or tagline route. Content is stored as Divi 5 block markup, and Divi must be active. Image content depends on an existing media URL.",
+      "evidence": [
+        "diviops-agent.php:769",
+        "diviops-agent.php:1838",
+        "diviops-agent.php:1350",
+        "diviops-agent.php:1453",
+        "includes/trait-page.php:3922"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Fail",
+      "value": null,
+      "summary": "The plugin does not use the Abilities API or the MCP Adapter. It registers its own REST routes under diviops/v1.",
+      "evidence": [
+        "diviops-agent.php:176",
+        "diviops-agent.php:660"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Fail",
+      "value": {
+        "transports": [
+          "REST (custom diviops/v1); MCP over stdio is served by the external npm @diviops/mcp-server"
+        ],
+        "protocol_version": null,
+        "runs_in_wordpress": false
+      },
+      "summary": "No MCP server runs inside WordPress. The site owner runs a separate Node package, `@diviops/mcp-server`, that calls this plugin's REST API.",
+      "evidence": [
+        "readme.txt:40",
+        "readme.txt:56"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Partial",
+      "value": [
+        "Cross-environment apply operations",
+        "Staff-body Theme Builder apply",
+        "Other advanced workflows requiring Pro components",
+        "Divi 5 required (separate paid product)"
+      ],
+      "summary": "The core authoring bridge is free. Some advanced workflows, such as cross-environment apply, need separate Pro components. The MCP server is a separate package, and Divi 5 is also required.",
+      "evidence": [
+        "readme.txt:46",
+        "readme.txt:48",
+        "readme.txt:271"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": "Application Password plus the stdio MCP server running locally.",
+      "summary": "Claude Desktop starts the local `@diviops/mcp-server` over stdio. It calls the site's REST API with an Application Password. WordPress only allows Application Passwords on HTTPS or local environments, so localhost works. There is no cloud dependency.",
+      "evidence": [
+        "readme.txt:56",
+        "readme.txt:72"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Partial",
+      "value": "Plain REST with Application Password Basic auth.",
+      "summary": "It uses standard REST with Basic auth and has rate limiting. The code has no handling for hosts that strip the Authorization header, no CORS handling and no WAF notes.",
+      "evidence": [
+        "diviops-agent.php:230",
+        "diviops-agent.php:312"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Fail",
+      "value": {
+        "count": 6,
+        "steps": [
+          "Install the plugin",
+          "Activate it and confirm Divi 5 is active",
+          "Create an Application Password",
+          "Install and configure @diviops/mcp-server in the client (JSON config / npx)",
+          "Add the DiviOps authoring skills",
+          "Ask the agent to inspect capabilities"
+        ]
+      },
+      "summary": "Setup takes about six steps. One of them is editing the client config to run an npx package, which needs Node and a terminal or JSON edit.",
+      "evidence": [
+        "readme.txt:72",
+        "readme.txt:73",
+        "readme.txt:74",
+        "readme.txt:75",
+        "readme.txt:76"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Fail",
+      "value": null,
+      "summary": "The site owner must configure a separately installed npm MCP server with a site URL and Application Password in the client config. There is no connector URL and no OAuth.",
+      "evidence": [
+        "readme.txt:56",
+        "readme.txt:75"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Partial",
+      "value": "The dashboard has a Setup Guide button linking to diviops.com/docs, plus text describing setup. It has no copyable site-specific URL or config snippet.",
+      "summary": "The wp-admin dashboard shows installed components and rate limits and links to the external Setup Guide. It does not give a copyable config for this site.",
+      "evidence": [
+        "diviops-agent.php:2233",
+        "diviops-agent.php:2254",
+        "diviops-agent.php:2335"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "https://diviops.com/docs/",
+        "https://diviops.com/use-cases/",
+        "https://www.npmjs.com/package/@diviops/mcp-server"
+      ],
+      "summary": "The readme documents install steps and permissions and links to the docs site. The wp-admin dashboard links to the setup guide. The docs themselves live off-site and were not reviewed here.",
+      "evidence": [
+        "readme.txt:44",
+        "readme.txt:70",
+        "readme.txt:78",
+        "diviops-agent.php:2233"
+      ]
+    }
+  },
+  "notes": "The plugin is a Divi 5 REST bridge, not an MCP server. The MCP server is the separate npm package @diviops/mcp-server, which was not reviewed, so tool names, annotations and its transport are unknown. CAP-TOOLS lists the plugin's REST routes (about 95). Several Pro-only features sit outside the free plugin. The rate limiter (120 read and 30 write per minute per user) is a real safety control, but it only counts requests per user. The readme says writes generally need edit_pages. Canvas delete and library cleanup call permanent wp_delete_post, so not every delete route trashes first. Permission checks look solid: handlers use per-object edit_post and delete_post, and create and publish map to the post-type capabilities. I read only part of the route file. SAFE-LOG evidence is the absence of an audit log (I found no logging code), so a miss in an unread file is possible."
+}

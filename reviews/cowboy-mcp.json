@@ -1,0 +1,357 @@
+{
+  "slug": "cowboy-mcp",
+  "version": "1.7.4",
+  "reviewed_at": "2026-10-23T17:25:24+02:00",
+  "duration_s": 82,
+  "cost_usd": 0.8335586,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Partial",
+      "value": [
+        "api-key",
+        "bearer-token",
+        "oauth"
+      ],
+      "summary": "Every request needs a Bearer credential: a plugin-issued API key or an OAuth access token. API keys are not tied to a user, because every key runs as the first administrator account. OAuth tokens are tied to the administrator who approved them.",
+      "evidence": [
+        "includes/class-mcp-auth.php:231",
+        "includes/class-mcp-auth.php:248",
+        "includes/class-mcp-auth.php:301",
+        "includes/class-mcp-oauth.php:1000"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "The route's permission callback rejects requests with a missing or invalid Bearer token (401). It also rejects everything while MCP is disabled (503) and requests with a disallowed Origin (403). Unauthenticated callers cannot list or call tools.",
+      "evidence": [
+        "includes/class-mcp-transport.php:38",
+        "includes/class-mcp-auth.php:208",
+        "includes/class-mcp-auth.php:226",
+        "includes/class-mcp-auth.php:232"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Partial",
+      "value": "Both credential types act as an administrator. A few tools add their own capability checks. The post tools do not.",
+      "summary": "API keys run as the first administrator and OAuth approval needs manage_options, so each call is gated by administrator rights and the credential's scope rather than per-object checks. Menu, media upload, plugin, theme and user tools check specific capabilities. wp_create_post, wp_update_post and wp_delete_post have no current_user_can() call, and neither does wp_update_option.",
+      "evidence": [
+        "includes/class-mcp-auth.php:301",
+        "includes/tools/core/posts.php:365",
+        "includes/tools/core/plugins.php:102",
+        "includes/tools/core/media.php:270",
+        "includes/tools/core/menus.php:164",
+        "includes/tools/core/users.php:227",
+        "includes/class-mcp-oauth.php:1000"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": "API keys are stored as hashes. OAuth tokens are stored as SHA-256 hashes.",
+      "summary": "API keys are stored with wp_hash_password and the raw key is returned only once. OAuth access and refresh tokens are stored as SHA-256 hashes. Secrets are also scrubbed from CLI output and from the options and meta that tools can read.",
+      "evidence": [
+        "includes/class-mcp-auth.php:71",
+        "includes/class-mcp-auth.php:86",
+        "includes/class-mcp-oauth.php:932",
+        "includes/class-mcp-oauth.php:947",
+        "includes/class-mcp-security.php:918"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": {
+        "enabled_on_activation": true,
+        "oauth_enabled": false,
+        "safe_mode": true,
+        "power_mode": false
+      },
+      "summary": "On activation the endpoint is switched on and safe mode is on, but no credential exists until an admin creates a key or approves an app. Browser sign-in (OAuth) is off by default. The endpoint refuses every request until a credential exists, so it is inert but not switched off.",
+      "evidence": [
+        "cowboy-mcp.php:140",
+        "cowboy-mcp.php:141",
+        "cowboy-mcp.php:145",
+        "includes/class-mcp-auth.php:232"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Pass",
+      "value": "Per-credential read_only scope for API keys and OAuth connections.",
+      "summary": "Each API key and OAuth connection can be set to read-only, and this is enforced on every tool call using the tool's readOnlyHint. Read-only is set per credential, not as one site-wide switch.",
+      "evidence": [
+        "includes/class-mcp-security.php:123",
+        "includes/class-mcp-auth.php:117",
+        "includes/class-mcp-tools.php:301"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Pass",
+      "value": "A custom allowed-tools list per credential, plus a site-wide allowed_tools setting.",
+      "summary": "Each key or OAuth connection can be limited to a hand-picked list of tools, and read-only is also available. A global allowed_tools setting limits tools for all connections. Out-of-scope tools are hidden from listings and refused when called.",
+      "evidence": [
+        "includes/class-mcp-auth.php:122",
+        "includes/class-mcp-security.php:139",
+        "includes/class-mcp-tools.php:266",
+        "includes/class-mcp-tools.php:301"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Pass",
+      "value": {
+        "mechanism": "Safe mode (on by default) blocks destructive tools until the call is repeated with confirm:true, and returns a preview. All write tools also accept dry_run. destructiveHint annotations are set as well."
+      },
+      "summary": "With safe mode on, destructive tools refuse to run without confirm:true and return a preview of what would change. The agent can ask for dry_run on any write tool. There is also a per-change undo journal and database checkpoints.",
+      "evidence": [
+        "includes/class-mcp-tools.php:341",
+        "includes/class-mcp-tools.php:350",
+        "includes/class-mcp-tools.php:1325",
+        "includes/tools/core/posts.php:190"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": "Posts and comments are trashed by default and deleted permanently only with force:true. Media deletes are permanent but the files are moved aside so the delete can be undone. Users and terms are deleted outright, with undo.",
+      "summary": "wp_delete_post and wp_delete_comment trash by default and delete permanently only when force is true. Media deletion removes the attachment but keeps the files in a recoverable trash folder. Other deletes (users, terms) are permanent but journaled and undoable.",
+      "evidence": [
+        "includes/tools/core/posts.php:372",
+        "includes/tools/core/posts.php:378",
+        "includes/tools/core/comments.php:250",
+        "includes/tools/core/media.php:430"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": "A DB audit log, shown on the Logs tab in wp-admin and pruned after 30 days.",
+      "summary": "Every tool call, error and authentication event is written to a database audit log with the key or client identity and the result. Admins read it on the Logs tab in the free plugin. Logging to debug.log is optional and off by default.",
+      "evidence": [
+        "includes/class-mcp-audit-log.php",
+        "admin/class-mcp-admin-logs.php",
+        "includes/class-mcp-tools.php:374",
+        "includes/class-mcp-auth.php:429"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": "about 201 (2 gateway tools plus about 199 definitions, with WooCommerce, ACF, Elementor, Beaver Builder, SiteOrigin, Wordfence, Events, SEO, Cache and Forms active). Plus any abilities from other plugins.",
+        "names": [
+          "cowboy_discover",
+          "cowboy_run",
+          "wp_list_posts",
+          "wp_get_post",
+          "wp_create_post",
+          "wp_update_post",
+          "wp_delete_post",
+          "wp_upload_media",
+          "wp_delete_media",
+          "wp_list_plugins",
+          "wp_update_option",
+          "wp_cli",
+          "wp_write_file",
+          "wp_search_replace",
+          "wp_edit_blocks",
+          "wp_restore_revision",
+          "wp_undo_change",
+          "wp_batch_execute",
+          "and about 180 more across users, themes, menus, comments, taxonomies, database, diagnostics, Gutenberg, WooCommerce and others"
+        ]
+      },
+      "summary": "tools/list returns only two gateway meta-tools, cowboy_discover and cowboy_run. The roughly 199 real tools sit behind them, grouped in categories and found through a catalog resource or discover calls. Counts come from per-file tool definitions. Inbound Abilities API wrappers add more.",
+      "evidence": [
+        "includes/class-mcp-tools.php:762",
+        "includes/class-mcp-tools.php:20",
+        "readme.txt:56"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "comments",
+        "plugins",
+        "themes",
+        "settings",
+        "blocks",
+        "woocommerce"
+      ],
+      "summary": "The tools cover all eleven areas. They also cover menus, files, database, WP-CLI, diagnostics, SEO plugins, ACF, page builders, Wordfence and The Events Calendar.",
+      "evidence": [
+        "includes/class-mcp-tools.php:119",
+        "includes/class-mcp-tools.php:20"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "wp_list_posts"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "wp_create_post + wp_upload_media (or wp_edit_blocks). Content is stored as supplied after wp_kses_post: HTML or block markup, with no Markdown conversion. The agent must write block markup itself."
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "wp_edit_blocks for surgical edits. wp_update_post replaces the whole content field, so the agent must send the full content."
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "wp_upload_media (source_type url, SSRF-guarded)"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "wp_list_plugins"
+        },
+        "T6": {
+          "status": "Pass",
+          "tool": "wp_update_option (blogdescription is not on the protected list)"
+        },
+        "T7": {
+          "status": "Pass",
+          "tool": "wp_delete_post (trash by default, confirm:true in safe mode, audit-logged and undoable)"
+        },
+        "T8": {
+          "status": "Partial",
+          "tool": "No subscriber credential can exist. API keys run as an administrator and OAuth approval requires manage_options. A read-only scope can stop publishing and deleting."
+        }
+      },
+      "summary": "Every task can be done. T3 needs wp_edit_blocks for a true partial edit. T8 is met by never issuing subscriber credentials, not by checking the subscriber's own capabilities.",
+      "evidence": [
+        "includes/tools/core/posts.php:118",
+        "includes/tools/core/posts.php:81",
+        "includes/tools/core/posts.php:365",
+        "includes/tools/core/media.php:101",
+        "includes/tools/core/media.php:165",
+        "includes/tools/core/plugins.php:6",
+        "includes/tools/core/options.php:6",
+        "includes/class-mcp-auth.php:301",
+        "includes/class-mcp-oauth.php:1000"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": "Two-way bridge. Each Cowboy tool is registered as a cowboy-mcp/* ability on WordPress 6.9+. Abilities from other plugins are exposed as tools, with a settings switch for each direction.",
+      "summary": "The plugin registers its own tools as abilities, and the abilities callers use require manage_options. It also turns abilities registered by other plugins into tools (default on). Both directions can be switched off in settings.",
+      "evidence": [
+        "includes/class-mcp-abilities.php:183",
+        "includes/tools/abilities/tools-abilities.php",
+        "includes/class-mcp-tools.php:1269",
+        "readme.txt:276"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http"
+        ],
+        "protocol_version": "2025-06-18",
+        "runs_in_wordpress": true
+      },
+      "summary": "Streamable HTTP is served from a WordPress REST route at /wp-json/cowboy-mcp/v1/endpoint. It uses the 2025-06-18 protocol version. Responses are JSON, or SSE when notifications are queued and the client accepts it. GET returns 405 and JSON-RPC batches are rejected, as that spec version requires.",
+      "evidence": [
+        "includes/class-mcp-transport.php:38",
+        "includes/class-mcp-transport.php:200",
+        "includes/class-mcp-transport.php:134",
+        "includes/class-mcp-transport.php:284"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [],
+      "summary": "All tools, safety controls, OAuth and the audit log are in the free plugin. The readme states there is no Pro tier. The code has no licence gating.",
+      "evidence": [
+        "readme.txt:26",
+        "readme.txt:224"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": "Claude Desktop connects to a local site through the mcp-remote bridge with OAuth or an API key. The Connections tab shows a ready-made claude_desktop_config.json snippet. Terminal and IDE tools sign in with OAuth with no public URL.",
+      "summary": "Claude Desktop connects to a local site through mcp-remote (needs Node.js and npx), with OAuth or a Bearer key. The admin screen detects loopback hosts and shows the bridge config. Plain http on loopback is supported.",
+      "evidence": [
+        "admin/class-mcp-admin-connections.php:668",
+        "admin/class-mcp-admin-connections.php:683",
+        "includes/class-mcp-security.php:1089",
+        "readme.txt:154"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Partial",
+      "value": "A Connection Doctor and a docs note handle Cloudflare, firewall and caching problems. No code fallback exists for a stripped Authorization header.",
+      "summary": "The Connection Doctor tests HTTPS, REST, OAuth discovery, Cloudflare bot rules, ModSecurity and LiteSpeed caching of /wp-json/. It also lists the firewall rule to add. The code only reads the Authorization header from the REST request. It has no HTTP_AUTHORIZATION or REDIRECT_HTTP_AUTHORIZATION fallback or .htaccess rewrite, so a host that strips it still fails. CORS is open only on the OAuth discovery endpoints. Browser origins are rejected on the MCP route unless filtered in.",
+      "evidence": [
+        "includes/class-mcp-doctor.php",
+        "includes/class-mcp-auth.php:231",
+        "includes/class-mcp-auth.php:226",
+        "includes/class-mcp-oauth.php:1236",
+        "readme.txt:284"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 4,
+        "steps": [
+          "Activate the plugin",
+          "Open Settings > Cowboy MCP > Connections",
+          "Click 'Add to Claude' (or copy the command for the chosen app)",
+          "Approve the sign-in on your own site"
+        ]
+      },
+      "summary": "On a public HTTPS site it takes about four steps to reach Claude. Claude Desktop on a local site needs a config edit and Node.js, which adds steps. Browser sign-in and the 30-minute registration window are switched on by the Connections-tab buttons.",
+      "evidence": [
+        "readme.txt:193",
+        "readme.txt:204",
+        "admin/class-mcp-admin-connections.php:326",
+        "cowboy-mcp.php:164"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": "On a public HTTPS site, the Add to Claude button, ChatGPT and other cloud apps connect through OAuth with a copyable connector URL. Local sites need a JSON config for the bridge.",
+      "summary": "Claude desktop and web, ChatGPT, Gemini, Grok and Perplexity connect through one-click OAuth with dynamic client registration and client-ID metadata documents, with no terminal. Local sites, Windsurf, Cline and similar tools still need a command or a config file.",
+      "evidence": [
+        "readme.txt:204",
+        "readme.txt:78",
+        "includes/class-mcp-oauth.php:1296",
+        "admin/class-mcp-admin-connections.php:326"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": "The Connections tab has an Add to Claude button, copyable connection links, per-app command and config snippets, a local-site bridge config for claude_desktop_config.json, and a Connection Doctor.",
+      "summary": "The admin Connections tab gives specific, copyable instructions for each app, built from the site's own endpoint URL. It adapts for local sites and shows a read-only test prompt.",
+      "evidence": [
+        "admin/class-mcp-admin-connections.php:326",
+        "admin/class-mcp-admin-connections.php:476",
+        "admin/class-mcp-admin-connections.php:683"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "readme.txt installation and per-client sections",
+        "https://cowboymcp.com/",
+        "https://wordpress.org/support/plugin/cowboy-mcp/",
+        "https://github.com/februality/cowboy-mcp/issues",
+        "https://plugins.svn.wordpress.org/cowboy-mcp/trunk/changelog.txt"
+      ],
+      "summary": "The readme documents setup for many clients, an FAQ and troubleshooting. Setup is built into wp-admin, and the readme links to the project site and support forum. I did not check whether the admin screens link to the external docs.",
+      "evidence": [
+        "readme.txt:76",
+        "readme.txt:191",
+        "readme.txt:282",
+        "admin/class-mcp-admin-connections.php:476"
+      ]
+    }
+  },
+  "notes": "1) API keys always run as the first administrator, so a key's only limit is its scope (read-only or a custom tool list). OAuth connections run as the approving admin. Neither credential type maps to a lower-privileged WordPress user.\n2) The post tools (wp_create_post, wp_update_post, wp_delete_post) and wp_update_option have no current_user_can() check. Their safety rests on the administrator context and the credential scope.\n3) The Abilities-bridge callers need manage_options, and Cowboy-side checks run on abilities from other plugins, so those depend on the other plugin's own permission checks. These are not undoable.\n4) wp_cli, wp_write_file, direct SQL and file tools exist as typed tools. Power mode lifts some guardrails and can only be switched on by an administrator in wp-admin.\n5) The tool count of about 199 is the number of tool() definitions found by grep across the tools folders. I did not run the plugin, so the exact live count depends on which integrations are active.\n6) Safe mode is a global setting that the credential cannot change, because cowboy_mcp_settings and cowboy_mcp_api_keys are hard-protected from writes.\n7) The readme says it needs no Composer or build step. The code matches: it ships its own transport and does not use the MCP Adapter library."
+}

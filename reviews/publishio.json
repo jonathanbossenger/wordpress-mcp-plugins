@@ -1,0 +1,340 @@
+{
+  "slug": "publishio",
+  "version": "1.1.0",
+  "reviewed_at": "2026-10-23T17:27:34+02:00",
+  "duration_s": 71,
+  "cost_usd": 0.6317269999999999,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "oauth",
+        "application-password",
+        "cookie"
+      ],
+      "summary": "The endpoint takes OAuth 2.1 bearer tokens tied to a WordPress user. If no bearer header is present it falls through to WordPress's own auth, so application passwords and cookies also work. The adapter's transport check needs a logged-in user with `read`.",
+      "evidence": [
+        "inc/Modules/MCP/OAuth/Transport/Bearer_Token_Auth.php:47",
+        "inc/Modules/MCP/OAuth/Transport/Bearer_Token_Auth.php:63",
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:122",
+        "inc/Modules/MCP/Server/Server.php:48"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "No transport permission callback is passed, so the adapter requires a logged-in user with `read`. A request with no credentials is refused. A bad bearer token returns a 401. Only the OAuth discovery and registration endpoints are open, which is normal for OAuth.",
+      "evidence": [
+        "inc/Modules/MCP/Server/Server.php:48",
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:80",
+        "inc/Modules/MCP/OAuth/Endpoint/Register.php:39"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": "Every ability has its own permission_callback (edit_posts, edit_pages or upload_files). Tools that take a post ID also check edit_post on that post. Create checks the post type's create_posts, term-setting checks assign_terms and assign_term, and set-featured-image checks read_post on the attachment.",
+      "summary": "Capability checks are per tool and per object, not just once at the endpoint.",
+      "evidence": [
+        "inc/Modules/MCP/Abilities/Posts/Update_Post.php:70",
+        "inc/Modules/MCP/Abilities/Posts/Update_Post.php:81",
+        "inc/Modules/MCP/Abilities/Posts/Create_Post.php:72",
+        "inc/Modules/MCP/Abilities/Posts/Set_Post_Terms.php:109",
+        "inc/Modules/MCP/Abilities/Posts/Set_Post_Terms.php:146",
+        "inc/Modules/MCP/Abilities/Posts/Set_Featured_Image.php:81",
+        "inc/Modules/MCP/Apps/Pattern_Approval/Insert_Pattern.php:80",
+        "inc/Modules/MCP/Apps/Pattern_Approval/Insert_Pattern.php:95"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": "Access and refresh tokens are stored as HMAC-SHA256 hashes via wp_hash. DCR client secrets are stored with wp_hash_password and the plaintext is shown once at registration. Tokens last 1 hour, refresh tokens 30 days with rotation.",
+      "summary": "Only hashes are stored, and the plaintext is never retrievable afterwards.",
+      "evidence": [
+        "inc/Modules/MCP/OAuth/Storage/Token_Store.php:85",
+        "inc/Modules/MCP/OAuth/Storage/Token_Store.php:86",
+        "inc/Modules/MCP/OAuth/Endpoint/Register.php:155",
+        "inc/Modules/MCP/OAuth/Endpoint/Register.php:199",
+        "inc/Modules/MCP/OAuth/Config.php:19"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": "The MCP server is registered as soon as the plugin is active. There is no on/off setting. It is authenticated, and the OAuth consent step needs a logged-in user with edit_posts.",
+      "summary": "The server is on by default but needs authentication. There is no admin switch to turn it off short of deactivating the plugin. Open dynamic client registration is on, but each client still needs a user to approve it on the consent screen.",
+      "evidence": [
+        "inc/Modules/MCP/Server/Server.php:29",
+        "inc/Modules/MCP/Server/Server.php:30",
+        "inc/Modules/MCP/OAuth/Endpoint/Authorize.php:136",
+        "inc/Modules/MCP/OAuth/Endpoint/Authorize.php:169"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Fail",
+      "value": null,
+      "summary": "There is no read-only mode. A token's scope (mcp:read / mcp:write) is issued but the bearer check never reads it, so it does not restrict anything.",
+      "evidence": [
+        "inc/Modules/MCP/OAuth/Transport/Bearer_Token_Auth.php:68",
+        "inc/Modules/MCP/OAuth/Transport/Bearer_Token_Auth.php:92"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Fail",
+      "value": null,
+      "summary": "The admin cannot limit which tools a connection may use. All publishio/* abilities are exposed to every authorised user, limited only by WordPress capabilities. The Connections page lists connections and can revoke them, but it does not scope them.",
+      "evidence": [
+        "inc/Modules/MCP/Server/Server.php:90",
+        "inc/Modules/MCP/Server/Server.php:93",
+        "inc/Modules/Settings/Connections/REST_Controller.php"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "annotations only (the destructive flag on delete-block-at). There is also an in-chat pattern preview flow, but its approval is a prompt convention, not enforced by the server."
+      },
+      "summary": "Only delete-block-at is marked destructive, and the client decides whether to prompt. The preview-then-insert flow is guided by the skill and readme, but the plugin does not require an approval before insert.",
+      "evidence": [
+        "inc/Modules/MCP/Abilities/Posts/Delete_Block_At.php:121",
+        "inc/Modules/MCP/Apps/Pattern_Approval/Insert_Pattern.php:80",
+        "inc/Modules/MCP/Apps/Pattern_Approval/Preview_Pattern.php:111"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "N/A",
+      "value": null,
+      "summary": "There is no tool to delete posts, pages or media. The only destructive tool removes a single block from a post's content.",
+      "evidence": [
+        "inc/Modules/MCP/Abilities/Abilities.php:81",
+        "inc/Modules/MCP/Abilities/Posts/Delete_Block_At.php:121"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Partial",
+      "value": "The only logging is the adapter's ErrorLogMcpErrorHandler, which writes errors to the PHP error log. There is no audit log of tool calls in wp-admin. The Connections page shows who has connected and when, but not what they did.",
+      "summary": "Tool calls are not recorded. Only errors go to the PHP error log.",
+      "evidence": [
+        "inc/Modules/MCP/Server/Server.php:56",
+        "inc/Modules/Settings/Connections/REST_Controller.php",
+        "inc/Modules/MCP/OAuth/Storage/Token_Store.php:280"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 25,
+        "names": [
+          "publishio/get-patterns",
+          "publishio/get-pattern",
+          "publishio/get-pattern-schema",
+          "publishio/apply-pattern-schema",
+          "publishio/preview-pattern",
+          "publishio/render-pattern",
+          "publishio/insert-pattern",
+          "publishio/get-custom-blocks",
+          "publishio/get-block",
+          "publishio/render-block",
+          "publishio/create-post",
+          "publishio/get-post",
+          "publishio/update-post",
+          "publishio/set-featured-image",
+          "publishio/append-blocks",
+          "publishio/insert-blocks-at",
+          "publishio/delete-block-at",
+          "publishio/search-posts",
+          "publishio/search-attachments",
+          "publishio/upload-media",
+          "publishio/get-taxonomy-terms",
+          "publishio/get-post-terms",
+          "publishio/set-post-terms",
+          "publishio/get-yoast-meta",
+          "publishio/set-yoast-meta"
+        ]
+      },
+      "summary": "A dedicated server at /wp-json/mcp/publishio exposes 25 publishio/* abilities, each as its own MCP tool, plus a content-guide resource and a pattern-approval app resource. Ability names are inferred from the class names and the update-post and upload-media files; the other ability slugs were not individually opened.",
+      "evidence": [
+        "inc/Modules/MCP/Abilities/Abilities.php:81",
+        "inc/Modules/MCP/Server/Server.php:90",
+        "inc/Modules/MCP/Server/Server.php:79"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "blocks"
+      ],
+      "summary": "The tools cover posts and pages (any post type), media, categories and tags, block patterns and blocks, and Yoast SEO metadata. There is nothing for users, comments, plugins, themes, settings or WooCommerce.",
+      "evidence": [
+        "inc/Modules/MCP/Abilities/Abilities.php:81"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "publishio/search-posts"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "publishio/create-post + publishio/append-blocks + publishio/upload-media (block markup; create-post makes a draft)"
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "publishio/update-post (title) + publishio/append-blocks / insert-blocks-at"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "publishio/upload-media"
+        },
+        "T5": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T6": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T7": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "edit_posts / edit_post checks on every tool; a subscriber lacks edit_posts, and no tool publishes or deletes posts"
+        }
+      },
+      "summary": "The content tasks (T1 to T4) work. T2 stores native block markup, not converted Markdown. T5 to T7 are not possible because there are no plugin, settings or delete tools. T8 holds because a subscriber is refused at both the OAuth consent step and each tool. I did not open Append_Blocks or Search_Posts in full, so T1 to T3 rest on their descriptions and schemas.",
+      "evidence": [
+        "inc/Modules/MCP/Abilities/Posts/Create_Post.php:80",
+        "inc/Modules/MCP/Abilities/Posts/Update_Post.php:25",
+        "inc/Modules/MCP/Abilities/Posts/Upload_Media.php:25",
+        "inc/Modules/MCP/OAuth/Endpoint/Authorize.php:136",
+        "inc/Modules/MCP/Abilities/Abilities.php:81"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": "Registers 25 abilities with wp_register_ability under three categories (patterns, blocks, posts), and bundles WordPress/mcp-adapter 0.6.1 to serve them.",
+      "summary": "The plugin uses the Abilities API and the MCP Adapter.",
+      "evidence": [
+        "inc/Modules/MCP/Abilities/Abilities.php:77",
+        "inc/Modules/MCP/Abilities/Abilities.php:81",
+        "vendor/wordpress/mcp-adapter/mcp-adapter.php:14"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http"
+        ],
+        "protocol_version": "2025-11-25",
+        "runs_in_wordpress": true
+      },
+      "summary": "The server runs inside WordPress through the adapter's HttpTransport, with POST, GET and DELETE on the REST route. It negotiates 2025-11-25 and falls back to 2025-06-18 and 2024-11-05. The adapter's GET handler is reserved for SSE and not yet implemented.",
+      "evidence": [
+        "inc/Modules/MCP/Server/Server.php:55",
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:66",
+        "vendor/wordpress/mcp-adapter/includes/Core/McpVersionNegotiator.php:30"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [],
+      "summary": "All the MCP features are in the free plugin, and nothing Pro or account-gated was found.",
+      "evidence": [
+        "inc/Main.php:26"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Partial",
+      "value": "OAuth redirect URIs on localhost, 127.0.0.1, ::1, .local and .localhost are accepted only when WP_DEBUG is on, and non-local hosts must be https. WordPress core's application passwords also work on the endpoint, but over plain http only on a local-environment site. Nothing in the plugin documents a bridge such as mcp-remote.",
+      "summary": "A local site can connect, but only with workarounds: WP_DEBUG on for the OAuth flow, or an application password via a bridge.",
+      "evidence": [
+        "inc/Modules/MCP/OAuth/Config.php:37",
+        "inc/Modules/MCP/OAuth/Config.php:45",
+        "inc/Modules/MCP/OAuth/Config.php:50",
+        "inc/Modules/MCP/OAuth/Config.php:54"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Partial",
+      "value": "It handles a stripped Authorization header by also reading REDIRECT_HTTP_AUTHORIZATION. It serves the RFC 8414 and RFC 9728 .well-known documents through rewrite rules with CORS Allow-Origin *, and sets a WWW-Authenticate header on 401. It has no notes on caching or WAF rules, and no .htaccess fallback for hosts that drop the Authorization header entirely.",
+      "summary": "It works on typical hosts with one header fallback. Pretty permalinks and rewrite rules are required for the .well-known URLs. Known host problems are only partly handled.",
+      "evidence": [
+        "inc/Modules/MCP/OAuth/Transport/Bearer_Token_Auth.php:157",
+        "inc/Modules/MCP/OAuth/Well_Known/Protected_Resource.php:121",
+        "inc/Modules/MCP/OAuth/Well_Known/Auth_Server_Metadata.php:120",
+        "inc/Main.php:138"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Pass",
+      "value": {
+        "count": 3,
+        "steps": [
+          "Activate the plugin and open the Publishio page to copy the server URL",
+          "Add that URL as a custom connector in Claude or ChatGPT",
+          "Approve the OAuth consent screen in wp-admin"
+        ]
+      },
+      "summary": "The plugin's installation notes give four short steps, which collapse to three actions: copy the URL, add the connector, and authorize. There is no config file or terminal work. The guide content is in built JavaScript, which I did not read, so the count follows the readme.",
+      "evidence": [
+        "readme.txt:79",
+        "readme.txt:83",
+        "readme.txt:84",
+        "inc/Modules/MCP/OAuth/Endpoint/Register.php:5"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": "OAuth 2.1 with dynamic client registration (RFC 7591) and PKCE, plus discovery metadata. Claude and ChatGPT connect with only the server URL.",
+      "summary": "No terminal or JSON editing is needed.",
+      "evidence": [
+        "inc/Modules/MCP/OAuth/Endpoint/Register.php:5",
+        "inc/Modules/MCP/OAuth/Endpoint/Register.php:78",
+        "inc/Modules/MCP/OAuth/Well_Known/Protected_Resource.php:121",
+        "readme.txt:92"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": "A React admin page, Publishio > Guide, mounted from templates/admin-screen.php. Per the readme and screenshots it shows the site's MCP URL and Claude and ChatGPT step guides. A Connections page lists authorized apps.",
+      "summary": "The admin screen shows a site-specific URL and step guides. The UI is built JavaScript, so I relied on the readme and screenshots for the exact contents, such as whether the URL is copyable.",
+      "evidence": [
+        "inc/Modules/Settings/Pages/Guide_Page.php:26",
+        "templates/admin-screen.php:16",
+        "readme.txt:83",
+        "readme.txt:136",
+        "readme.txt:139",
+        "build/admin.js"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "readme.txt Installation and FAQ (connect ChatGPT and Claude)",
+        "https://youtu.be/yUo94HqA9os",
+        "https://raw.githubusercontent.com/rtCamp/publishio/main/skills/publishio/SKILL.md",
+        "https://github.com/rtCamp/publishio/blob/main/docs/DEVELOPMENT.md",
+        "https://github.com/rtCamp/publishio",
+        "https://github.com/rtCamp/publishio/blob/main/docs/SECURITY.md"
+      ],
+      "summary": "The readme documents setup and the FAQ explains connecting both ChatGPT and Claude. The in-dashboard guide covers the same ground. There are developer docs on GitHub and a demo video. There is no dedicated end-user docs site, and I did not confirm links from the admin screens.",
+      "evidence": [
+        "readme.txt:79",
+        "readme.txt:91",
+        "readme.txt:118",
+        "readme.txt:23"
+      ]
+    }
+  },
+  "notes": "1. The readme says \"You review every section in an in-chat preview before anything is published\". The code does not enforce this. insert-pattern does not require that a preview happened first, and the plugin has no approval queue. Create-post only makes drafts, and no tool publishes, so content stays draft unless the user publishes it in wp-admin.\n2. The OAuth scopes (mcp:read, mcp:write) are advertised and stored but never enforced, so a token granted only mcp:read can still call write tools.\n3. Dynamic client registration is open and unauthenticated. Redirect URIs are restricted (https, or local hosts only under WP_DEBUG) and a user must approve on the consent screen. There is no visible rate limit or admin allow-list of clients.\n4. The vendored mcp-adapter also provides its own default server and discover-abilities and execute-ability tools. This plugin creates only its own server and filters to publishio/* abilities. Other plugins' abilities are not exposed through it.\n5. All abilities carry 'mcp' => ['public' => true] meta. This opts them in to the adapter's exposure, not to unauthenticated access.\n6. Upload-media downloads with download_url, which is documented as SSRF-safe (wp_safe_remote_get), and it checks the MIME type from file content, allowing only jpeg, png, gif, webp and avif.\n7. I did not open every ability file in full (for example Append_Blocks, Search_Posts and the Connections REST controller), nor the built React admin bundle. Findings for those rely on the grep of permission and annotation lines and the readme."
+}

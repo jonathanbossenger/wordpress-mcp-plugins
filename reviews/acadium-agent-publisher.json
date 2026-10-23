@@ -1,0 +1,337 @@
+{
+  "slug": "acadium-agent-publisher",
+  "version": "2.0.0",
+  "reviewed_at": "2026-10-23T17:27:34+02:00",
+  "duration_s": 60,
+  "cost_usd": 0.7026544,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "oauth",
+        "application-password",
+        "bearer-token"
+      ],
+      "summary": "The MCP endpoint is served by the MCP Adapter's HTTP transport, which needs a logged-in user with the 'read' capability. Credentials are an OAuth 2.1 bearer token tied to a WordPress user, or a core Application Password for the Desktop extension fallback.",
+      "evidence": [
+        "includes/oauth/class-oauth-server.php:63",
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:80",
+        "includes/class-setup.php:490"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "Without credentials the transport permission check fails and the request gets a 401 with an OAuth challenge. Each ability also has its own permission_callback.",
+      "evidence": [
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:129",
+        "includes/oauth/class-oauth-server.php:157"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": "per-tool and per-object",
+      "summary": "Each ability has its own permission_callback that checks capabilities such as edit_post, delete_post, upload_files, manage_terms and manage_options, plus the site mode. A bearer connection's capabilities are capped to content rights.",
+      "evidence": [
+        "includes/class-abilities.php:211",
+        "includes/class-abilities.php:529",
+        "includes/class-abilities.php:694",
+        "includes/class-site-tools.php:48",
+        "includes/class-site-tools.php:162",
+        "includes/oauth/class-oauth-server.php:99"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": "OAuth access and refresh tokens, authorization codes and client secrets are stored as SHA-256 hashes. Application Passwords are core-managed and shown once.",
+      "summary": "The plugin stores only hashes of the secrets it issues. Refresh tokens are single-use, and reuse revokes the connection.",
+      "evidence": [
+        "includes/oauth/class-oauth-store.php:86",
+        "includes/oauth/class-oauth-store.php:102",
+        "includes/oauth/class-oauth-store.php:166",
+        "includes/class-setup.php:542"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": {
+        "oauth_enabled_default": true,
+        "mode_default": "publish_edit"
+      },
+      "summary": "There is no on/off switch for MCP. OAuth sign-in is on by default and the default mode is 'Publish and edit live posts', the broadest one. Access still needs an authenticated WordPress user with edit_posts.",
+      "evidence": [
+        "includes/class-policy.php:86",
+        "includes/class-policy.php:91",
+        "includes/class-mcp-server.php:23"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Fail",
+      "value": "No read-only mode. The least permissive mode, 'Drafts only', still lets a connection create and edit drafts, upload media and trash its own drafts.",
+      "summary": "None of the four modes blocks all writes.",
+      "evidence": [
+        "includes/class-policy.php:56",
+        "includes/class-abilities.php:267"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Partial",
+      "value": "Four site-wide modes (drafts, review, publish, publish_edit), plus the connecting user's own role. There is no per-tool allow-list or per-role setting in the plugin. Some publishing checks (daily limit, required featured image, allowed categories) apply only to posts, not pages.",
+      "summary": "Control is coarse: mode groups and the person's WordPress role. The same settings apply to OAuth and Application Password connections. The plugin does not let you switch off an individual tool.",
+      "evidence": [
+        "includes/class-policy.php:56",
+        "includes/class-policy.php:300",
+        "includes/class-policy.php:338"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "destructiveHint-style annotations plus instructions telling the model to confirm with the user. No plugin-side confirmation or approval queue."
+      },
+      "summary": "Destructive abilities are annotated and the descriptions say to confirm first. For example, delete-term says 'Not undoable: confirm with the user first'. The plugin does not enforce this. The server instructions also tell the model not to ask again in chat for what the user already requested.",
+      "evidence": [
+        "includes/class-abilities.php:54",
+        "includes/class-abilities.php:515",
+        "includes/class-site-tools.php:106",
+        "includes/class-mcp-server.php:56"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": "trash-post uses wp_trash_post. There is no permanent post or media delete. Terms and redirects can be deleted permanently, term deletion has a merge option, and the post-delete wp_delete_post call only cleans up a failed create.",
+      "summary": "Posts and pages go to the Trash and can be restored. Permanent deletion is not exposed for content.",
+      "evidence": [
+        "includes/class-abilities.php:1395",
+        "includes/class-site-tools.php:104"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": "Last 200 actions stored in the option agent_publisher_log (time, user, 'via claude', action, post, title). Shown as 'Recent activity' on the settings page. It records post, upload and trash actions, but the term, menu and redirect tools were not confirmed to log.",
+      "summary": "The free plugin logs actions, with who, what and when, and shows them in wp-admin. The log is capped at 200 entries.",
+      "evidence": [
+        "includes/class-policy.php:401",
+        "includes/class-policy.php:419",
+        "includes/class-abilities.php:1398"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 27,
+        "names": [
+          "get-capabilities",
+          "list-terms",
+          "get-post",
+          "create-post",
+          "update-draft-post",
+          "submit-for-review",
+          "publish-post",
+          "unpublish-post",
+          "update-published-post",
+          "upload-media",
+          "request-upload",
+          "get-upload",
+          "trash-post",
+          "restore-revision",
+          "find-posts",
+          "find-media",
+          "create-term",
+          "update-term",
+          "delete-term",
+          "update-media",
+          "list-redirects",
+          "create-redirect",
+          "delete-redirect",
+          "list-menus",
+          "create-menu",
+          "update-menu",
+          "restore-menu"
+        ]
+      },
+      "summary": "27 abilities in the agent-publisher category, each exposed as its own MCP tool. The default MCP Adapter server also reaches them through discover, info and execute tools.",
+      "evidence": [
+        "includes/class-abilities.php:125",
+        "includes/class-site-tools.php:56",
+        "includes/class-menus.php:54",
+        "includes/class-mcp-server.php:62"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "blocks"
+      ],
+      "summary": "Posts, pages, synced patterns (wp_block), media, categories and tags, navigation menus and redirects. There are no tools for users, comments, plugins, themes, settings or WooCommerce.",
+      "evidence": [
+        "includes/class-abilities.php:667",
+        "readme.txt:27"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "find-posts"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "create-post (HTML in 'content', saved as given: block markup if the agent sends it, otherwise plain HTML; featured_image or upload-media for the image)"
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "update-draft-post / update-published-post with edits (find/replace)"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "upload-media (https URL, size and type checked)"
+        },
+        "T5": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T6": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T7": {
+          "status": "Pass",
+          "tool": "trash-post (moves to Trash, logged, confirmation by instruction only)"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "A Subscriber lacks edit_posts, so it cannot connect through OAuth or call any tool (can_connect and the per-ability checks)"
+        }
+      },
+      "summary": "Content tasks T1 to T4, T7 and T8 are covered. Listing plugins (T5) and changing site settings (T6) are not possible by design.",
+      "evidence": [
+        "includes/class-abilities.php:579",
+        "includes/class-abilities.php:249",
+        "includes/class-abilities.php:1315",
+        "includes/class-abilities.php:414",
+        "includes/class-abilities.php:513",
+        "includes/class-policy.php:256"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": "Registers 27 abilities with wp_register_ability, bundles the MCP Adapter and also exposes them over the core Abilities REST API.",
+      "summary": "Built on the Abilities API and the bundled MCP Adapter, with a dedicated server created through mcp_adapter_init.",
+      "evidence": [
+        "includes/class-abilities.php:125",
+        "includes/class-mcp-server.php:23",
+        "includes/class-mcp-server.php:51"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "Streamable HTTP (MCP Adapter HttpTransport)"
+        ],
+        "protocol_version": "2025-11-25 (also 2025-06-18, 2024-11-05)",
+        "runs_in_wordpress": true
+      },
+      "summary": "MCP runs inside WordPress at /wp-json/acadium-agent-publisher/mcp. The bundled adapter negotiates the current protocol version.",
+      "evidence": [
+        "includes/class-mcp-server.php:58",
+        "vendor/wordpress/mcp-adapter/includes/Core/McpVersionNegotiator.php:30"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [],
+      "summary": "The plugin is a single free build. I found no Pro gating or account requirement.",
+      "evidence": [
+        "readme.txt:15",
+        "includes/class-mcp-server.php:50"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Partial",
+      "value": "The readme says the site must use HTTPS. The claude.ai connector flow needs a public URL. A bridge with an Application Password may work on a local site only if WordPress allows Application Passwords over HTTP.",
+      "summary": "The plugin's own flow targets HTTPS. Connecting to http://localhost needs a workaround such as an Application Password with mcp-remote, and the setup screen warns that Application Passwords need HTTPS. The OAuth redirect validation allows localhost redirect URIs.",
+      "evidence": [
+        "readme.txt:98",
+        "includes/class-setup.php:120",
+        "includes/class-setup.php:191",
+        "includes/oauth/class-oauth-server.php:357"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": "Checks whether the Authorization header reaches WordPress and offers a one-click .htaccess fix on Apache. Also checks permalinks and rewrite rules. OAuth endpoints are served before query parsing so REST-blocking plugins don't break them. The Authorization header is read from HTTP_AUTHORIZATION and REDIRECT_HTTP_AUTHORIZATION. CDN and WAF notes are in the readme and settings. JSON responses send Access-Control-Allow-Origin: *.",
+      "summary": "Handles the common host problems. The readme notes that a firewall or CDN must pass /.well-known/ and /agent-publisher-oauth/ and forward the Authorization header, and that WordPress in a subfolder can't use the connector.",
+      "evidence": [
+        "includes/class-setup.php:136",
+        "includes/class-setup.php:231",
+        "includes/class-setup.php:262",
+        "includes/oauth/class-oauth-server.php:13",
+        "includes/oauth/class-oauth-server.php:756",
+        "readme.txt:136"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Pass",
+      "value": {
+        "count": 3,
+        "steps": [
+          "Install and activate (fix Plain permalinks with one click if shown)",
+          "Copy the connection URL from Settings > AI Site Editor",
+          "In Claude: Settings > Connectors > Add custom connector, paste the URL, log in and click Allow"
+        ]
+      },
+      "summary": "Three steps by the readme's own instructions. The mode choice is optional.",
+      "evidence": [
+        "readme.txt:93",
+        "readme.txt:94",
+        "readme.txt:95"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": "Custom connector URL with OAuth 2.1, PKCE and dynamic client registration (RFC 7591).",
+      "summary": "No terminal or JSON editing for claude.ai, Claude Desktop or the mobile apps. Only the Application Password extension fallback needs more.",
+      "evidence": [
+        "includes/oauth/class-oauth-server.php:296",
+        "includes/oauth/class-oauth-server.php:277",
+        "readme.txt:42"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": "The settings page has a Connect Claude section with a copyable connection URL and a connection-check panel. It also offers a downloadable Claude Desktop extension (.mcpb) and a copyable Application Password fallback.",
+      "summary": "The wp-admin screen is specific to the site and has copy buttons. I did not read the full settings-page file, so the copy buttons are confirmed only through class-setup.php.",
+      "evidence": [
+        "includes/class-setup.php:490",
+        "includes/class-setup.php:546",
+        "includes/class-setup.php:567"
+      ]
+    },
+    "DOCS": {
+      "status": "Partial",
+      "value": [
+        "readme.txt installation and FAQ",
+        "https://github.com/Acadium/acadium-agent-publisher",
+        "https://github.com/Acadium/acadium-agent-publisher/releases/latest/download/acadium-agent-publisher.mcpb"
+      ],
+      "summary": "Setup, safety, troubleshooting and the full ability list are in the readme. There is no separate docs site. I did not confirm links from the admin screens to the docs.",
+      "evidence": [
+        "readme.txt:40",
+        "readme.txt:91",
+        "readme.txt:134",
+        "includes/class-setup.php:26"
+      ]
+    }
+  },
+  "notes": "- The code matches the readme on the main safety claims: no permanent delete of posts, pages or media, hashed tokens, and the role cap on connections. The cap is applied through the user_has_cap filter.\n- Application Password fallback: the extension signs in as a shared AI Agent user. It reaches the same MCP route through core's Basic authentication, not through plugin code. Application Passwords are then not subject to the connection cap, but the AI Agent role has only basic capabilities.\n- The 'Publishing' pre-publish checks (required featured image, allowed categories) apply only to post_type 'post', not pages or patterns.\n- Default mode is publish_edit, so a Contributor-or-above who connects can edit live content by default (Contributors are further limited by their own role).\n- The consent page is shown to any user who can write posts, not only administrators. This is a design change from 1.2.0, where an administrator chose the agent user.\n- I did not open the menu tools' permission callbacks or the full settings-page and upload-link files, so logging coverage for menus, terms and redirects is unconfirmed.\n- Dynamic client registration is open and unauthenticated, with a per-IP rate limit of 30 per hour. Registered clients can only complete the flow after a logged-in user approves on the consent screen, which warns on non-Claude hosts."
+}

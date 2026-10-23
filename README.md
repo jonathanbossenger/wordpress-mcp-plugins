@@ -40,20 +40,19 @@ Check `/usage` in Claude Code before and after a few plugins to see what one cos
   ylabs-ai-assistant-connector, devcubic-ai-bridge-for-mcp, strifebridge-mcp, admindra-mcp, invizo-mcp,
   mcp-for-woocommerce, bcs-mcp-manager, sokket-site-connector-for-mcp, counterhand-mcp-for-woocommerce,
   mountdev-ai-mcp-connector, wsp-mcp-ai-agents-connector, alphabridge-mcp.
-  13 of 35 done (`mcp-adapter` is the baseline and is not fetched or reviewed), $24.51 at API prices
-  in total. Each batch of three took 2½–5 minutes.
+  Then, in three more batches of three: iato-mcp, abilities-bridge, diviops-agent, aicom, vibe-ai,
+  cowboy-mcp, track-debug, acadium-agent-publisher, publishio.
+  22 of 35 done (`mcp-adapter` is the baseline and is not fetched or reviewed), $31.30 at API prices
+  in total. Each batch of three took 2½–5 minutes; the nine plugins since cost $1.86–$2.64 per batch.
 - Still to review, smallest first (PHP lines). Plain `python3 review.py` follows shortlist order instead,
   so name the slugs to keep this order:
-  - iato-mcp 25k, abilities-bridge 25k, diviops-agent 28k
-  - aicom 28k, vibe-ai 33k, cowboy-mcp 34k
-  - track-debug 40k, acadium-agent-publisher 47k, publishio 48k
   - royal-mcp 51k, saddle 53k, stifli-flex-mcp 55k
   - rectus-content-access-for-mcp 63k, miniorange-secure-mcp-server 82k, webo-mcp 85k
   - nibwp 86k, siteskite 91k, agent-abilities-for-mcp 112k
   - acrossai-mcp-manager 115k, albert-ai-butler 135k, ai-workflow-automation-ai-agent-hub 164k
   - easy-mcp-ai 244k
-- The plugins done so far were 0.6k–23k PHP lines and cost $0.90–$2.62 each. The rest are 25k–244k,
-  so expect each to cost more and keep checking `/usage` between batches.
+- The first 13 were 0.6k–23k PHP lines and cost $0.90–$2.62 each; the nine since (25k–48k lines) cost
+  $0.49–$0.97 each. The rest are 51k–244k, so keep checking `/usage` between batches.
 - strifebridge-mcp: its 7 unverified citations say `includes/api.php` but the file is `api/api.php`.
   The cited lines exist there and match the review, so it's a wrong path, not made-up evidence.
 - Decided (2026-10-23): HOST-LOCAL passes when a local connection is possible, whether or not the plugin documents it.

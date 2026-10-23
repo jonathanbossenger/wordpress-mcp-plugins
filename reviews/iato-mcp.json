@@ -1,0 +1,363 @@
+{
+  "slug": "iato-mcp",
+  "version": "1.14.0",
+  "reviewed_at": "2026-10-23T17:04:59+02:00",
+  "duration_s": 61,
+  "cost_usd": 0.967409,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "application-password",
+        "api-key",
+        "bearer-token",
+        "oauth"
+      ],
+      "summary": "The endpoint accepts a WordPress Application Password (Basic), the plugin site key as a Bearer token, or a per-client OAuth access token. The site key is bound to an administrator, who is re-checked on every request, and OAuth tokens run as the admin who approved them. One caveat: a site key issued before key binding existed has no owner and runs as user 0 with every capability.",
+      "evidence": [
+        "includes/class-auth.php:330",
+        "includes/class-auth.php:365",
+        "includes/class-auth.php:409",
+        "includes/class-auth.php:471",
+        "includes/class-auth.php:367"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "Both the POST and GET routes use IATO_MCP_Auth::authenticate as the permission callback, so requests with no credentials get a 401. This includes initialize and tools/list. Subscribers are also refused at auth time because edit_posts is required.",
+      "evidence": [
+        "includes/class-mcp-server.php:52",
+        "includes/class-auth.php:444"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": "per-tool and per-object",
+      "summary": "Tools call require_cap() with the right capability for each action, including object-level checks such as edit_post, delete_term and read_post, and publishing needs the publish capability. require_cap() is enforced against the authenticated user. The exception is an unbound legacy site key, which passes every check.",
+      "evidence": [
+        "includes/class-auth.php:555",
+        "includes/class-auth.php:661",
+        "includes/tools/wp/tool-taxonomy.php:343",
+        "includes/class-mcp-server.php:448"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Partial",
+      "value": "Site key is stored in plain text in wp_options and shown to admins in Settings. OAuth tokens are stored hashed.",
+      "summary": "The main MCP key is plain text in wp_options and appears in the Settings page and the config snippets (admins only). OAuth access and refresh tokens are stored as sha256 hashes and expire. The key is shown again rather than shown once.",
+      "evidence": [
+        "includes/class-auth.php:297",
+        "includes/class-settings.php:670",
+        "includes/class-settings.php:783",
+        "includes/class-auth.php:484"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": "MCP is active on activation, with an auto-generated key owned by the activating admin. All tools are enabled by default. The abilities exposure and URL-source media ingestion are opt-in.",
+      "summary": "The REST endpoint is live as soon as the plugin is activated, and there is no master off switch. Every request needs a credential, though. Risky options such as URL media ingestion and WordPress Abilities exposure start off.",
+      "evidence": [
+        "includes/class-mcp-server.php:41",
+        "includes/class-auth.php:292",
+        "includes/class-settings.php:108",
+        "readme.txt:165"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Fail",
+      "value": null,
+      "summary": "There is no global read-only mode. The nearest control is switching individual write tools off in the per-tool toggles.",
+      "evidence": [
+        "includes/class-settings.php:27"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Partial",
+      "value": "Per-tool on/off toggles apply to every connection type, but they are global, not per role or per connection.",
+      "summary": "An admin can enable or disable each tool under Settings > IATO MCP, and that applies to all credentials. Access beyond that follows the connected user's WordPress role. There is no per-role or per-connection tool allowlist.",
+      "evidence": [
+        "includes/class-settings.php:27",
+        "includes/class-mcp-server.php:142"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "No destructiveHint annotations on the MCP tools. A few tools need an explicit argument (confirm_url_break for slug changes on published posts, force=true for non-allowlisted meta). Every write returns a change receipt that the rollback tool can undo."
+      },
+      "summary": "There is no approval queue and no general confirm step for destructive tools. Tools do not declare destructiveHint, and only the MCP Adapter abilities carry annotations. The rollback tool and conflict-checked receipts give an undo path instead.",
+      "evidence": [
+        "includes/tools/wp/tool-posts.php:250",
+        "includes/class-abilities.php:48",
+        "includes/class-rollback.php:566"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "N/A",
+      "value": "No post delete tool. delete_menu_item uses wp_delete_post(force) and delete_term uses wp_delete_term, both permanent. Rolling back create_post sends the post to the trash.",
+      "summary": "There is no tool to delete posts or pages. Menu items and terms can be deleted permanently, with a receipt recorded for rollback. Rolling back a created post moves it to the trash.",
+      "evidence": [
+        "includes/tools/wp/tool-menus.php:370",
+        "includes/tools/wp/tool-taxonomy.php:352",
+        "includes/class-rollback.php:566"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": "Call log table (tool, args, status, duration, user, credential) viewable and clearable on the Diagnostics tab. Per-change receipts record who made each change.",
+      "summary": "Every JSON-RPC call is recorded with its method, tool, arguments, result, duration and user. Admins can read it on the Diagnostics screen in the free plugin. Auth rejections are logged too.",
+      "evidence": [
+        "includes/class-mcp-server.php:334",
+        "includes/class-call-log.php",
+        "includes/class-diagnostics.php:371",
+        "includes/class-auth.php:261"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 58,
+        "names": [
+          "get_site_info",
+          "get_site_settings",
+          "get_posts",
+          "get_post",
+          "create_post",
+          "update_post",
+          "search_posts",
+          "get_seo_data",
+          "update_seo_data",
+          "get_media",
+          "update_alt_text",
+          "get_comments",
+          "get_menus",
+          "get_menu_items",
+          "update_menu_item",
+          "create_menu_item",
+          "delete_menu_item",
+          "update_menu_item_details",
+          "get_terms",
+          "assign_term",
+          "create_term",
+          "update_term",
+          "delete_term",
+          "update_taxonomy",
+          "update_canonical",
+          "update_structured_data",
+          "update_redirect",
+          "get_page_builder",
+          "get_elementor_data",
+          "update_elementor_data",
+          "list_elementor_widgets",
+          "get_elementor_widget",
+          "update_elementor_widget",
+          "update_elementor_patch",
+          "update_elementor_widgets_bulk",
+          "find_elementor_widgets",
+          "set_heading_level",
+          "set_widget_setting",
+          "resolve_url",
+          "list_elementor_templates",
+          "rollback",
+          "get_post_meta",
+          "update_post_meta",
+          "set_page_settings",
+          "set_featured_image",
+          "create_media",
+          "get_iato_sitemap",
+          "get_iato_nav_audit",
+          "get_iato_orphan_pages",
+          "get_iato_taxonomy",
+          "get_iato_seo_fixes",
+          "get_iato_content_gaps",
+          "get_iato_broken_links",
+          "get_iato_suggestions",
+          "get_iato_perf_report",
+          "start_iato_crawl",
+          "get_iato_crawl_status",
+          "list_iato_crawls"
+        ]
+      },
+      "summary": "The MCP endpoint exposes 58 tools. 46 are WordPress tools, of which the readme says 45 (and elsewhere 40, so its counts are inconsistent). 12 are IATO bridge tools that need an IATO API key. Elementor tools are included whether or not Elementor is active.",
+      "evidence": [
+        "includes/class-settings.php:27"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "comments",
+        "settings",
+        "blocks"
+      ],
+      "summary": "Covers posts and pages, media, categories and tags, comments (read only), menus, SEO meta, redirects, structured data, post meta and Elementor. It has no tools for users, plugins, themes or WooCommerce. Settings is read-only. The 'blocks' value is a stretch, since the plugin's content handling is mostly Elementor.",
+      "evidence": [
+        "includes/class-settings.php:27",
+        "includes/tools/wp/tool-site.php:94"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "get_posts"
+        },
+        "T2": {
+          "status": "Partial",
+          "tool": "create_post + create_media + set_featured_image"
+        },
+        "T3": {
+          "status": "Partial",
+          "tool": "update_post"
+        },
+        "T4": {
+          "status": "Partial",
+          "tool": "create_media"
+        },
+        "T5": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T6": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T7": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "require_cap per tool, edit_posts baseline at auth"
+        }
+      },
+      "summary": "T1 is done with get_posts. T2 is only partial: create_post creates the draft and the content is passed through as given with no Markdown conversion. An image can be uploaded and set as the featured image, but there is no tool to insert it into the content. T3 is partial: update_post replaces the content and has no append mode. T4 works only after an admin enables URL ingestion and sets an allowlist; base64 works by default for small files. T5, T6 and T7 are not possible: there is no plugin list tool, get_site_settings is read-only, and there is no post delete tool. T8 passes because subscribers are refused and tool capability checks apply.",
+      "evidence": [
+        "includes/tools/wp/tool-posts.php:15",
+        "includes/tools/wp/tool-posts.php:154",
+        "includes/tools/wp/tool-posts.php:237",
+        "includes/tools/wp/tool-media-upload.php:18",
+        "includes/tools/wp/tool-site.php:76",
+        "includes/class-auth.php:412"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Partial",
+      "value": "The plugin can register its 12 IATO bridge tools as iato/* abilities with mcp.public set, but only when WordPress 6.9 or later is running and an admin turns the option on. The plugin's own MCP endpoint does not go through the MCP Adapter.",
+      "summary": "Optional abilities registration exists for the IATO crawl tools only, behind a setting and requiring an IATO API key. The main WordPress tools are not exposed as abilities.",
+      "evidence": [
+        "includes/class-abilities.php:163",
+        "includes/class-abilities.php:222",
+        "includes/class-settings.php:921"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Partial",
+      "value": {
+        "transports": [
+          "JSON-RPC over HTTP POST (single-response Streamable HTTP subset)"
+        ],
+        "protocol_version": "2025-06-18 (also 2025-03-26, 2024-11-05)",
+        "runs_in_wordpress": true
+      },
+      "summary": "MCP runs inside WordPress at /wp-json/iato-mcp/v1/message. It answers each POST with a plain JSON response, and GET returns a probe with no SSE stream. This is a minimal Streamable HTTP implementation: no sessions or streaming, and notifications get a 202. The endpoint is a custom namespace and not the MCP Adapter.",
+      "evidence": [
+        "includes/class-mcp-server.php:3",
+        "includes/class-mcp-server.php:52",
+        "includes/class-mcp-server.php:374"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Partial",
+      "value": [
+        "12 IATO bridge tools (crawl, SEO audit, broken links and so on) need an IATO account and API key; a free trial covers up to 500 pages"
+      ],
+      "summary": "All 46 WordPress tools work in the free plugin with no account. The 12 analysis tools depend on the vendor's external IATO service and an account, and the free trial is limited.",
+      "evidence": [
+        "readme.txt:54",
+        "includes/class-abilities.php:307"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Partial",
+      "value": "Works with the site key or an Application Password through mcp-remote. OAuth is not documented for localhost and the 'Add custom connector' route needs a public URL.",
+      "summary": "The setup wizard gives an npx mcp-remote config that sends a Bearer or Basic credential, which fits a local HTTP site with the right mcp-remote flags. WordPress only allows Application Passwords on HTTPS unless the environment is local, so the key is the simpler option on localhost.",
+      "evidence": [
+        "includes/class-setup-wizard.php:106",
+        "includes/class-setup-wizard.php:119",
+        "includes/class-settings.php:2059"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Partial",
+      "value": "Standard REST route and per-request auth. No handling of a stripped Authorization header and no CORS handling in the plugin.",
+      "summary": "It uses one request per call, so no long-lived connections, and sends a WWW-Authenticate header with OAuth metadata. The code has no fallback for hosts that strip the Authorization header and no CORS headers for browser clients, and no WAF or caching notes. The readme says admin options saving uses an admin-ajax route to dodge hosts that block options.php.",
+      "evidence": [
+        "includes/class-mcp-server.php:98",
+        "includes/class-auth.php:331",
+        "readme.txt:291"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Pass",
+      "value": {
+        "count": 3,
+        "steps": [
+          "Install and activate the plugin",
+          "In Claude, use Add custom connector with the site URL",
+          "Sign in to WordPress and approve the OAuth consent screen"
+        ]
+      },
+      "summary": "The connector route is three steps after activation, if the site is public. The alternative config-file route involves copying the snippet, editing the Claude Desktop JSON and restarting, which brings it to roughly 4 to 5 steps.",
+      "evidence": [
+        "readme.txt:21",
+        "readme.txt:103",
+        "includes/class-setup-wizard.php:106"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": "OAuth 2.1 with PKCE and dynamic client registration; connector URL works with Claude's Add custom connector.",
+      "summary": "The plugin runs an OAuth authorization server with dynamic client registration, so a site owner can connect from the Connectors UI with only the site URL. Approval requires an admin account.",
+      "evidence": [
+        "includes/class-oauth.php:23",
+        "readme.txt:131"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": "Setup wizard and Settings hero card show the endpoint URL and key with copy buttons and ready JSON snippets, plus an admin notice after activation.",
+      "summary": "A wizard and the Settings screen give the site-specific endpoint, the Connectors UI option, a direct HTTP option and an mcp-remote config with the site's own key.",
+      "evidence": [
+        "includes/class-setup-wizard.php:99",
+        "includes/class-settings.php:670",
+        "includes/class-settings.php:2044"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "https://iato.ai/wordpress-mcp",
+        "https://iato.ai/wordpress-mcp-docs",
+        "https://iato.ai/terms",
+        "https://iato.ai/privacy"
+      ],
+      "summary": "The readme has installation steps and a docs link, and wp-admin has the wizard and settings guidance. The admin screens themselves are mostly inline help.",
+      "evidence": [
+        "readme.txt:101",
+        "readme.txt:109",
+        "includes/class-setup-wizard.php:99"
+      ]
+    }
+  },
+  "notes": "- The readme's tool counts disagree with each other and with the code: 45 WordPress tools in one place, 40 in the FAQ, 58 in total counting the code's TOOL_NAMES. The code wins.\n- The readme says an IATO account is needed only for the 12 bridge tools, and that data sent is limited to crawl results. The bridge tools do call the vendor's external API at iato.ai.\n- The Authorization header rejection guidance does not mention hosts that strip it. Sites on such hosts will see 401 errors with no plugin fallback.\n- Unbound legacy site keys (issued before key binding) bypass every capability check and run as user 0. Regenerating the key binds it to an administrator.\n- Application Password users can be any role with edit_posts. Their writes are kses-filtered by default, and capabilities are enforced per user.\n- I could not tell from the code whether the tool schemas set MCP annotations. The checks cover only what grep found, which was annotations in the abilities layer. The T2 and T3 verdicts rest on a partial read of tool-posts.php, since I did not read the full create_post and update_post handlers (blocks vs HTML handling and content append behaviour).\n- Elementor tools register even when Elementor is not active."
+}

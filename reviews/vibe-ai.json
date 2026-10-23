@@ -1,0 +1,324 @@
+{
+  "slug": "vibe-ai",
+  "version": "1.20.5",
+  "reviewed_at": "2026-10-23T17:25:24+02:00",
+  "duration_s": 52,
+  "cost_usd": 0.48674809999999996,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Partial",
+      "value": [
+        "application-password",
+        "oauth"
+      ],
+      "summary": "The plugin has no MCP endpoint of its own. The MCP server is a hosted relay at mcp.wpvibe.ai, where the user signs in with a WPVibe account. The relay reaches the site's REST routes with a WordPress Application Password it holds, so WordPress-side calls are tied to a WP user. Authentication to the relay itself happens outside the plugin and can't be checked from the code. The plugin also has a few unauthenticated public routes (/ping, /health).",
+      "evidence": [
+        "includes/class-wpvibe-admin.php:199",
+        "includes/class-wpvibe-rest.php:623",
+        "includes/class-wpvibe-ping.php:35-40",
+        "readme.txt:115"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Partial",
+      "value": {
+        "public_by_design": true
+      },
+      "summary": "On the WordPress side every wpvibe/v1 route except /ping and /health has a capability-checked permission_callback. Those two are public by design and return only the plugin and WordPress versions and feature flags. Whether the hosted MCP endpoint refuses anonymous tool calls is not in this plugin's code.",
+      "evidence": [
+        "includes/class-wpvibe-ping.php:1-13",
+        "includes/class-wpvibe-ping.php:35-40",
+        "includes/class-wpvibe-rest.php:264-267"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Each route has its own permission_callback mapped to a specific capability (edit_theme_options, edit_themes, switch_themes, upload_files, manage_options and others). Content edits check edit_post per post id. The CLI emulation has an allowlist and a separate approved-run route.",
+      "evidence": [
+        "includes/class-wpvibe-rest.php:841-1060",
+        "includes/class-wpvibe-rest.php:1171",
+        "includes/class-wpvibe-rest.php:779-784",
+        "includes/class-wpvibe-rest.php:529-532"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Partial",
+      "value": null,
+      "summary": "WordPress core stores the Application Password hashed. The plaintext credential is encrypted with AES-256-GCM on WPVibe's Cloudflare-hosted service, per the readme. The plugin doesn't store or show it, but a third party holds a usable secret for the site. That storage can't be verified from this code.",
+      "evidence": [
+        "readme.txt:28",
+        "readme.txt:115",
+        "includes/class-wpvibe-rest.php:623-626"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Nothing is reachable until the site owner approves a connection by creating an Application Password for WPVibe. After that, the routes are authenticated. A 'Dangerously bypass approvals' option exists, it is off by default, and only an administrator in wp-admin can turn it on.",
+      "evidence": [
+        "includes/class-wpvibe-approval-bypass.php:16",
+        "readme.txt:257",
+        "includes/class-wpvibe-admin.php:442"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Fail",
+      "value": null,
+      "summary": "I found no read-only mode. Access is limited only by the capabilities of the connected WordPress account. Connecting with a lower-privileged user is the only way to restrict writes.",
+      "evidence": [
+        "includes/class-wpvibe-rest.php:841-1060"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Fail",
+      "value": null,
+      "summary": "The plugin has no setting to switch individual tools or groups on or off. Scope comes from the WP role of the connected account and from approval prompts for risky actions. Any tool-level filtering would happen in the hosted relay, and I couldn't see it.",
+      "evidence": [
+        "includes/class-wpvibe-admin.php:96-110",
+        "includes/class-wpvibe-rest.php:841-1060"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Pass",
+      "value": {
+        "mechanism": "In-chat approval panel with dry-run preview and signed op-proof; approved commands run through /cli/run-approved; an administrator can switch approvals off with the 'Dangerously bypass approvals' setting"
+      },
+      "summary": "Destructive actions such as user deletes, mutating SQL, plugin uninstalls and permanent deletes need an approval with a dry-run preview. The plugin enforces this with signed proofs (op-proof) and a separate approved-run route. The bypass setting is off by default, shows a red admin banner while on, and is logged.",
+      "evidence": [
+        "includes/class-wpvibe-rest.php:585-588",
+        "includes/class-wpvibe-rest.php:642-645",
+        "includes/class-wpvibe-approval-bypass.php:16",
+        "includes/cli/trait-wpvibe-cli-security.php:537-543",
+        "readme.txt:76"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The readme says deletes go to trash and never delete permanently, and the plugin records 'trashed' in the change summary. Permanent deletes are listed as needing approval. The delete tools themselves live in the hosted relay, so I couldn't confirm the default there. Theme file deletes are permanent.",
+      "evidence": [
+        "includes/class-wpvibe-rest.php:2251",
+        "readme.txt:78",
+        "readme.txt:197",
+        "includes/class-wpvibe-rest.php:414-418"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The free plugin keeps an append-only Approval Log table in wp-admin. It records approved and bypassed operations with the preview shown and the result. It covers sensitive operations only, not every tool call. White-label mode hides the log, and turning it on always requires approval.",
+      "evidence": [
+        "includes/class-wpvibe-audit-log.php:23",
+        "includes/class-wpvibe-rest.php:546-560",
+        "readme.txt:78",
+        "readme.txt:254"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": null,
+        "names": [
+          "site_info",
+          "file read/list/search/outline/edit/write/delete",
+          "content edit/search",
+          "draft-theme create/preview/publish/delete",
+          "create-classic-theme",
+          "cli/run (WP-CLI-style commands)",
+          "code-snippet",
+          "upload-media",
+          "discover_abilities / execute abilities",
+          "REST proxy",
+          "audit-log",
+          "navigate",
+          "builder-login"
+        ]
+      },
+      "summary": "The tool definitions live in the hosted relay, not the plugin, so I can't give a definitive count. The names above are inferred from the plugin's REST routes and the readme. The readme also describes a full REST API proxy, Abilities discovery, Unsplash search, Elementor, Bricks, Breakdance and Beaver Builder support, and WooCommerce.",
+      "evidence": [
+        "includes/class-wpvibe-rest.php:264-826",
+        "readme.txt:98-111"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "comments",
+        "plugins",
+        "themes",
+        "settings",
+        "blocks",
+        "woocommerce"
+      ],
+      "summary": "The readme claims posts, pages, media, categories and tags, themes, plugins, users, comments and options (through the WP-CLI emulation), page builders and WooCommerce. Most of this goes through the REST proxy in the relay, not through code in the plugin.",
+      "evidence": [
+        "readme.txt:98-111",
+        "includes/class-wpvibe-rest.php:529-532"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "REST proxy / posts (via relay)"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "REST proxy / content (via relay); readme says Gutenberg is supported, storage format not confirmed"
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "content/edit (find-and-replace, surgical edit)"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "upload-media (URL, SVG sanitised)"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "cli/run plugin list"
+        },
+        "T6": {
+          "status": "Partial",
+          "tool": "cli/run option update; the readme says 'site settings' can be changed, but changelog 1.19.1 says basic settings such as site address are read-only"
+        },
+        "T7": {
+          "status": "Pass",
+          "tool": "REST delete (trash) with approval and log"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "WordPress capability checks on every route"
+        }
+      },
+      "summary": "Each task is reachable through the plugin's REST routes or the relay's REST proxy. I couldn't check the proxy itself, so these are judged from the plugin routes, the changelog and the readme.",
+      "evidence": [
+        "includes/class-wpvibe-rest.php:429-432",
+        "includes/class-wpvibe-rest.php:529-532",
+        "includes/class-wpvibe-rest.php:779-784",
+        "readme.txt:78",
+        "readme.txt:277"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The plugin registers no abilities itself. The readme says the relay can discover and run abilities that other plugins register, via a discover_abilities tool. That tool lives in the relay, so I couldn't confirm it.",
+      "evidence": [
+        "readme.txt:52-56",
+        "includes/class-wpvibe-content-ops.php:988"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Fail",
+      "value": {
+        "transports": [
+          "streamable-http (hosted at mcp.wpvibe.ai/mcp)"
+        ],
+        "protocol_version": "unknown",
+        "runs_in_wordpress": false
+      },
+      "summary": "The MCP server is an external hosted relay (Cloudflare Worker). The plugin only provides authenticated REST routes for the relay to call, so no MCP server runs inside WordPress.",
+      "evidence": [
+        "includes/class-wpvibe-admin.php:199",
+        "includes/class-wpvibe-ping.php:5",
+        "readme.txt:28",
+        "readme.txt:115"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Partial",
+      "value": [
+        "Requires a WPVibe account at mcp.wpvibe.ai",
+        "Daily allowance of WordPress actions on the free plan; paid plans raise it"
+      ],
+      "summary": "The plugin is free. The readme says the free service plan includes every tool and skill, with a daily action limit. MCP use depends on the vendor's hosted service and an account, which makes it a hard dependency for any use.",
+      "evidence": [
+        "readme.txt:173",
+        "readme.txt:115"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Fail",
+      "value": null,
+      "summary": "The relay at mcp.wpvibe.ai has to reach the site over the public internet. The setup page also says WPVibe connects only to https:// sites. A localhost or non-HTTPS site can't connect.",
+      "evidence": [
+        "includes/class-wpvibe-admin.php:259-263",
+        "includes/class-wpvibe-connection-check.php:9"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The plugin handles a stripped Authorization header through an X-WPVibe-Authorization fallback. It has a connectivity check covering HTTPS, WAF and security-plugin blocks, Basic Auth gates and maintenance pages. It can re-enable Application Passwords for WPVibe only, and it serves a /health route for hosts whose WAF blocks 'ping'. Requires HTTPS.",
+      "evidence": [
+        "includes/class-wpvibe-auth-fallback.php",
+        "includes/class-wpvibe-connection-check.php:9",
+        "includes/class-wpvibe-ping.php:33-41",
+        "readme.txt:165-169"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Pass",
+      "value": {
+        "count": 4,
+        "steps": [
+          "Activate plugin",
+          "Add WPVibe to Claude (connectors directory) or add the MCP URL as a custom connector, then sign in to WPVibe",
+          "Paste 'Connect my site at URL' into the AI and approve the link in wp-admin",
+          "Paste the read prompt to confirm"
+        ]
+      },
+      "summary": "The admin page shows four steps. The first is activating the plugin, and the second, an optional connectivity check, can be skipped. A site owner can reach a first tool call in about three or four actions, plus creating a WPVibe account.",
+      "evidence": [
+        "includes/class-wpvibe-admin.php:266-422",
+        "readme.txt:151-155"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Claude has a connectors directory listing with an 'Add to Claude' button, and ChatGPT has an app. Custom connectors take a URL pasted into the client. No terminal or JSON config is needed for those clients.",
+      "evidence": [
+        "includes/class-wpvibe-admin.php:364-368",
+        "readme.txt:253"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The wp-admin page shows a copyable MCP URL and copyable prompts that include this site's URL. It also shows live connection status, add-to-client buttons and a connectivity check.",
+      "evidence": [
+        "includes/class-wpvibe-admin.php:208-209",
+        "includes/class-wpvibe-admin.php:369-380",
+        "includes/class-wpvibe-admin.php:410-415"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "https://wpvibe.ai/docs/",
+        "https://wpvibe.ai/docs/ai-client-setup/",
+        "https://wpvibe.ai/privacy/",
+        "https://wpvibe.ai/security/",
+        "https://wpvibe.ai/dpa/",
+        "https://wpvibe.ai/support/",
+        "https://wpvibe.ai/changelog/"
+      ],
+      "summary": "The readme has installation steps and links to the docs site. The admin page links to the setup guide, docs, support, security and DPA pages. There is no offline documentation in the plugin.",
+      "evidence": [
+        "readme.txt:144-155",
+        "includes/class-wpvibe-admin.php:200-207"
+      ]
+    }
+  },
+  "notes": "The central architectural fact is that vibe-ai is a connector to a hosted service, not an MCP server inside WordPress. The plugin exposes authenticated wpvibe/v1 REST routes. The MCP tools, tool scoping and Streamable HTTP endpoint live at mcp.wpvibe.ai, outside this source, so several checks (tool list, trash default, relay authentication, read-only or scope controls) can't be confirmed from the plugin. The readme says a WordPress Application Password is stored, encrypted, on WPVibe's servers. That is a trust dependency, and it contradicts the FAQ line 'Is my WordPress data sent to third-party servers? No' because content is relayed through the vendor. The plugin also reports firewall-block diagnostics to the WPVibe service on failed approvals (readme.txt:119). White-label mode hides the plugin and the Approval Log from admins, and the plugin turns on auto-updates for itself in that mode. The plugin has a self-update path of its own (class-wpvibe-self-update.php)."
+}

@@ -1,0 +1,287 @@
+{
+  "slug": "abilities-bridge",
+  "version": "1.4.1",
+  "reviewed_at": "2026-10-23T17:04:59+02:00",
+  "duration_s": 55,
+  "cost_usd": 0.9031585000000001,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "oauth",
+        "application-password"
+      ],
+      "summary": "The /mcp route checks a Bearer OAuth token tied to a WordPress user, or falls back to a logged-in Application Password user. Both must have manage_options. Tokens come from a client ID and secret that an admin generates.",
+      "evidence": [
+        "includes/class-abilities-bridge-oauth-token-validator.php:122-176",
+        "includes/class-abilities-bridge-mcp-server.php:64-72"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "The REST route uses __return_true, but the server calls the auth check before every method, including initialize, tools/list and ping. Unauthenticated requests get HTTP 401 with a WWW-Authenticate challenge.",
+      "evidence": [
+        "includes/class-abilities-bridge-mcp-rest-api.php:51",
+        "includes/class-abilities-bridge-mcp-server.php:60-72",
+        "includes/class-abilities-bridge-mcp-server.php:533-542"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The endpoint requires manage_options. Each ability has an admin-set min_capability, which is checked against the OAuth user. The ability's own permission_callback is also run with the parameters. The check is per ability, not per object, and the memory tool only relies on the endpoint check. Some abilities may be authorized with no min_capability.",
+      "evidence": [
+        "includes/class-abilities-bridge-oauth-token-validator.php:147",
+        "includes/class-abilities-bridge-ability-permissions.php:553-620",
+        "includes/class-abilities-bridge-mcp-orchestrator.php:124-141"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": "Client secrets are stored hashed with wp_hash_password and shown once. Access and refresh tokens are stored encrypted (AES-256-CBC).",
+      "summary": "Client secrets are hashed and shown only at generation. Tokens are encrypted at rest. The encryption key was not checked.",
+      "evidence": [
+        "includes/class-abilities-bridge-oauth-client-manager.php:66",
+        "includes/class-abilities-bridge-oauth-client-manager.php:76",
+        "includes/class-abilities-bridge-oauth-token-handler.php:583-584",
+        "readme.txt:247"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The abilities option defaults to false, and the memory tool needs both an option and a consent flag. Nothing is exposed until an admin generates credentials and turns on Abilities. Only three read-only core abilities are pre-registered. Unauthenticated discovery is refused.",
+      "evidence": [
+        "includes/class-abilities-bridge-mcp-server.php:251-253",
+        "includes/class-abilities-bridge-mcp-server.php:309",
+        "includes/class-abilities-bridge-ability-permissions.php:95-104",
+        "includes/class-abilities-bridge-mcp-integration.php:43-80"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Fail",
+      "value": null,
+      "summary": "There is no global read-only mode. Admins can only enable or disable individual abilities, and the memory tool can write.",
+      "evidence": [
+        "includes/class-abilities-bridge-mcp-server.php:409-416"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Admins approve abilities one by one in an allow-list. Each has an enabled flag, per-day and per-hour limits, a risk level and a minimum capability, and unapproved abilities are denied. This applies to every MCP connection and the built-in chat. OAuth scopes also restrict memory versus abilities. The default scope is memory plus abilities.",
+      "evidence": [
+        "includes/class-abilities-bridge-ability-permissions.php:81-196",
+        "includes/class-abilities-bridge-mcp-server.php:177-197",
+        "includes/class-abilities-bridge-oauth-scopes.php:35-78"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Fail",
+      "value": {
+        "mechanism": "none for MCP calls"
+      },
+      "summary": "The database has requires_user_approval and requires_admin_approval fields, but the MCP execution path never reads them. There is no destructiveHint, confirm argument or approval queue for MCP calls. Admins can set low rate limits and approve only specific abilities.",
+      "evidence": [
+        "includes/class-abilities-bridge-ability-permissions.php:337-338",
+        "includes/class-abilities-bridge-mcp-orchestrator.php:37-198",
+        "includes/class-abilities-bridge-mcp-server.php:338-342"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "N/A",
+      "value": null,
+      "summary": "The plugin ships no delete tools. Deletion would depend on abilities from other plugins, which the admin approves one by one.",
+      "evidence": [
+        "includes/class-abilities-bridge-mcp-integration.php:43-80"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Ability executions and permission violations are written to a plugin log table with an Activity Log admin page, in the free plugin. For OAuth requests the username comes from wp_get_current_user, which is not set when the log is written, so it may show as empty or user 0. Parameters are logged but the user attribution is weak.",
+      "evidence": [
+        "includes/class-abilities-bridge-mcp-orchestrator.php:245-292",
+        "includes/class-abilities-bridge-database.php:1127-1139",
+        "admin/class-abilities-bridge-activity-log-page.php"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": "1 + N",
+        "names": [
+          "memory",
+          "ability_<name> for each approved ability (defaults offered: core/get-site-info, core/get-user-info, core/get-environment-info)"
+        ]
+      },
+      "summary": "The server exposes a memory tool, if enabled and consented. It also exposes one ability_* tool for each ability an admin approves from the WordPress Abilities API, including abilities that other plugins register. The plugin itself registers no content, media or plugin tools. The Connected Plugins page can add tools from partner plugins such as Beacon Campaign Sender.",
+      "evidence": [
+        "includes/class-abilities-bridge-mcp-server.php:247-350",
+        "includes/class-abilities-bridge-mcp-integration.php:43-80",
+        "admin/class-abilities-bridge-integrations-page.php:23"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "settings"
+      ],
+      "summary": "The built-in coverage is limited to site, user and environment info plus memory. Anything else depends on other plugins' abilities.",
+      "evidence": [
+        "includes/class-abilities-bridge-mcp-integration.php:43-80"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T2": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T3": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T4": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T5": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T6": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T7": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "endpoint requires manage_options"
+        }
+      },
+      "summary": "No standard content task works with the plugin alone, because it ships only three read-only info abilities. The tasks would work only if the site has other plugins registering matching abilities. A subscriber cannot connect at all, since manage_options is required.",
+      "evidence": [
+        "includes/class-abilities-bridge-mcp-integration.php:43-80",
+        "includes/class-abilities-bridge-oauth-token-validator.php:147"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": null,
+      "summary": "It exposes abilities from the WordPress Abilities API (wp_get_ability) as MCP tools, so it works with abilities registered by other plugins. It does not register its own abilities and does not use the MCP Adapter.",
+      "evidence": [
+        "includes/class-abilities-bridge-mcp-server.php:309-343",
+        "includes/class-abilities-bridge-mcp-orchestrator.php:75"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Partial",
+      "value": {
+        "transports": [
+          "Streamable HTTP (POST only, JSON responses)"
+        ],
+        "protocol_version": "2025-03-26",
+        "runs_in_wordpress": true
+      },
+      "summary": "MCP runs inside WordPress as a custom server, with a POST-only endpoint and JSON-RPC responses. It advertises the 2025-03-26 protocol, which is older than the current revision. It does not handle notifications or other methods such as resources and prompts. The server version string is stale at 1.1.1.",
+      "evidence": [
+        "includes/class-abilities-bridge-mcp-server.php:24-30",
+        "includes/class-abilities-bridge-mcp-server.php:75-94",
+        "includes/class-abilities-bridge-mcp-rest-api.php:45-53"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [],
+      "summary": "All MCP functionality is in the free plugin. The readme mentions a Pro tab with a Concierge Service and a Site Abilities Plugin in the 1.1.0 changelog, but no MCP gating was found in the code.",
+      "evidence": [
+        "readme.txt:223-226"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The readme says HTTPS is required for MCP OAuth. The redirect validator allows localhost and 127.0.0.1, and Application Password auth is accepted, so a bridge like mcp-remote may work. This was not confirmed in the code. Claude Desktop's custom connector flow needs a public HTTPS URL.",
+      "evidence": [
+        "readme.txt:42",
+        "includes/class-abilities-bridge-oauth-authorization-handler.php:618-627",
+        "includes/class-abilities-bridge-oauth-token-validator.php:165-169"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The plugin sends WWW-Authenticate challenges, publishes OAuth discovery metadata and allows-lists CORS origins. It has fallbacks for broken object caches by keeping pending state in the database. It has no handling for a stripped Authorization header, which matters for Bearer tokens on some Apache/FastCGI hosts.",
+      "evidence": [
+        "includes/class-abilities-bridge-oauth-discovery-handler.php:100-112",
+        "includes/class-abilities-bridge-mcp-server.php:533-553",
+        "readme.txt:174-175"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 6,
+        "steps": [
+          "Activate the plugin",
+          "Complete the welcome wizard to grant consent",
+          "Settings > Connect Claude > Generate credentials and save the client ID and secret",
+          "Enable the Abilities API and approve abilities under Ability Permissions",
+          "In Claude Desktop: Settings > Connectors > Add custom connector",
+          "Enter the credentials and the MCP URL, then authorize on the consent screen"
+        ]
+      },
+      "summary": "Following the readme takes about 6 steps. The Abilities toggle and approving abilities are easy to miss, because the readme does not mention them in the setup list.",
+      "evidence": [
+        "readme.txt:69-84",
+        "includes/class-abilities-bridge-mcp-server.php:309"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Claude Desktop connects through Add custom connector with a URL and a client ID and secret, using OAuth with PKCE and no terminal. There is no dynamic client registration; the credentials are generated in wp-admin and pasted in.",
+      "evidence": [
+        "readme.txt:78-92",
+        "includes/class-abilities-bridge-oauth-client-manager.php:45-82"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The Settings page has Connect Claude and Connect ChatGPT tabs with the endpoint URL, credential generation and step-by-step guides. The screenshots show a 9-step guide. The page code was not read in full.",
+      "evidence": [
+        "readme.txt:131-133",
+        "admin/class-abilities-bridge-settings-page.php"
+      ]
+    },
+    "DOCS": {
+      "status": "Partial",
+      "value": [
+        "https://aisystemadmin.com",
+        "https://aisystemadmin.com/privacy-policy",
+        "https://aisystemadmin.com/terms-and-conditions/"
+      ],
+      "summary": "The readme documents setup and the admin screens carry guides. The readme and welcome wizard contain stale claims. There is no dedicated docs site beyond the support site.",
+      "evidence": [
+        "readme.txt:69-92",
+        "readme.txt:259-261",
+        "admin/class-abilities-bridge-welcome-wizard.php:295-296"
+      ]
+    }
+  },
+  "notes": "- The plugin is a custom MCP server, not the MCP Adapter. Abilities are exposed only after an admin enables the Abilities toggle and approves each ability.\n- The readme says \"7-gate permission controls\" and \"requires user approval / admin approval\". The MCP path runs only gates 0 to 6 (enabled, registered, listed, rate limit, capability, input validation). requires_user_approval and requires_admin_approval are stored but not enforced in the MCP code I read.\n- MCP tool calls log the username through wp_get_current_user, which is not set for OAuth requests, so logs may lack the acting user.\n- The tool name mapping in mcp-server.php replaces every non-alphanumeric character, and the helper in ability-permissions.php replaces only '/'. The two can collide, for example a/b and a_b. mcp-server.php's lookup returns the first match without collision detection.\n- check_rate_limits compares max_per_day with === 0 but the DB returns strings, so the '0' check handles it. The hourly limit uses a UTC cutoff against created_at, which may be stored in local time.\n- The memory REST route /memory also exists and requires manage_options.\n- The welcome wizard mentions execute_wp_cli and ability_core/update-plugin as built-in features. These belong to the built-in chat and the old changelog; I did not find them in the MCP tool list.\n- The OAuth tokens are encrypted, not hashed. A database leak plus the encryption key would expose them. The key source was not checked."
+}
