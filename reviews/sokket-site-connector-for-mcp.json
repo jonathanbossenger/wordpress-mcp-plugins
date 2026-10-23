@@ -1,0 +1,378 @@
+{
+  "slug": "sokket-site-connector-for-mcp",
+  "version": "1.4.1",
+  "reviewed_at": "2026-10-23T15:42:47+02:00",
+  "duration_s": 171,
+  "cost_usd": 1.7553268000000002,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "bearer-token",
+        "oauth",
+        "application-password",
+        "cookie"
+      ],
+      "summary": "The endpoint accepts three kinds of credential: plugin bearer tokens (each bound to a WordPress user), OAuth 2.1 access tokens (tied to the user who approved them), and WordPress Application Passwords. Any request where WordPress core has already logged a user in also gets through, so a logged-in browser session with a REST nonce works too. Every path resolves to a real WordPress user, and requests with no user get a 401.",
+      "evidence": [
+        "includes/Auth/Authenticator.php:57-96",
+        "includes/Auth/Authenticator.php:109-159",
+        "includes/Auth/Authenticator.php:169-206",
+        "includes/Rest/Controller.php:178-211"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "The one permission callback covers POST, GET and DELETE on /sokket/v1/mcp and runs before anything is parsed, so initialize, tools/list and tools/call all need a credential. Without one the reply is a 401 with an OAuth WWW-Authenticate challenge. Only the OAuth discovery, register, token and revoke endpoints are public, which is normal for OAuth.",
+      "evidence": [
+        "includes/Rest/Controller.php:75-96",
+        "includes/Rest/Controller.php:178-211",
+        "includes/Rest/Controller.php:116-141",
+        "includes/OAuth/RestEndpoints.php:62-94"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every tool declares a capability that is checked with current_user_can() on each call and when building tools/list. The content, term, media, template and style tools also check the specific object (edit_post, delete_post, edit_term, delete_term), and publishing is checked against the post type's publish capability. One gap: moderate_comment relies only on the general moderate_comments capability and does not check the individual comment.",
+      "evidence": [
+        "includes/Auth/PermissionGuard.php:34-50",
+        "includes/Mcp/Server.php:166-176",
+        "includes/Tools/CoreTools.php:798",
+        "includes/Tools/CoreTools.php:871",
+        "includes/Tools/CoreTools.php:1017-1032",
+        "includes/Tools/TaxonomyTools.php:491",
+        "includes/Tools/CommentTools.php:201-226"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Bearer tokens are stored only as SHA-256 hashes, and the plaintext is shown once at creation. OAuth authorization codes, access and refresh tokens, and client secrets are hashed the same way.",
+      "evidence": [
+        "includes/Auth/TokenManager.php:49-76",
+        "includes/Admin/views/access.php:22",
+        "includes/OAuth/TokenRepository.php:80",
+        "includes/OAuth/TokenRepository.php:245",
+        "includes/OAuth/ClientRepository.php:72"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Both the MCP server and OAuth are off by default, and the endpoint answers 503 until an admin ticks 'Enable MCP server'. New tokens start read-only with only the read tools ticked. Once the server is on, though, any Application Password gets every tool, write tools included.",
+      "evidence": [
+        "includes/Settings.php:43-48",
+        "includes/Rest/Controller.php:179-185",
+        "includes/Admin/views/access.php:112-119",
+        "includes/Auth/Authenticator.php:79-88"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Bearer tokens have a read-only switch that blocks every write and delete tool. OAuth grants are read-only unless the user picks 'full' on the consent screen. Application Passwords cannot be made read-only: they always get every tool with read_only=false.",
+      "evidence": [
+        "includes/Auth/PermissionGuard.php:63-75",
+        "includes/OAuth/Consent.php:239-249",
+        "includes/Auth/Authenticator.php:147-148",
+        "includes/Auth/Authenticator.php:82-88"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Each bearer token has its own per-tool allowlist, set with checkboxes in wp-admin. OAuth connections only have a read-or-full choice (allowed_tools is '*'), and Application Passwords always get every tool. Beyond that, the bound user's WordPress role is the only limit.",
+      "evidence": [
+        "includes/Auth/Authenticator.php:199-205",
+        "includes/Auth/Authenticator.php:151-158",
+        "includes/Auth/Authenticator.php:82-88",
+        "includes/Admin/views/partials/tool-checkboxes.php:37-71"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "destructiveHint/readOnlyHint MCP annotations only"
+      },
+      "summary": "Tools marked is_destructive (delete_post, delete_term, reset_global_styles, revert_block_template) carry the destructiveHint annotation, so whether to confirm is left to the AI client. The plugin has no confirm argument and no approval queue. Trashing a comment through moderate_comment is not marked destructive.",
+      "evidence": [
+        "includes/Mcp/Server.php:187-190",
+        "includes/Tools/Registry.php:94-99",
+        "includes/Tools/CoreTools.php:237-241",
+        "includes/Tools/CommentTools.php:220-221"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "delete_post moves posts to the trash by default, and restore_post brings them back. Permanent deletion needs both force=true and a developer filter (sokket_allow_permanent_delete), which is off by default. The front page and the posts page can never be deleted.",
+      "evidence": [
+        "includes/Tools/CoreTools.php:863-925",
+        "includes/Tools/CoreTools.php:894",
+        "includes/Tools/CoreTools.php:973-983"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every tool call, whether it succeeds, is denied or errors, goes into a custom audit table: user, token id, tool, outcome, object id and time. Tool arguments are not stored. The log shows on the Dashboard and the General tab in wp-admin, and an admin can clear it there. It keeps at most 500 rows by default.",
+      "evidence": [
+        "includes/Mcp/Server.php:216-251",
+        "includes/Audit/AuditLog.php:37-55",
+        "includes/Audit/AuditLog.php:103",
+        "includes/Admin/Admin.php:421",
+        "includes/Admin/views/general.php:85-119",
+        "includes/Admin/views/dashboard.php:132"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 41,
+        "names": [
+          "get_site_info",
+          "list_plugins",
+          "list_themes",
+          "get_php_error_log_tail",
+          "list_posts",
+          "get_post",
+          "search_content",
+          "create_post",
+          "update_post",
+          "delete_post",
+          "restore_post",
+          "set_post_meta",
+          "list_media",
+          "upload_media",
+          "set_featured_image",
+          "list_taxonomies",
+          "list_terms",
+          "create_term",
+          "update_term",
+          "delete_term",
+          "assign_terms",
+          "list_comments",
+          "moderate_comment",
+          "reply_to_comment",
+          "get_seo_meta",
+          "update_seo_meta",
+          "get_site_settings",
+          "update_site_settings",
+          "get_theme_json",
+          "update_global_styles",
+          "reset_global_styles",
+          "list_block_types",
+          "validate_block_markup",
+          "render_block_template",
+          "list_navigation_menus",
+          "create_navigation_menu",
+          "update_navigation_menu",
+          "list_block_templates",
+          "get_block_template",
+          "update_block_template",
+          "revert_block_template"
+        ]
+      },
+      "summary": "There are 41 tools: 39 always registered, plus get_seo_meta and update_seo_meta when Yoast SEO, Rank Math or SEOPress is active. Other plugins can add tools through the sokket_register_tools filter.",
+      "evidence": [
+        "includes/Tools/Registry.php:56-80",
+        "includes/Tools/CoreTools.php:25-303",
+        "includes/Tools/SeoTools.php:103-131",
+        "readme.txt:82"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "comments",
+        "plugins",
+        "themes",
+        "settings",
+        "blocks"
+      ],
+      "summary": "The tools cover posts and pages, media, taxonomies, comments, settings from a fixed allowlist, block types and templates, global styles, navigation menus, and SEO meta. Plugins and themes can only be listed, not changed. There are no user tools and no WooCommerce tools.",
+      "evidence": [
+        "includes/Tools/CoreTools.php:40-62",
+        "includes/Tools/MediaTools.php:52-130",
+        "includes/Tools/TaxonomyTools.php:32-187",
+        "includes/Tools/CommentTools.php:47-108",
+        "includes/Tools/SettingsTools.php:76-136",
+        "includes/Tools/TemplateTools.php:49-152",
+        "includes/Tools/DiscoveryTools.php:84-162"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "list_posts",
+          "note": "per_page=5, ordered by date DESC, returns title and status"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "upload_media + create_post",
+          "note": "Content is stored exactly as sent (block markup or HTML), filtered block by block for users without unfiltered_html. There is no Markdown conversion. Drafts are the default."
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "get_post + update_post",
+          "note": "update_post replaces the whole content, so adding text means reading the post with get_post and sending back the full content."
+        },
+        "T4": {
+          "status": "Partial",
+          "tool": "upload_media",
+          "note": "Base64 bytes only. The plugin deliberately never fetches URLs, so the client has to download and encode the image itself."
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "list_plugins",
+          "note": "Returns version, active state and whether an update is available."
+        },
+        "T6": {
+          "status": "Pass",
+          "tool": "update_site_settings",
+          "note": "blogdescription is on the write allowlist."
+        },
+        "T7": {
+          "status": "Partial",
+          "tool": "delete_post",
+          "note": "Trashes by default and is logged with the post id. Confirmation is only the destructiveHint annotation."
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "PermissionGuard",
+          "note": "A subscriber lacks edit_posts and delete_posts, so those tools are hidden from tools/list and refused on call. Publishing also checks publish_posts."
+        }
+      },
+      "summary": "Most of the standard tasks can be done. Image upload needs base64 data rather than a URL, and deletion has no plugin-side confirmation.",
+      "evidence": [
+        "includes/Tools/CoreTools.php:581-631",
+        "includes/Tools/CoreTools.php:734-780",
+        "includes/Tools/CoreTools.php:790-849",
+        "includes/Tools/MediaTools.php:15-16",
+        "includes/Tools/CoreTools.php:485-504",
+        "includes/Tools/SettingsTools.php:89-92",
+        "includes/Tools/CoreTools.php:863-925",
+        "includes/Mcp/Server.php:174"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Fail",
+      "value": null,
+      "summary": "The plugin uses its own tool registry and the sokket_register_tools filter. It neither registers nor exposes WordPress Abilities API abilities, and does not use the MCP Adapter.",
+      "evidence": [
+        "includes/Tools/Registry.php:56-80"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http (POST JSON responses; GET returns 405, no SSE)"
+        ],
+        "protocol_version": "2025-11-25 (also 2025-06-18, 2025-03-26)",
+        "runs_in_wordpress": true
+      },
+      "summary": "The plugin implements its own Streamable HTTP server as a REST route inside WordPress, with session ids and current protocol version negotiation. It does not offer a server-to-client SSE stream.",
+      "evidence": [
+        "includes/Rest/Controller.php:17-27",
+        "includes/Rest/Controller.php:302-308",
+        "includes/Mcp/Server.php:29",
+        "includes/Mcp/Server.php:130-153"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [],
+      "summary": "There is no Pro version or account requirement. All tools, OAuth, tokens and the audit log are in the free plugin.",
+      "evidence": [
+        "readme.txt:216-218"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The MCP endpoint does not require HTTPS, so Claude Desktop can reach a localhost site through mcp-remote with a bearer token. The generated snippet is written for Windows (cmd /c), so Mac and Linux users have to swap in npx as the command. The OAuth custom connector route needs a URL Claude's servers can reach.",
+      "evidence": [
+        "includes/Admin/views/clients.php:29-33",
+        "includes/Auth/Authenticator.php:219-247"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "When a host strips the Authorization header, the plugin falls back to getallheaders(), and Application Passwords are a second option. The OAuth discovery documents are served with CORS * from an init hook, so they do not depend on rewrite rules. The MCP route deliberately refuses cross-origin browser requests. The readme warns that REST-blocking security plugins will break it.",
+      "evidence": [
+        "includes/Auth/Authenticator.php:219-232",
+        "includes/OAuth/Discovery.php:116-136",
+        "includes/OAuth/Discovery.php:194-198",
+        "includes/Rest/Controller.php:187-201",
+        "readme.txt:276-278"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 4,
+        "steps": [
+          "Sokket → Settings → General: tick Enable MCP server and Enable OAuth 2.1, then save",
+          "Connections → Connect your AI client: pick Claude Desktop and copy the endpoint URL",
+          "Claude Desktop → Settings → Connectors → Add custom connector, paste the URL, leave Client ID and Secret blank",
+          "Sign in to WordPress and approve the consent screen, choosing read-only or full access"
+        ]
+      },
+      "summary": "With OAuth it takes about 4 steps and no terminal. The bearer-token route adds creating a token and editing claude_desktop_config.json.",
+      "evidence": [
+        "includes/Admin/views/general.php:35-62",
+        "includes/Admin/views/clients.php:23-27",
+        "includes/OAuth/Consent.php:178-193"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "OAuth 2.1 with dynamic client registration, PKCE and RFC 9728/8414 discovery lets Claude's 'Add custom connector' set itself up from the endpoint URL alone. The site needs a public URL for this route.",
+      "evidence": [
+        "includes/OAuth/Discovery.php:160-175",
+        "includes/OAuth/RestEndpoints.php:65-73",
+        "includes/Admin/views/clients.php:25"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The 'Connect your AI client' tab generates copyable commands and configs with this site's endpoint filled in, for Claude Code, Claude Desktop (OAuth or token), ChatGPT, Cursor, VS Code and Windsurf. The General and OAuth tabs have copy buttons for the endpoint and metadata URLs.",
+      "evidence": [
+        "includes/Admin/views/clients.php:17-87",
+        "includes/Admin/views/general.php:61-62",
+        "includes/Admin/views/oauth.php:52-64"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "https://beautifulplugins.com/docs/sokket-site-connector-for-mcp/",
+        "https://wordpress.org/support/plugin/sokket-site-connector-for-mcp/",
+        "https://wordpress.org/plugins/sokket-site-connector-for-mcp/"
+      ],
+      "summary": "The readme has step-by-step setup and an FAQ that covers Claude Desktop. The admin sidebar links to a docs site and the support forum.",
+      "evidence": [
+        "readme.txt:162-192",
+        "readme.txt:212-214",
+        "includes/Admin/views/aside.php:60-61",
+        "includes/Admin/views/header.php:61"
+      ]
+    }
+  },
+  "notes": "The readme and the code disagree on Application Passwords. The readme says every tool call passes 'three independent gates' (tool allowlist, read-only ceiling, capability) and that 'every write tool is off by default'. In the code, any Application Password (or any request core has already logged in, such as a browser session with a REST nonce) gets allowed_tools=['*'] and read_only=false, so for those credentials only the capability check applies (Authenticator.php:79-88). OAuth grants also get '*' for every tool, with only a read-or-full choice.\n\nOther findings:\n- The OAuth consent screen is open to any user with 'read', including subscribers. This can be changed with a filter. Capability checks still limit what those users can do.\n- Dynamic client registration is a public endpoint, governed by allow_registration().\n- moderate_comment has no per-comment capability check, and its 'trash' action is not marked destructive.\n- The Claude Desktop bearer-token snippet only works on Windows ('command': 'cmd', '/c').\n- upload_media accepts base64 only and never fetches URLs (on purpose, to avoid SSRF).\n- Tool results are returned as JSON text only (no structuredContent).\n- The rate limit is 120 requests per minute per credential, stored in transients.\n- The audit log records token_id 0 for OAuth and Application Password calls, so the user is the only thing that identifies those connections.\n- The tool count matches the readme: 39 plus 2 SEO tools."
+}

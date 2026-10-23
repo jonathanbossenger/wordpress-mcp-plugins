@@ -1,0 +1,443 @@
+{
+  "slug": "wsp-mcp-ai-agents-connector",
+  "version": "2.9.6",
+  "reviewed_at": "2026-10-23T16:11:17+02:00",
+  "duration_s": 139,
+  "cost_usd": 2.6169586000000002,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Partial",
+      "value": [
+        "application-password",
+        "api-key",
+        "bearer-token",
+        "oauth",
+        "cookie"
+      ],
+      "summary": "The endpoint accepts a WordPress Application Password, OAuth tokens tied to the user who approved them, and the plugin's own API key (sent as Bearer or X-WSP-MCP-API-Key). The API key is one shared site-wide secret that always runs as the lowest-ID administrator, so it is not tied to a person. Cookie sessions also pass if they carry a REST nonce. The readme says 'the AI can only do what its WordPress user is allowed to do', but that is not true for the API key.",
+      "evidence": [
+        "includes/server/class-auth.php:56-96",
+        "includes/server/class-auth.php:129-144",
+        "includes/server/class-oauth-store.php:329-333"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "Every POST, including initialize, tools/list and tools/call, goes through authentication first. A request without credentials gets a 401 with a WWW-Authenticate challenge, and failed attempts are rate-limited per IP. The REST route uses __return_true, but the handler does the auth check itself.",
+      "evidence": [
+        "includes/server/class-mcp-server.php:78-82",
+        "includes/server/class-mcp-server.php:141-145",
+        "includes/server/class-mcp-server.php:386-402",
+        "includes/server/class-auth.php:156-177"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Each tool declares its own capability, checked on every call, and post, page and media edits and deletes also check edit_post or delete_post for the specific object. Some tool capabilities are too broad, though. WooCommerce order listing, order status changes, order notes and sales reports only need edit_posts, so a Contributor account could change order statuses if those tools are enabled. A connection made with the API key always runs as an administrator anyway.",
+      "evidence": [
+        "includes/server/class-mcp-server.php:244-248",
+        "includes/server/class-auth.php:119-127",
+        "includes/abilities/guard.php:27-62",
+        "includes/abilities/posts.php:103-110",
+        "includes/tools/native-tools.php:1218-1237",
+        "includes/abilities/woocommerce.php:558-575"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Fail",
+      "value": null,
+      "summary": "The API key is stored in plain text in the wsp_mcp_api_key option and shown in full on the MCP > Connection page every time, embedded in each client snippet. OAuth access and refresh tokens are stored only as SHA-256 hashes.",
+      "evidence": [
+        "includes/server/class-auth.php:35-48",
+        "includes/admin/connection-page.php:225-227",
+        "includes/admin/connection-page.php:361",
+        "includes/server/class-oauth-store.php:302-303"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The MCP endpoint is live as soon as the plugin is activated, and an API key is generated at activation. Credentials are required, though. Only read tools are on by default (get-posts, get-pages, categories, tags, search, site info, plus form-plugin read tools), and OAuth sign-in is off until an admin enables it.",
+      "evidence": [
+        "wsp-mcp-ai-agents-connector.php:106-111",
+        "includes/registry.php:50-85",
+        "includes/server/class-oauth-server.php:55",
+        "includes/admin/connection-page.php:184-192"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Partial",
+      "value": null,
+      "summary": "There is no single read-only switch. Each tool is marked read or write and can be turned off, write tools are off by default, and the toggles apply to every connection type. So a site owner can keep the site read-only by leaving all write tools off, but no mode enforces it.",
+      "evidence": [
+        "includes/registry.php:47-162",
+        "includes/admin/settings-page.php:150-157",
+        "includes/server/class-mcp-server.php:86-100"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "MCP > Settings has an on/off toggle for every tool, and disabled tools are neither listed nor callable, for API key, Application Password and OAuth connections alike. The toggles apply to the whole site, not to one connection. Role limits come from WordPress capabilities for Application Password and OAuth users, and OAuth consent is refused to users who cannot edit_posts.",
+      "evidence": [
+        "includes/admin/settings-page.php:266-283",
+        "includes/server/class-mcp-server.php:218-240",
+        "includes/server/class-oauth-server.php:70-81"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Fail",
+      "value": {
+        "mechanism": "none"
+      },
+      "summary": "The plugin adds no destructiveHint or other annotations to tools/list, requires no confirm argument and has no approval queue. Permanent deletes only need force=true on some tools. The only confirmation is a browser dialog when an admin switches on a write tool in settings.",
+      "evidence": [
+        "includes/server/class-mcp-server.php:218-228",
+        "includes/admin/settings-page.php:152-155"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Posts, pages, custom post type items, comments, reusable blocks, Woo products and coupons go to the trash by default, and permanent delete needs force=true. Media delete is permanent with no trash option, as are menus, post meta, redirects and Woo terms, attributes, tax rates and shipping zones.",
+      "evidence": [
+        "includes/abilities/posts.php:103-110",
+        "includes/abilities/pages.php:56-63",
+        "includes/abilities/media.php:132-140",
+        "includes/tools/native-tools.php:966-974",
+        "includes/tools/admin-tool-defs.php:41-45"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every tool call is written to a database table: tool name, status (success, error or denied), message, duration, user, IP and time. Rejected requests are logged too. The log can be read under MCP > Audit Log and MCP > Analytics in wp-admin. Tool arguments, such as which post was affected, are not recorded.",
+      "evidence": [
+        "includes/audit/class-audit-log.php:38-46",
+        "includes/audit/class-audit-log.php:70-94",
+        "includes/server/class-mcp-server.php:238-275",
+        "includes/admin/audit-log-page.php:17"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 286,
+        "count_core_without_integrations": 101,
+        "names": [
+          "wsp_get_site_context",
+          "wsp_update_site_context",
+          "wsp_get_posts",
+          "wsp_get_post",
+          "wsp_create_post",
+          "wsp_update_post",
+          "wsp_delete_post",
+          "wsp_get_pages",
+          "wsp_create_page",
+          "wsp_update_page",
+          "wsp_delete_page",
+          "wsp_get_categories",
+          "wsp_create_category",
+          "wsp_get_tags",
+          "wsp_create_tag",
+          "wsp_get_comments",
+          "wsp_approve_comment",
+          "wsp_delete_comment",
+          "wsp_list_media",
+          "wsp_get_media",
+          "wsp_count_media",
+          "wsp_update_media",
+          "wsp_delete_media",
+          "wsp_upload_media",
+          "wsp_upload_media_from_url",
+          "wsp_set_featured_image",
+          "wsp_get_users",
+          "wsp_create_user",
+          "wsp_update_user",
+          "wsp_search",
+          "wsp_get_site_info",
+          "wsp_get_plugins",
+          "wsp_update_site_info",
+          "wsp_update_permalink_structure",
+          "wsp_activate_plugin",
+          "wsp_deactivate_plugin",
+          "wsp_install_plugin",
+          "wsp_install_plugin_from_url",
+          "wsp_delete_plugin",
+          "wsp_update_plugin",
+          "wsp_get_themes",
+          "wsp_switch_theme",
+          "wsp_get_theme_file",
+          "wsp_update_theme_file",
+          "wsp_upload_theme_chunk",
+          "wsp_upload_theme",
+          "wsp_get_mcp_diagnostics",
+          "wsp_get_post_types",
+          "wsp_get_cpt_items",
+          "wsp_create_cpt_item",
+          "wsp_update_cpt_item",
+          "wsp_delete_cpt_item",
+          "wsp_get_menus",
+          "wsp_get_menu_items",
+          "wsp_create_menu",
+          "wsp_delete_menu",
+          "wsp_add_menu_item",
+          "wsp_update_menu_item",
+          "wsp_delete_menu_item",
+          "wsp_get_menu_locations",
+          "wsp_assign_menu_location",
+          "wsp_get_global_styles",
+          "wsp_update_global_styles",
+          "wsp_get_templates",
+          "wsp_get_template",
+          "wsp_create_template",
+          "wsp_update_template",
+          "wsp_get_sidebars",
+          "wsp_update_sidebar",
+          "wsp_get_widget_types",
+          "wsp_get_widgets",
+          "wsp_get_widget",
+          "wsp_create_widget",
+          "wsp_update_widget",
+          "wsp_delete_widget",
+          "wsp_get_site_health",
+          "wsp_get_cron_events",
+          "wsp_get_cron_event",
+          "wsp_run_cron_event",
+          "wsp_delete_cron_event",
+          "wsp_get_error_log",
+          "wsp_get_revisions",
+          "wsp_get_revision",
+          "wsp_restore_revision",
+          "wsp_get_post_meta",
+          "wsp_update_post_meta",
+          "wsp_delete_post_meta",
+          "wsp_list_blocks",
+          "wsp_get_block",
+          "wsp_create_block",
+          "wsp_update_block",
+          "wsp_delete_block",
+          "wsp_list_patterns",
+          "wsp_get_post_blocks",
+          "wsp_update_post_blocks",
+          "wsp_list_block_types",
+          "wsp_list_redirects",
+          "wsp_create_redirect",
+          "wsp_delete_redirect",
+          "wsp_get_404_logs",
+          "wsp_clear_404_logs",
+          "wsp_yoast_* (2)",
+          "wsp_rankmath_* (2)",
+          "wsp_woo_* (50: 15 product/order/coupon/customer/report/review tools + 35 delete/category/tag/attribute/settings/tax/shipping/gateway tools)",
+          "wsp_elementor_* (20)",
+          "wsp_acf_* (27)",
+          "wsp_uae_* (44)",
+          "wsp_gravity_* (18)",
+          "wsp_cf7_* (10)",
+          "wsp_wpforms_* (12)"
+        ]
+      },
+      "summary": "With every toggle on and all supported plugins active (Yoast, Rank Math, WooCommerce, Elementor, ACF, UAE, Gravity Forms, CF7, WPForms), the server exposes about 286 tools. 101 of them are WordPress core tools. Integration tools only appear when their plugin is active.",
+      "evidence": [
+        "includes/tools/native-tools.php:19-2361",
+        "includes/tools/admin-tool-defs.php:41-97",
+        "includes/registry.php:47-374"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "comments",
+        "plugins",
+        "themes",
+        "settings",
+        "blocks",
+        "woocommerce"
+      ],
+      "summary": "The tools cover every listed area. On top of those there are menus, widgets, Site Editor templates and global styles, revisions, post meta, redirects/404s, site health and cron, theme file editing, and SEO, page-builder and form-plugin integrations.",
+      "evidence": [
+        "includes/registry.php:47-162",
+        "includes/tools/native-tools.php:47-1077",
+        "includes/tools/admin-tool-defs.php:41-97"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "wsp_get_posts (per_page=5, ordered by date DESC, returns title and status; on by default)"
+        },
+        "T2": {
+          "status": "Partial",
+          "tool": "wsp_create_post (+ wsp_upload_media_from_url / wsp_update_post_blocks)",
+          "note": "Content is stored as given after wp_kses_post filtering. Nothing converts Markdown or HTML to blocks, so the agent has to write block markup itself. The image must be uploaded first and embedded by URL."
+        },
+        "T3": {
+          "status": "Partial",
+          "tool": "wsp_get_post + wsp_update_post",
+          "note": "wsp_update_post replaces the whole content, so to append the agent must read the post and send it back in full. The title can be changed on its own."
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "wsp_upload_media_from_url / wsp_upload_media (jpg, png, gif, webp)"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "wsp_get_plugins (all installed plugins with version and active flag)"
+        },
+        "T6": {
+          "status": "Pass",
+          "tool": "wsp_update_site_info (tagline → blogdescription, needs manage_options)"
+        },
+        "T7": {
+          "status": "Partial",
+          "tool": "wsp_delete_post",
+          "note": "Moves the post to the trash, checks delete_post for that post and is written to the audit log, but asks for no confirmation."
+        },
+        "T8": {
+          "status": "Partial",
+          "tool": "capability gates",
+          "note": "With an Application Password or OAuth (where subscribers are refused at the consent screen), a subscriber cannot publish or delete: create_post needs publish_posts and delete_post checks delete_post for the specific post. The plugin API key, however, always runs as an administrator, and the readme does not make that clear."
+        }
+      },
+      "summary": "Most standard tasks work. Content is not converted to blocks, appending means resending the whole post, deletes are not confirmed, and the shared API key always runs as an administrator.",
+      "evidence": [
+        "includes/abilities/posts.php:4-48",
+        "includes/abilities/posts.php:69-110",
+        "includes/abilities/media.php:146-171",
+        "includes/abilities/site.php:15-50",
+        "includes/server/class-auth.php:129-144"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Fail",
+      "value": null,
+      "summary": "The plugin runs its own MCP server with its own tool registry. It never calls wp_register_ability and does not use the MCP Adapter. The 'wsp/...' keys only drive the settings toggles, despite a code comment mentioning an 'Abilities-API path'.",
+      "evidence": [
+        "includes/tools/native-tools.php:5-9",
+        "includes/server/class-mcp-server.php:3-9",
+        "includes/registry.php:47-50"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http (POST JSON responses; GET returns 405, no SSE stream)"
+        ],
+        "protocol_version": "negotiates 2024-11-05, 2025-03-26, 2025-06-18 or 2025-11-25 (default 2025-06-18)",
+        "runs_in_wordpress": true
+      },
+      "summary": "MCP runs inside WordPress at /wp-json/wsp-mcp/v1/mcp as Streamable HTTP with Mcp-Session-Id sessions. It supports protocol versions up to 2025-11-25.",
+      "evidence": [
+        "includes/server/class-mcp-server.php:22-23",
+        "includes/server/class-mcp-server.php:78-82",
+        "includes/server/class-mcp-server.php:116-121",
+        "includes/server/class-mcp-server.php:185-215"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [],
+      "summary": "No Pro version or account is involved. All tools, OAuth, the audit log and analytics are in the free plugin. The admin pages only show promo cards linking to tutorials.",
+      "evidence": [
+        "readme.txt:43",
+        "includes/admin/promo-cards.php:75"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The Claude Desktop snippet runs `npx mcp-remote <endpoint> --header \"Authorization: Bearer <key>\"`, which works against http://localhost. localhost and 127.0.0.1 are on the Origin allow-list, and the copy buttons fall back to another method on plain HTTP. Only the OAuth connector path needs a public HTTPS site.",
+      "evidence": [
+        "includes/admin/connection-page.php:231-242",
+        "includes/server/class-mcp-server.php:415-419",
+        "includes/admin/connection-page.php:83-105",
+        "includes/admin/connection-page.php:436-438"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "It handles the usual host problems. If a host strips the Authorization header, the X-WSP-MCP-API-Key header works instead, and the 401 message says so. CORS preflight and Access-Control headers are sent, responses carry no-store/no-cache headers, and stray PHP output from other plugins is buffered so it cannot corrupt the JSON. OAuth discovery documents are also served for subdirectory installs. The generated snippets use the Bearer header, so a site owner whose host strips it has to edit the snippet by hand.",
+      "evidence": [
+        "includes/server/class-auth.php:87-92",
+        "includes/server/class-auth.php:161",
+        "includes/server/class-mcp-server.php:442-457",
+        "wsp-mcp-ai-agents-connector.php:21-27",
+        "includes/server/class-oauth-server.php:158"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 4,
+        "steps": [
+          "Open MCP > Connection in wp-admin",
+          "Open the 'Claude Desktop (config file)' tab and copy or download the snippet (the API key is already in it)",
+          "In Claude Desktop, go to Settings > Developer > Edit Config and paste the snippet into claude_desktop_config.json",
+          "Fully quit and reopen Claude Desktop"
+        ]
+      },
+      "summary": "After activation it takes four steps to reach the first tool call in Claude Desktop, and Node.js must be installed for mcp-remote. Read tools are on by default, so the readme's 'switch on tools' step is optional. On a public HTTPS site the OAuth route is also four steps: enable OAuth, copy the URL, add a custom connector, then Connect and Allow.",
+      "evidence": [
+        "readme.txt:77-82",
+        "includes/admin/connection-page.php:446-466",
+        "includes/admin/connection-page.php:419-424"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Once an admin enables OAuth sign-in, the plugin runs its own OAuth 2.1 server with dynamic client registration and PKCE. The endpoint URL can be pasted into Claude's 'Add custom connector', and users log in on the WordPress consent screen. This only works on a publicly reachable HTTPS site.",
+      "evidence": [
+        "includes/server/class-oauth-server.php:8-23",
+        "includes/server/class-oauth-server.php:290-293",
+        "includes/server/class-oauth-server.php:327-363",
+        "includes/admin/connection-page.php:386-438"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "MCP > Connection shows this site's endpoint URL and API key. It has copy and download buttons for ready-made configs for Claude Connectors, Claude Desktop, Cursor (including a one-click deep link), Codex, Antigravity, OpenClaw and OpenCode, each with numbered steps.",
+      "evidence": [
+        "includes/admin/connection-page.php:219-321",
+        "includes/admin/connection-page.php:352-373",
+        "includes/admin/connection-page.php:375-597"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "readme.txt Installation section (4 steps)",
+        "https://wspmcp.com/ (readme)",
+        "https://wspmcp.com/tutorials (promo card in wp-admin)",
+        "https://wspmcp.com/abilities-directory (promo card in wp-admin)",
+        "https://youtu.be/kD2FSvL7EE0",
+        "https://youtu.be/GLyLzxVOxm4 (OpenClaw)",
+        "https://youtu.be/2gRIRcqqOpo (Antigravity)",
+        "https://youtu.be/hxhjs3IUYQE (Codex)"
+      ],
+      "summary": "The readme has installation steps, an FAQ and video links. The admin screens include step-by-step instructions on the Connection page and link to the wspmcp.com tutorials.",
+      "evidence": [
+        "readme.txt:77-126",
+        "includes/admin/promo-cards.php:75",
+        "includes/admin/promo-cards.php:85",
+        "includes/admin/connection-page.php:419-424"
+      ]
+    }
+  },
+  "notes": "1) The readme says 'the AI can only do what its WordPress user is allowed to do' (readme.txt:100). In the code, the API key, the main way to connect and the one in every snippet, always runs as the lowest-ID administrator (class-auth.php:129-144). The key is shared, stored in plain text and shown in full on the Connection page. 2) The readme says 'the AI can't add raw code (HTML, JavaScript or CSS)' (readme.txt:75). In the code, post content goes through wp_kses_post, which still allows HTML, and optional tools can write PHP theme files, install themes and plugins from a URL, and run cron events. 3) WooCommerce order tools only need edit_posts: listing orders, changing order status, adding order notes, sales reports and low stock (native-tools.php:1218-1237, 1270-1307), and the order-status handler does no per-order check. A Contributor connected through OAuth or an Application Password could change order statuses if those tools are enabled. 4) The tool-level capability for wsp_get_posts, get_pages, search and site info is empty ('authenticated only'). get_posts does restrict unpublished posts by capability. 5) The plugin requires WP 6.9 but does not use the Abilities API, despite the 'wsp/...' ability-style keys and a comment mentioning an 'Abilities-API path'. 6) No MCP tool annotations (readOnlyHint/destructiveHint) are sent, although the registry already labels each tool read or write. 7) The rate limit is 120 requests per minute per user. Failed authentication is limited to 30 per minute per IP."
+}

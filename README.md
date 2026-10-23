@@ -36,4 +36,12 @@ Check `/usage` in Claude Code before and after a few plugins to see what one cos
 ## Status
 
 - Reviewed: ai-engine (2026-10-22, matches a manual read of its code).
-- Open question: HOST-LOCAL passes when a local connection is possible even if the plugin does not document it. Decide whether "documented" should count separately.
+- Reviewed 2026-10-23, smallest first, three at a time (`-j 3`) with a usage check between batches:
+  ylabs-ai-assistant-connector, devcubic-ai-bridge-for-mcp, strifebridge-mcp, admindra-mcp, invizo-mcp,
+  mcp-for-woocommerce, bcs-mcp-manager, sokket-site-connector-for-mcp, counterhand-mcp-for-woocommerce,
+  mountdev-ai-mcp-connector, wsp-mcp-ai-agents-connector, alphabridge-mcp.
+  13 of 36 done, $24.51 at API prices in total. Each batch of three took 2½–5 minutes.
+- Next batch: iato-mcp, abilities-bridge, diviops-agent (the next smallest without a review).
+- strifebridge-mcp: its 7 unverified citations say `includes/api.php` but the file is `api/api.php`.
+  The cited lines exist there and match the review, so it's a wrong path, not made-up evidence.
+- Decided (2026-10-23): HOST-LOCAL passes when a local connection is possible, whether or not the plugin documents it.

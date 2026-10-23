@@ -1,0 +1,387 @@
+{
+  "slug": "strifebridge-mcp",
+  "version": "3.1.0",
+  "reviewed_at": "2026-10-23T13:29:04+02:00",
+  "duration_s": 151,
+  "cost_usd": 1.8693596000000001,
+  "unverified_evidence": [
+    "includes/api.php:185",
+    "includes/api.php:195",
+    "includes/api.php:212",
+    "includes/api.php:54",
+    "includes/api.php:77",
+    "includes/api.php:157",
+    "includes/api.php:176"
+  ],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Partial",
+      "value": [
+        "oauth",
+        "bearer-token"
+      ],
+      "summary": "The endpoint takes two kinds of credential. One is an OAuth 2.1 access token tied to the WordPress user who approved the connection. The other is the legacy site-wide token, sent as Authorization: Bearer, as an X-StrifeBridge-Token header, or inside the URL path. That legacy token belongs to no user, has full administrator authority, and is created and active as soon as the plugin is activated.",
+      "evidence": [
+        "includes/oauth-auth.php:150",
+        "includes/oauth-auth.php:55",
+        "includes/oauth-auth.php:166",
+        "mcp/mcp.php:21",
+        "mcp/mcp.php:43",
+        "strifebridge-mcp.php:53"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "Requests with no credentials are refused before any MCP method runs, including tools/list. The refusal is logged, and the 401 reply carries a WWW-Authenticate header that points to the OAuth metadata. Only the OAuth endpoints (authorize, token, register, revoke) and the .well-known discovery documents are public, and none of them exposes a tool.",
+      "evidence": [
+        "mcp/mcp.php:13",
+        "includes/oauth-auth.php:160",
+        "includes/oauth-auth.php:197",
+        "includes/oauth-endpoints.php:60"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Partial",
+      "value": null,
+      "summary": "For OAuth connections, every tool call checks the scope and a WordPress capability declared for that tool (edit_posts, delete_posts, activate_plugins, manage_options and so on). The check is per tool, not per object: it never runs current_user_can('edit_post', $id). The check is skipped entirely for the legacy token, which runs with full authority. Only administrators can approve an OAuth connection, so in 3.1.0 every OAuth user is an admin anyway.",
+      "evidence": [
+        "includes/capabilities.php:243",
+        "includes/capabilities.php:245",
+        "includes/tool-registry.php:67",
+        "mcp/mcp.php:248",
+        "admin/oauth-consent.php:102",
+        "includes/abilities.php:209"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Fail",
+      "value": null,
+      "summary": "OAuth access tokens, refresh tokens, authorization codes and client secrets are stored only as SHA-256 hashes. The legacy site token, though, is kept in plain text in the sbmcp_api_token option, shown again in full on every visit to the settings page, and placed in the connector URL path, where it can end up in web server or proxy logs.",
+      "evidence": [
+        "includes/oauth-store.php:169",
+        "includes/oauth-store.php:425",
+        "strifebridge-mcp.php:53",
+        "admin/settings.php:139",
+        "admin/settings.php:339",
+        "mcp/mcp.php:32"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": null,
+      "summary": "MCP is live as soon as the plugin is activated. A legacy admin token is generated and the token-in-URL route is registered immediately, and all tool groups start enabled, including Options, Plugin Management and Users. Every route still needs a credential, and new installs start with 'Trash instead of delete' on.",
+      "evidence": [
+        "strifebridge-mcp.php:49",
+        "strifebridge-mcp.php:79",
+        "includes/tool-toggles.php:41",
+        "mcp/mcp.php:23"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The Safety section has a 'Read-only mode' switch. It refuses every tool not declared as a read, on the MCP endpoint, the REST routes and the Abilities path alike, for both the legacy token and OAuth. OAuth connections can also be approved with only the mcp:read scope.",
+      "evidence": [
+        "includes/safe-mode.php:110",
+        "mcp/mcp.php:239",
+        "includes/safe-mode.php:244",
+        "includes/abilities.php:235",
+        "admin/settings.php:434"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The admin can switch off nine tool groups, but the switches apply to every connection at once and cannot be set per tool. OAuth connections can also be limited to one of three broad scopes (read / write / admin). The legacy token cannot be limited at all beyond the site-wide group switches.",
+      "evidence": [
+        "includes/tool-toggles.php:18",
+        "admin/settings.php:407",
+        "includes/capabilities.php:114",
+        "includes/capabilities.php:249"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "annotations only (readOnlyHint on MCP; destructive flag only on the Abilities path)"
+      },
+      "summary": "There is no confirm argument and no approval queue. On the MCP endpoint every write tool, delete_post, delete_media and delete_plugin included, is labelled destructiveHint:false, so clients get no warning. Only the WordPress Abilities registration marks the delete tools as destructive.",
+      "evidence": [
+        "mcp/mcp.php:127",
+        "mcp/mcp.php:153",
+        "mcp/mcp.php:169",
+        "includes/abilities.php:88",
+        "includes/abilities.php:204"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "delete_post moves posts to the trash unless force=true is passed, and refuses rather than silently deletes when the trash is unavailable. With 'Trash instead of delete' on (the default for new installs), force is ignored, and terms, menu items and plugins cannot be deleted at all. delete_media deletes permanently unless that safe mode is on.",
+      "evidence": [
+        "includes/api.php:185",
+        "includes/api.php:195",
+        "includes/api.php:212",
+        "includes/media.php:181",
+        "includes/media.php:196",
+        "includes/safe-mode.php:132"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every tool call is written to a database table: allowed, refused and failed calls, plus failed sign-ins. Each entry records the time, the tool, a short allowlisted summary of the arguments, the result, the WordPress user and app, and the IP. Settings shows the last 10 entries. The free version keeps 30 days or 1000 entries; full searchable history and CSV export are Pro.",
+      "evidence": [
+        "includes/audit-log.php:271",
+        "includes/audit-log.php:305",
+        "mcp/mcp.php:260",
+        "admin/settings.php:346",
+        "admin/settings.php:401"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 34,
+        "names": [
+          "list_posts",
+          "list_pages",
+          "get_post",
+          "get_post_details",
+          "create_post",
+          "update_post",
+          "delete_post",
+          "list_media",
+          "get_media",
+          "upload_media",
+          "delete_media",
+          "get_option",
+          "update_option",
+          "list_options",
+          "list_users",
+          "list_plugins",
+          "activate_plugin",
+          "deactivate_plugin",
+          "delete_plugin",
+          "get_menus",
+          "get_menu_items",
+          "create_menu_item",
+          "update_menu_item",
+          "delete_menu_item",
+          "list_terms",
+          "create_term",
+          "update_term",
+          "delete_term",
+          "list_sidebars",
+          "get_widgets",
+          "update_widget",
+          "get_site_info",
+          "flush_rewrite_rules",
+          "server_ping"
+        ]
+      },
+      "summary": "With every group switched on, the free plugin offers 34 tools, and the same tools are also registered as strifebridge/* abilities on WordPress 7.0+. Pro adds more tools through filters.",
+      "evidence": [
+        "mcp/mcp.php:131",
+        "includes/tool-registry.php:64",
+        "includes/abilities.php:79"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "plugins",
+        "settings"
+      ],
+      "summary": "The tools cover posts and pages (any post type), media, terms, a read-only user list, plugins (list/activate/deactivate/delete) and site options. They also cover navigation menus, widgets and system info. There are no tools for comments, themes, blocks or WooCommerce.",
+      "evidence": [
+        "includes/tool-registry.php:67",
+        "includes/tool-registry.php:85",
+        "includes/tool-registry.php:95",
+        "includes/tool-registry.php:100",
+        "includes/tool-registry.php:111"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "list_posts",
+          "note": "per_page=5, returns title and status; defaults to published posts only, so pass status='any' for drafts"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "upload_media + create_post",
+          "note": "content stored as given (raw block markup/HTML, no Markdown conversion); default status draft; image via upload_media then embedded or set as featured_media"
+        },
+        "T3": {
+          "status": "Partial",
+          "tool": "get_post + update_post",
+          "note": "update_post replaces post_content wholesale; appending needs read-modify-write by the client"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "upload_media",
+          "note": "url param, blocks private/loopback hosts"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "list_plugins",
+          "note": "returns file, name, version, active"
+        },
+        "T6": {
+          "status": "Pass",
+          "tool": "update_option",
+          "note": "blogdescription is not blacklisted; OAuth needs the mcp:admin scope, which is not in the default grant"
+        },
+        "T7": {
+          "status": "Partial",
+          "tool": "delete_post",
+          "note": "trash by default, logged; no confirmation and destructiveHint:false"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": null,
+          "note": "only manage_options users can approve an OAuth connection, and the per-tool capability gate would block a subscriber anyway"
+        }
+      },
+      "summary": "Most standard tasks work. Editing a post replaces the whole content, so adding to it means reading it first. Deleting goes to the trash and is logged, but nothing asks for confirmation.",
+      "evidence": [
+        "includes/api.php:54",
+        "includes/api.php:77",
+        "includes/api.php:157",
+        "includes/media.php:45",
+        "includes/plugin-mgmt.php:15",
+        "includes/options.php:10",
+        "includes/api.php:176",
+        "admin/oauth-consent.php:102"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": null,
+      "summary": "On WordPress 7.0+ every free tool is registered as a native ability (strifebridge/list-posts and so on) in its own categories, so the MCP Adapter can call them. Calls are routed through the same guarded dispatcher. The plugin also runs its own separate MCP server.",
+      "evidence": [
+        "includes/abilities.php:135",
+        "includes/abilities.php:194",
+        "includes/abilities.php:234"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Partial",
+      "value": {
+        "transports": [
+          "streamable-http (POST, JSON responses only)"
+        ],
+        "protocol_version": "2025-03-26",
+        "runs_in_wordpress": true
+      },
+      "summary": "The MCP server runs inside WordPress as a REST route that accepts POST with JSON-RPC and replies with plain JSON (no SSE, no session ID). It always reports protocol version 2025-03-26, an older revision, whatever version the client asks for.",
+      "evidence": [
+        "mcp/mcp.php:13",
+        "mcp/mcp.php:79",
+        "mcp/mcp.php:96"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [
+        "Theme file editing",
+        "Plugin file editing",
+        "Database access",
+        "User management",
+        "Error log & cron",
+        "Full searchable activity history with CSV export"
+      ],
+      "summary": "The MCP server, OAuth, the 34 tools, safe mode and the activity log are all in the free plugin. Pro adds extra tool families and longer log history.",
+      "evidence": [
+        "admin/settings.php:523",
+        "admin/settings.php:401"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Nothing in the code requires HTTPS or a public URL. A local http://localhost site works through a bridge such as mcp-remote, with either the legacy token URL or a Bearer header. OAuth also allows http loopback redirect URIs. The plugin's own docs do not describe a local or bridge setup.",
+      "evidence": [
+        "mcp/mcp.php:21",
+        "includes/oauth-auth.php:55",
+        "includes/oauth-endpoints.php:639"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Partial",
+      "value": null,
+      "summary": "If a host strips the Authorization header, the legacy path still works through an X-StrifeBridge-Token header or the token in the URL, but OAuth has no such fallback. The readme explains a common nginx block on /.well-known and the subdirectory-install case. CORS headers are sent only on the discovery documents, not on the MCP endpoint, and there are no notes on caching or WAFs.",
+      "evidence": [
+        "includes/oauth-auth.php:56",
+        "mcp/mcp.php:21",
+        "includes/oauth-discovery.php:151",
+        "readme.txt:166"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Pass",
+      "value": {
+        "count": 3,
+        "steps": [
+          "Go to Settings → StrifeBridge MCP and copy the Server URL",
+          "Paste it into Claude as a custom connector",
+          "Sign in to WordPress and approve the connection on the consent screen, then ask Claude to use a tool"
+        ]
+      },
+      "summary": "Following the readme and the settings page, it takes three steps from activation to the first tool call through OAuth and Claude's custom connector. That flow needs a site Claude can reach over the internet; a local site needs a bridge setup that is not documented.",
+      "evidence": [
+        "readme.txt:43",
+        "admin/settings.php:236",
+        "admin/oauth-consent.php:171"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "OAuth 2.1 with open dynamic client registration and discovery documents means a site owner pastes one URL into Claude's 'Add custom connector' (or ChatGPT/Gemini) and approves in wp-admin. No terminal or JSON file is needed.",
+      "evidence": [
+        "includes/oauth-endpoints.php:533",
+        "includes/oauth-discovery.php:184",
+        "admin/settings.php:241"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The settings page shows this site's MCP Server URL with a Copy button and a short explanation, plus the legacy connector URL and token, each copyable. It gives no client-specific config snippets or step lists.",
+      "evidence": [
+        "admin/settings.php:236",
+        "admin/settings.php:241",
+        "admin/settings.php:329"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "https://strifetech.com/docs/strifebridge-mcp",
+        "https://github.com/strifero/strifebridge-mcp/issues",
+        "https://github.com/strifero/strifebridge-mcp/discussions",
+        "https://strifetech.com/strifebridge-mcp",
+        "https://strifetech.com/blog"
+      ],
+      "summary": "The readme has setup steps and detailed FAQs (nginx, subdirectory installs, safe mode), and the settings page links to a docs site in its header and Getting Started box. Some readme FAQ text is out of date: it still says every request needs the bearer token.",
+      "evidence": [
+        "readme.txt:94",
+        "admin/settings.php:220",
+        "admin/settings.php:542"
+      ]
+    }
+  },
+  "notes": "- Legacy token: it is created on activation, gives full administrator authority, and skips both the capability gate and the OAuth scope check. It can also be sent inside the URL path. It is stored in plain text and shown again on the settings page every time. The plugin labels it \"legacy\", but it stays on unless the token is regenerated or Emergency Lockdown is used; there is no switch to turn the legacy path off on its own.\n- Mismatched danger labels: on the MCP endpoint, every write tool, delete_post, delete_media and delete_plugin included, is labelled destructiveHint:false (mcp/mcp.php:127). The Abilities map marks the delete tools as destructive (includes/abilities.php:88).\n- Readme and code disagree in several places:\n  - The 3.0.0 changelog promised that non-admin accounts could approve OAuth connections in 3.1. In 3.1.0 the consent screen still requires manage_options (admin/oauth-consent.php:102), so every OAuth connection acts as an administrator.\n  - The FAQ says \"Every request to the plugin requires a bearer token\". That is out of date now that OAuth exists.\n- Inconsistent capability for list_terms: the Abilities map requires manage_categories, while the tool registry requires edit_posts.\n- list_pages ignores per_page on the MCP path; the dispatcher passes an empty request (mcp/mcp.php:311).\n- list_posts shows only published posts unless a status is passed.\n- Default OAuth scope: it is 'mcp:read mcp:write', so a client that asks for no scope cannot use options, users, plugin management or system tools.\n- Open dynamic client registration has no admin switch: it can only be turned off through the sbmcp_oauth_registration_disabled option. It is rate-limited to 5 per hour per IP and capped at 250 clients.\n- Order of REST checks: sbmcp_rest_enforce_guard runs on rest_request_before_callbacks, before any permission check, and refuses add-on routes that are not wrapped in the plugin's guard. This is a deliberate design choice."
+}

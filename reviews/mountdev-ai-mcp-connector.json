@@ -1,0 +1,461 @@
+{
+  "slug": "mountdev-ai-mcp-connector",
+  "version": "2.2.0",
+  "reviewed_at": "2026-10-23T16:11:17+02:00",
+  "duration_s": 177,
+  "cost_usd": 2.256197,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "oauth",
+        "application-password",
+        "bearer-token",
+        "cookie"
+      ],
+      "summary": "The /messages endpoint accepts OAuth 2.1 access tokens (PKCE, user approval on the site), WordPress Application Passwords over Basic auth, and a pre-shared \"MCP Router\" bearer token. Every credential maps to a WordPress user, including the router token, which is bound to a user the admin picks. A logged-in cookie session with a REST nonce also passes, because the check is is_user_logged_in().",
+      "evidence": [
+        "includes/class-rest-controller.php:35",
+        "includes/class-rest-controller.php:105",
+        "includes/class-authenticator.php:108",
+        "includes/class-authenticator.php:145",
+        "includes/class-authenticator.php:269",
+        "includes/admin/class-router-auth-handler.php:41"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "GET and POST to /messages both use a permission callback that returns 401 with a WWW-Authenticate challenge when nobody is logged in, so tools cannot be listed or called without credentials. Only the OAuth discovery documents and a static bridge-script download are public.",
+      "evidence": [
+        "includes/class-rest-controller.php:35",
+        "includes/class-rest-controller.php:42",
+        "includes/class-rest-controller.php:110",
+        "includes/class-rest-controller.php:57"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every built-in tool declares a capability that is checked before it runs. Tools that take an ID also check rights on that object through Object_Authorization: read_post, edit_post and delete_post, publish rights for status changes, and per-comment and per-attachment checks. Abilities from other plugins go through WP_Ability::execute(), which runs the ability's own permission_callback.",
+      "evidence": [
+        "includes/class-tool-registry.php:207",
+        "includes/tools/class-post-tools.php:535",
+        "includes/tools/class-post-tools.php:594",
+        "includes/tools/class-post-tools.php:765",
+        "includes/tools/class-post-tools.php:809",
+        "includes/class-abilities.php:339"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Fail",
+      "value": {
+        "oauth_client_secret": "AES-256-CBC encrypted, shown once",
+        "oauth_access_and_refresh_tokens": "plain text, used as option array keys",
+        "router_token": "plain text, shown on every visit to the MCP Router tab"
+      },
+      "summary": "The admin-issued OAuth client secret is encrypted and shown only once. The MCP Router bearer token, however, is stored in plain text and printed in full on the MCP Router tab every time it is opened. OAuth access and refresh tokens are also stored in plain text in wp_options.",
+      "evidence": [
+        "includes/admin/class-oauth-credentials-handler.php:83",
+        "includes/admin/class-router-auth-handler.php:49",
+        "includes/admin/views/router-auth-content.php:132",
+        "includes/class-oauth-controller.php:1245",
+        "includes/class-oauth-controller.php:1264"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": {
+        "endpoint_on_at_activation": true,
+        "default_profile": "read_only",
+        "abilities_default": "off",
+        "patch_tools_default": "off"
+      },
+      "summary": "The MCP endpoint goes live as soon as the plugin is activated, with no on/off switch, but it needs authentication. Out of the box the active profile is the read-only one, every third-party ability is off, and the precise-edit (patch) tools are off.",
+      "evidence": [
+        "includes/class-profile-manager.php:290",
+        "includes/class-profile-manager.php:337",
+        "includes/class-profile-manager.php:385",
+        "includes/tools/class-patch-tools.php:127"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The built-in \"WordPress Read Only\" profile (the default) allows only list/get/search tools. Profiles apply site-wide, so it covers every connection type: OAuth, application passwords and the router token. An admin can still switch on write abilities inside that profile.",
+      "evidence": [
+        "includes/class-profile-manager.php:45",
+        "includes/class-profile-manager.php:313",
+        "includes/class-tool-registry.php:203"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Pass",
+      "value": {
+        "granularity": "per tool via custom profiles; abilities toggled one by one per profile",
+        "scope": "one active profile for the whole site"
+      },
+      "summary": "Admins can build custom profiles that pick tools one by one and switch each ability on or off per profile. The limit applies to every connection type. There is only one active profile for the whole site, though, so you cannot give different connections or roles different tool sets.",
+      "evidence": [
+        "includes/class-profile-manager.php:513",
+        "includes/class-profile-manager.php:406",
+        "includes/class-tool-registry.php:113",
+        "includes/class-tool-registry.php:268"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "Ability annotations (readOnlyHint/destructiveHint) passed through for abilities only; patch tools default to dry_run=true and require expected_count/content_hash for writes, plus force:true to undo over later edits; no annotations or confirmation on built-in delete tools"
+      },
+      "summary": "Only the precise-edit tools have a plugin-side confirmation: they preview by default and refuse a write unless the expected version and match counts are given. Abilities carry their destructive/read-only hints through to the client. The built-in delete_post, delete_media, delete_option and similar tools have no annotations and no confirm step.",
+      "evidence": [
+        "includes/class-abilities.php:174",
+        "includes/class-abilities.php:307",
+        "includes/tools/class-patch-tools.php:189",
+        "includes/tools/class-patch-tools.php:478",
+        "includes/class-tool-registry.php:330"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "delete_post/delete_page, delete_media and delete_comment move items to the trash unless force_delete is true. Menu items are always deleted permanently, as WordPress does.",
+      "evidence": [
+        "includes/tools/class-post-tools.php:225",
+        "includes/tools/class-post-tools.php:815",
+        "includes/tools/class-media-tools.php:487",
+        "includes/tools/class-comment-tools.php:369",
+        "includes/tools/class-menu-tools.php:566"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Partial",
+      "value": {
+        "logged": "precise-edit (patch) writes and rollbacks only, with user, post, before/after, time",
+        "viewer": "Changes tab in wp-admin"
+      },
+      "summary": "Only changes made with the precise-edit tools are recorded, in a database table shown on the Changes tab with who, what and when, and with undo. Ordinary tool calls such as create_post, delete_post or update_option are not logged anywhere.",
+      "evidence": [
+        "includes/tools/class-patch-tools.php:78",
+        "includes/tools/class-patch-tools.php:931",
+        "includes/admin/views/settings.php:77",
+        "includes/class-tool-registry.php:230"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 89,
+        "names": [
+          "list_posts",
+          "get_post",
+          "create_post",
+          "duplicate_post",
+          "update_post",
+          "delete_post",
+          "search_posts",
+          "get_posts",
+          "create_page",
+          "update_page",
+          "delete_page",
+          "get_pages",
+          "get_post_types",
+          "get_post_revisions",
+          "restore_post_revision",
+          "get_post_meta",
+          "update_post_meta",
+          "delete_post_meta",
+          "upload_media",
+          "list_media",
+          "get_media",
+          "update_media",
+          "delete_media",
+          "get_media_item",
+          "update_media_item",
+          "delete_media_item",
+          "upload_image",
+          "upload_image_from_url",
+          "list_terms",
+          "get_term",
+          "create_term",
+          "update_term",
+          "delete_term",
+          "assign_terms",
+          "create_category",
+          "update_category",
+          "delete_category",
+          "get_categories",
+          "create_tag",
+          "update_tag",
+          "delete_tag",
+          "get_tags",
+          "get_taxonomies",
+          "list_comments",
+          "get_comment",
+          "create_comment",
+          "update_comment",
+          "delete_comment",
+          "moderate_comment",
+          "get_comments",
+          "list_users",
+          "get_user",
+          "get_current_user",
+          "list_roles",
+          "check_capability",
+          "get_users",
+          "get_user_meta",
+          "update_user_meta",
+          "delete_user_meta",
+          "get_option",
+          "update_option",
+          "delete_option",
+          "get_site_info",
+          "get_site_health",
+          "get_settings",
+          "update_settings",
+          "get_menus",
+          "get_menu",
+          "create_nav_menu",
+          "get_nav_menus",
+          "update_nav_menu",
+          "delete_nav_menu",
+          "add_menu_item",
+          "update_menu_item",
+          "delete_menu_item",
+          "get_menu_locations",
+          "set_menu_location",
+          "list_plugins",
+          "get_themes",
+          "ping",
+          "fetch",
+          "search",
+          "content_get_raw",
+          "content_find",
+          "content_replace",
+          "content_replace_bulk",
+          "content_rollback",
+          "post_meta_patch",
+          "cache_purge"
+        ],
+        "plus": "every WordPress Ability registered by other plugins (WP 6.9+), each exposed as its own tool once switched on"
+      },
+      "summary": "89 built-in tools under the Full Access profile (7 of them are precise-edit tools that appear only after an admin enables them), plus one tool per WordPress Ability that other plugins register.",
+      "evidence": [
+        "includes/class-tool-registry.php:31",
+        "includes/tools/class-post-tools.php:47",
+        "includes/tools/class-patch-tools.php:146",
+        "includes/class-abilities.php:102"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "comments",
+        "plugins",
+        "themes",
+        "settings"
+      ],
+      "summary": "The tools cover posts, pages, media, categories/tags/terms, comments, users and user meta, a whitelist of site options, and navigation menus. Plugins and themes can only be listed. There are no block-specific tools, and WooCommerce works only through abilities WooCommerce registers itself.",
+      "evidence": [
+        "includes/tools/class-plugin-tools.php:19",
+        "includes/tools/class-theme-tools.php:19",
+        "includes/tools/class-site-tools.php:16",
+        "includes/tools/class-menu-tools.php:19"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "list_posts (per_page=5, orderby=date)"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "upload_media/upload_image_from_url + create_post; content stored as sent (raw HTML or block markup), no Markdown conversion"
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "update_post (full content resend) or content_replace when patch tools are enabled"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "upload_image_from_url (in Full Access only among built-in profiles)"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "list_plugins (version, is_active)"
+        },
+        "T6": {
+          "status": "Pass",
+          "tool": "update_option option_name=blogdescription (whitelisted)"
+        },
+        "T7": {
+          "status": "Partial",
+          "tool": "delete_post: trash by default, force_delete for permanent; no confirmation, not logged"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "capability + per-object checks (edit_posts/publish_posts/delete_post) block a subscriber"
+        }
+      },
+      "summary": "Every standard task can be done with the built-in tools. Deleting a post is only partial, because there is no confirmation and no log entry.",
+      "evidence": [
+        "includes/tools/class-post-tools.php:509",
+        "includes/tools/class-post-tools.php:573",
+        "includes/tools/class-post-tools.php:741",
+        "includes/tools/class-media-tools.php:499",
+        "includes/tools/class-plugin-tools.php:37",
+        "includes/tools/class-site-tools.php:179",
+        "includes/tools/class-post-tools.php:792"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": {
+        "registers_own": false,
+        "exposes_others": true
+      },
+      "summary": "On WordPress 6.9+ it reads every registered ability with wp_get_abilities() and offers each one as an MCP tool, off by default and switched on per profile. It runs them through WP_Ability::execute() and passes their annotations along. Its own tools are not registered as abilities, and it does not use the MCP Adapter.",
+      "evidence": [
+        "includes/class-abilities.php:58",
+        "includes/class-abilities.php:102",
+        "includes/class-abilities.php:339"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Partial",
+      "value": {
+        "transports": [
+          "HTTP POST JSON-RPC (single JSON response, no SSE, no Mcp-Session-Id)"
+        ],
+        "protocol_version": "echoes whatever the client sends; defaults to 2024-11-05",
+        "runs_in_wordpress": true
+      },
+      "summary": "A hand-written JSON-RPC handler on a WordPress REST route answers initialize, tools/list, tools/call, prompts/list and resources/list with plain JSON. It echoes back the client's protocolVersion without checking it. It has no ping method, no batch support, and replies to notifications such as notifications/initialized with a JSON-RPC error instead of 202.",
+      "evidence": [
+        "includes/class-rest-controller.php:141",
+        "includes/class-jsonrpc-handler.php:70",
+        "includes/class-jsonrpc-handler.php:96",
+        "includes/class-jsonrpc-handler.php:86"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [],
+      "summary": "There is no Pro version or account requirement. Everything is in the free plugin. The admin pages only link to the vendor's paid services.",
+      "evidence": [
+        "includes/admin/class-mdui.php:164"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": {
+        "method": "bundled Node bridge (bridge/wordpress-mcp-bridge.js) or npx wordpress-mcp-bridge, with username + Application Password; bridge supports http and https"
+      },
+      "summary": "For a local http:// site, the Client Setup tab generates a Claude Desktop config that runs the bundled Node bridge with an Application Password, and the bridge speaks plain HTTP. The connector-URL/OAuth route does not work for localhost, because Claude's connectors call the site from Anthropic's servers.",
+      "evidence": [
+        "assets/js/client-setup.js:23",
+        "bridge/wordpress-mcp-bridge.js:51",
+        "includes/admin/views/client-setup-content.php:35"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": {
+        "auth_header_fallbacks": [
+          "HTTP_AUTHORIZATION",
+          "REDIRECT_HTTP_AUTHORIZATION",
+          "apache_request_headers()"
+        ],
+        "well_known_fallback": "/.well-known handled before routing, plus /authorize, /mcp-token and REST-path fallbacks",
+        "cors": "Access-Control-Allow-Origin * on OAuth endpoints",
+        "waf_cdn": "Test Connection outside check names CDN/firewall/security-plugin blocks"
+      },
+      "summary": "It reads the Authorization header from several server variables, serves OAuth discovery and authorize/token at several fallback paths for hosts that block /.well-known, and sends CORS headers on the OAuth endpoints. A built-in outside check tests the site the way AI clients reach it and reports CDN, WAF or security-plugin blocks.",
+      "evidence": [
+        "includes/class-authenticator.php:179",
+        "includes/class-oauth-controller.php:58",
+        "includes/class-oauth-controller.php:125",
+        "includes/class-oauth-controller.php:435",
+        "includes/admin/class-outside-check-handler.php:1"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 4,
+        "steps": [
+          "Open Settings → MCP Connector and copy the MCP server address",
+          "In Claude Desktop, Customize → Connectors → Add custom connector and paste the address",
+          "Sign in to WordPress in the window that opens and approve the client",
+          "Pick a profile under Access (default is read-only)"
+        ]
+      },
+      "summary": "The readme flow (client metadata, no credentials) is about 4 steps. The in-admin OAuth tab still tells users to generate a Client ID/Secret first and paste them in Advanced settings, which takes about 7 steps.",
+      "evidence": [
+        "readme.txt:84",
+        "includes/admin/views/oauth-credentials-content.php:164",
+        "includes/admin/views/quick-start-content.php:25"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": {
+        "method": "OAuth with Client ID Metadata Documents (no DCR; DCR removed in 1.6.3); connector URL pasted into Claude/ChatGPT"
+      },
+      "summary": "Claude and ChatGPT can connect by pasting the connector URL and approving on the site. The OAuth server accepts client-ID metadata documents, so nothing has to be pre-registered. Dynamic client registration was removed for security. Editors like Cursor still need a JSON config.",
+      "evidence": [
+        "includes/class-oauth-controller.php:416",
+        "includes/class-oauth-controller.php:961",
+        "includes/class-oauth-controller.php:889",
+        "includes/class-client-metadata.php:1"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": {
+        "tabs": [
+          "Quick Start",
+          "Client Setup (generates per-client JSON config)",
+          "OAuth (copyable server URL + step lists for ChatGPT and Claude Desktop)",
+          "Endpoints (endpoint URL + Test Connection)",
+          "FAQ"
+        ]
+      },
+      "summary": "The settings page shows this site's MCP URL with Copy buttons, step-by-step guides for ChatGPT and Claude Desktop, and a generator for client config files. The in-admin steps are outdated: they say credentials must be generated first, which the readme says is no longer needed.",
+      "evidence": [
+        "includes/admin/views/oauth-credentials-content.php:187",
+        "includes/admin/views/endpoints-content.php:16",
+        "assets/js/client-setup.js:9",
+        "includes/admin/views/oauth-credentials-content.php:24"
+      ]
+    },
+    "DOCS": {
+      "status": "Partial",
+      "value": [
+        "readme.txt Installation section",
+        "In-admin Quick Start / OAuth / Client Setup / FAQ tabs",
+        "bridge/README.md",
+        "https://cascadiaweb.services/products/mountdev/easy-mcp-connector (plugin URI)"
+      ],
+      "summary": "Setup is covered in the readme and in several in-admin tabs, but there is no linked docs site. The readme and admin screens disagree: the readme says Claude/ChatGPT need no credentials, while the OAuth tab and Quick Start say to generate them first, and the FAQ says Claude Desktop uses application passwords.",
+      "evidence": [
+        "readme.txt:76",
+        "includes/admin/views/quick-start-content.php:25",
+        "includes/admin/views/faq-content.php:53",
+        "mountdev-ai-mcp-connector.php:4"
+      ]
+    }
+  },
+  "notes": "- The MCP Router bearer token is a site-wide shared secret that acts as a user the admin picks. It is checked before OAuth on every Bearer request, stored in plain text and redisplayed in wp-admin (includes/admin/class-router-auth-handler.php:49, views/router-auth-content.php:132).\n- OAuth access and refresh tokens are kept in plain text as keys of autoloaded wp_options arrays (class-oauth-controller.php:1245), and a write to the option happens on every token issue or expiry.\n- The 'Automatic (Recommended)' option in Client Setup creates a config that runs `npx wordpress-mcp-bridge` from the public npm registry (assets/js/client-setup.js:24). From the code I can't tell whether that npm package belongs to this vendor, which is a possible supply-chain risk. The generated config also puts the Application Password in plain text in the command args.\n- The readme says ChatGPT/Claude need no client ID, but Quick Start and the OAuth tab say credentials must be generated first, and the FAQ says Claude Desktop uses Basic Auth/Application Passwords. The admin text is out of date.\n- Changelog history: a critical unauthenticated OAuth bypass (CVE-2026-15015) was fixed in 1.6.4, and broken object-level access control in 1.6.6. maybe_upgrade revokes old tokens.\n- Built-in tools send no MCP annotations, though the admin UI labels tools Read/Write/Destructive by name prefix (Tool_Registry::get_access).\n- A legacy 'ChatGPT Apps SDK' protocol branch (type=initialize/action) on the same endpoint runs tools outside JSON-RPC. It is behind the same auth and profile checks.\n- upload_image_from_url uses download_url(), which goes through wp_safe_remote_get, so internal addresses are blocked."
+}

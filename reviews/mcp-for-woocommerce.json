@@ -1,0 +1,332 @@
+{
+  "slug": "mcp-for-woocommerce",
+  "version": "1.3.0",
+  "reviewed_at": "2026-10-23T14:52:58+02:00",
+  "duration_s": 82,
+  "cost_usd": 1.35941,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Fail",
+      "value": [
+        "none"
+      ],
+      "summary": "Both MCP routes (/wp/v2/wpmcp/streamable and /wp/v2/wpmcp) use __return_true as the permission callback, and so does every tool. No credential is accepted or needed. Version 1.3.0 removed the earlier JWT/OAuth support on purpose and made the plugin a public, read-only storefront server.",
+      "evidence": [
+        "includes/Core/McpStreamableTransport.php:58",
+        "includes/Core/McpStreamableTransport.php:61",
+        "includes/Core/McpStdioTransport.php:49",
+        "includes/Tools/McpWooProducts.php:46",
+        "readme.txt:37"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Partial",
+      "value": {
+        "public_by_design": true
+      },
+      "summary": "Once MCP is enabled, anyone can list and call every tool without credentials. This is deliberate and documented in code comments and the admin note. All tools are read-only and limited to public storefront data: published, non-password posts, pages and products, approved reviews, and enabled shipping and payment methods.",
+      "evidence": [
+        "includes/Core/McpStreamableTransport.php:58",
+        "includes/Admin/Settings.php:134",
+        "includes/Core/WpMcp.php:228",
+        "includes/Tools/McpWordPressPosts.php:113",
+        "includes/Tools/McpWordPressPosts.php:180"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Fail",
+      "value": null,
+      "summary": "No tool checks a capability: every permission_callback is __return_true and callers are never signed in. The only safeguard is that each query is limited to public data (publish status, no password, StorefrontVisibility checks). The one current_user_can check is on the admin-only tools/list/all method.",
+      "evidence": [
+        "includes/Utils/HandleToolsCall.php:45",
+        "includes/Tools/McpWordPressPosts.php:34",
+        "includes/RequestMethodHandlers/ToolsHandler.php:70"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "N/A",
+      "value": null,
+      "summary": "Version 1.3.0 issues no keys or tokens. On upgrade it deletes the old JWT secret, token registry and OAuth client options.",
+      "evidence": [
+        "mcp-for-woocommerce.php:115"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Pass",
+      "value": null,
+      "summary": "MCP is off by default: the 'enabled' setting is missing until an admin saves it, and no routes or tools are registered while it is off. Once it is on, the endpoint is public with no credentials.",
+      "evidence": [
+        "includes/Core/WpMcp.php:164",
+        "includes/Core/McpStreamableTransport.php:47",
+        "includes/Admin/Settings.php:171"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The plugin is read-only by design. register_tool() throws an exception for any tool whose type is not 'read', so no write tools exist for any connection.",
+      "evidence": [
+        "includes/Core/WpMcp.php:227",
+        "includes/Core/WpMcp.php:229",
+        "includes/Core/RegisterMcpTool.php:83"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The admin can switch individual tools off for everyone on the Tools tab. There is no per-connection or per-role scoping, because there are no connections or users.",
+      "evidence": [
+        "includes/Core/WpMcp.php:237",
+        "includes/Admin/Settings.php:252"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "N/A",
+      "value": {
+        "mechanism": "none needed: no destructive tools; tools carry readOnlyHint: true"
+      },
+      "summary": "There are no destructive tools, so no confirmation is needed. Tools are annotated readOnlyHint: true.",
+      "evidence": [
+        "includes/Tools/McpWooProducts.php:49",
+        "includes/Core/WpMcp.php:228"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "N/A",
+      "value": null,
+      "summary": "There are no delete tools.",
+      "evidence": [
+        "includes/Core/WpMcp.php:228"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Fail",
+      "value": null,
+      "summary": "Tool calls are not recorded. Only errors go to error_log, and only when WP_DEBUG is on. There is no caller identity to record because requests are anonymous.",
+      "evidence": [
+        "includes/Core/McpErrorHandler.php:224",
+        "includes/Utils/HandleToolsCall.php:63"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 31,
+        "names": [
+          "wc_products_search",
+          "wc_get_product",
+          "wc_get_product_variations",
+          "wc_get_product_variation",
+          "wc_get_categories",
+          "wc_get_tags",
+          "wc_analyze_search_intent",
+          "wc_intelligent_search",
+          "wc_analyze_search_intent_helper",
+          "wc_get_products_by_brand",
+          "wc_get_products_by_category",
+          "wc_get_products_by_attributes",
+          "wc_get_products_filtered",
+          "wc_get_product_detailed",
+          "wc_get_product_reviews",
+          "wc_get_product_review",
+          "wc_get_product_attributes",
+          "wc_get_product_attribute",
+          "wc_get_attribute_terms",
+          "wc_get_shipping_zones",
+          "wc_get_shipping_zone",
+          "wc_get_shipping_methods",
+          "wc_get_shipping_locations",
+          "wc_get_tax_classes",
+          "wc_get_tax_rates",
+          "wc_get_payment_gateways",
+          "wc_get_payment_gateway",
+          "wordpress_posts_list",
+          "wordpress_posts_get",
+          "wordpress_pages_list",
+          "wordpress_pages_get"
+        ]
+      },
+      "summary": "There are 31 read-only tools: WooCommerce catalogue, reviews, shipping, tax and payment-method lookups, plus published posts and pages. There is also one resource, a product search guide.",
+      "evidence": [
+        "includes/Core/WpMcp.php:178",
+        "includes/Tools/McpWooProducts.php:42",
+        "includes/Tools/McpWooIntelligentSearch.php:32",
+        "includes/Tools/McpWooShipping.php:28",
+        "includes/Tools/McpWordPressPosts.php:30",
+        "includes/Tools/McpWordPressPages.php:30"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "taxonomies",
+        "comments",
+        "woocommerce"
+      ],
+      "summary": "The tools cover published posts and pages, product categories, tags and attributes, approved product reviews (which WordPress stores as comments) and WooCommerce storefront data. All access is read-only.",
+      "evidence": [
+        "includes/Tools/McpWordPressPosts.php:30",
+        "includes/Tools/McpWordPressPages.php:30",
+        "includes/Tools/McpWooCategories.php:30",
+        "includes/Tools/McpWooReviews.php:29"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Partial",
+          "tool": "wordpress_posts_list",
+          "note": "published posts only; drafts and private posts cannot be listed"
+        },
+        "T2": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T3": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T4": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T5": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T6": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T7": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": null,
+          "note": "no credential of any role can publish or delete through this plugin; nothing can be written at all"
+        }
+      },
+      "summary": "Only reading published posts is possible. There are no tools to create, edit, upload, change settings, list plugins or delete. T8 passes trivially because nothing can be written.",
+      "evidence": [
+        "includes/Tools/McpWordPressPosts.php:107",
+        "includes/Tools/McpWordPressPosts.php:113",
+        "includes/Core/WpMcp.php:228"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Fail",
+      "value": null,
+      "summary": "The plugin uses its own MCP implementation, forked from the older Automattic wordpress-mcp. It neither registers WordPress abilities nor exposes them, and it does not use the MCP Adapter.",
+      "evidence": [
+        "includes/Core/WpMcp.php:227",
+        "includes/Core/McpTransportBase.php:108"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Partial",
+      "value": {
+        "transports": [
+          "streamable-http (JSON responses, no SSE stream)",
+          "custom REST JSON endpoint /wp/v2/wpmcp for mcp-wordpress-remote"
+        ],
+        "protocol_version": "2025-06-18 in headers; initialize echoes whatever version the client sends (default 2024-11-05)",
+        "runs_in_wordpress": true
+      },
+      "summary": "Streamable HTTP runs inside WordPress at /wp-json/wp/v2/wpmcp/streamable. The response headers advertise 2025-06-18, but initialize echoes back whatever protocol version the client sends without negotiating, and it advertises capabilities it doesn't implement (resource subscribe, roots, completion).",
+      "evidence": [
+        "includes/Core/McpStreamableTransport.php:52",
+        "includes/Core/McpStreamableTransport.php:178",
+        "includes/RequestMethodHandlers/InitializeHandler.php:95",
+        "includes/RequestMethodHandlers/InitializeHandler.php:58"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [],
+      "summary": "There is no Pro version or account requirement: everything is in the free plugin. The readme suggests pairing it with Webtalkbot, but that is optional.",
+      "evidence": [
+        "mcp-for-woocommerce.php:4",
+        "readme.txt:81"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": null,
+      "summary": "No credential or HTTPS is required, so Claude Desktop can reach http://localhost through the documented mcp-remote bridge (local http may need mcp-remote's --allow-http flag). Claude Code can connect directly over HTTP.",
+      "evidence": [
+        "documentation/client-setup.md:39",
+        "documentation/client-setup.md:46",
+        "includes/Core/McpStreamableTransport.php:61"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Public hosts are easy because there is no auth, so a stripped Authorization header doesn't matter. CORS is fully open (Access-Control-Allow-Origin: *) and responses send Cache-Control: no-cache. There is no handling for WAFs or security plugins that block /wp-json, only a troubleshooting note.",
+      "evidence": [
+        "includes/Core/McpStreamableTransport.php:461",
+        "includes/Core/McpStreamableTransport.php:177",
+        "documentation/client-setup.md:106"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 4,
+        "steps": [
+          "Activate the plugin (WooCommerce must be active)",
+          "Settings → MCP for WooCommerce: switch on Enable MCP functionality and save",
+          "Copy the Claude Desktop config from the Documentation tab into claude_desktop_config.json",
+          "Restart Claude Desktop and call a tool"
+        ]
+      },
+      "summary": "There are about four steps, one of which is editing claude_desktop_config.json. The readme also recommends setting permalinks to Post name so product links work.",
+      "evidence": [
+        "readme.txt:57",
+        "documentation/client-setup.md:39",
+        "includes/Admin/Settings.php:124"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Partial",
+      "value": null,
+      "summary": "No OAuth is needed because the endpoint is open, so in principle the URL can be pasted into Claude's 'Add custom connector' or into clients that take a URL (Cursor, VS Code). That route is not documented. For Claude Desktop the plugin's instructions require editing the JSON config.",
+      "evidence": [
+        "documentation/client-setup.md:39",
+        "documentation/client-setup.md:52"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The settings page shows the site's MCP endpoint. Its Documentation tab renders client-setup.md with the site's own origin filled in, and copy-to-clipboard buttons are provided for the config snippets.",
+      "evidence": [
+        "includes/Admin/Settings.php:114",
+        "build/index.js \"documentation/client-setup.md\" … replace(/\\{\\{your-website\\.com\\}\\}/g,n)",
+        "build/index.js \"Configuration copied to clipboard!\""
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "readme.txt Installation section",
+        "documentation/client-setup.md (shown in the wp-admin Documentation tab)",
+        "https://github.com/iOSDevSK/mcp-for-woocommerce",
+        "https://github.com/iOSDevSK/mcp-for-woocommerce/issues"
+      ],
+      "summary": "The readme documents the setup. Client configs for Claude Code, Claude Desktop, Cursor, VS Code and MCP Inspector are in a docs file shown in wp-admin, with links to GitHub.",
+      "evidence": [
+        "readme.txt:55",
+        "documentation/client-setup.md:27",
+        "documentation/client-setup.md:113"
+      ]
+    }
+  },
+  "notes": "Version 1.3.0 removed all authentication (JWT/OAuth). The endpoint is now a deliberately public, read-only storefront server. The design is consistent: register_tool() rejects any tool that isn't type 'read', and post and page queries are limited to published, non-password content. Other findings: (1) The second route POST /wp/v2/wpmcp (the 'STDIO' transport) is also public. Its error responses append '[DEBUG: …]' with the raw request or error JSON (McpStdioTransport.php:67, :143), which is a minor information leak. (2) initialize echoes back whatever protocolVersion the client sends, advertises capabilities that aren't implemented (resources subscribe, roots, completion, logging), and puts a non-standard 'tools' array in the initialize result as a 'Claude.ai workaround' (InitializeHandler.php:81-110). (3) Several tool annotations carry non-standard keys aimed at the model ('productLinksRequired', 'primarySearchTool', 'fallbackTool'). The plugin's own ToolValidator would reject these keys, but that validator runs only from the WP-CLI command. (4) Settings::is_rest_api_enabled() makes a blocking wp_remote_get loopback on every load of the settings page. (5) CORS is a wildcard on the MCP route. (6) A subscriber, or anyone else, can read only what the storefront already shows. Wider exposure would depend on bugs in the StorefrontVisibility filters, which this review did not test exhaustively. (7) The readme's claim that the endpoint 'never signs in as a WordPress user' holds in the code, but the endpoint does run as whatever session cookie the browser sends. Tools don't branch on the current user, so this has no effect."
+}

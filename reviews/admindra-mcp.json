@@ -1,0 +1,339 @@
+{
+  "slug": "admindra-mcp",
+  "version": "1.1.2",
+  "reviewed_at": "2026-10-23T14:52:58+02:00",
+  "duration_s": 136,
+  "cost_usd": 1.5594352000000002,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "oauth"
+      ],
+      "summary": "The MCP endpoint accepts only an OAuth 2.1 JWT bearer token. Each token is tied to a WordPress user and to an Application Password created at consent time. Tokens are checked for signature, scope, audience and issuer, and are refused once the Application Password is revoked. Only an administrator can complete the consent screen.",
+      "evidence": [
+        "vendor/wp-media/mcp-oauth/inc/Transport/OAuthHttpTransport.php:139",
+        "vendor/wp-media/mcp-oauth/inc/Transport/OAuthHttpTransport.php:159",
+        "vendor/wp-media/mcp-oauth/inc/Transport/OAuthHttpTransport.php:217",
+        "vendor/wp-media/mcp-oauth/inc/Auth/TokenEndpoint.php:185",
+        "includes/class-admindra-mcp-connect.php:112"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "The REST permission callback always returns true, but handle_request checks the bearer token before any MCP handling. A request without one gets a 401 with a WWW-Authenticate challenge, so it can neither list nor call tools. Only the OAuth discovery documents are public.",
+      "evidence": [
+        "vendor/wp-media/mcp-oauth/inc/Transport/OAuthHttpTransport.php:78",
+        "vendor/wp-media/mcp-oauth/inc/Transport/OAuthHttpTransport.php:93",
+        "vendor/wp-media/mcp-oauth/inc/Transport/OAuthHttpTransport.php:139"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every ability's permission_callback requires a logged-in user with manage_options. The content tools also check per post: read-post checks read_post and update-post checks edit_post for that post ID. The title/tagline tool relies on manage_options, which is the right capability for Settings → General.",
+      "evidence": [
+        "includes/class-admindra-mcp.php:313",
+        "includes/class-admindra-mcp.php:358",
+        "includes/class-admindra-mcp-content.php:160",
+        "includes/class-admindra-mcp-content.php:184",
+        "includes/class-admindra-mcp-content.php:60"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": "Tokens are stateless JWTs and are never stored. Each session's Application Password is hashed by WordPress core, and the raw password is thrown away. The JWT signing secret is kept in plain text in the mcp_jwt_secret option but is never shown or logged.",
+      "summary": "The plugin stores no access or refresh tokens. Sessions are anchored to core Application Passwords (hashed, raw value discarded). The only stored secret is the server-side JWT signing key, a plain-text option that is never displayed. The debug logger redacts tokens and codes.",
+      "evidence": [
+        "vendor/wp-media/mcp-oauth/inc/Auth/TokenEndpoint.php:184",
+        "vendor/wp-media/mcp-oauth/inc/Auth/TokenEndpoint.php:207",
+        "vendor/wp-media/mcp-oauth/inc/Auth/SecretManager.php:33",
+        "vendor/wp-media/mcp-oauth/inc/Logging/McpLogger.php:171"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": {
+        "mcp_on_by_default": true,
+        "content_edits_default": false
+      },
+      "summary": "The OAuth MCP server turns on as soon as the plugin and MCP Adapter are both active (the wpmedia_mcp_oauth_server_enabled filter defaults to true), and there is no off switch in wp-admin. It always requires an authenticated admin. The broad option, content edits, is off by default.",
+      "evidence": [
+        "vendor/wp-media/mcp-oauth/inc/Context.php:16",
+        "vendor/wp-media/mcp-oauth/inc/Transport/ServerRegistrar.php:45",
+        "includes/class-admindra-mcp-content.php:38"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Pass",
+      "value": "The 'Content edits' switch is off by default, which makes the plugin read-only. OAuth is the only connection type, so the switch covers every connection.",
+      "summary": "With content edits off, update-post and update-site-identity refuse to run, and each write tool re-checks the switch itself. Caveat: the switch only covers AdMindra's own abilities. Write abilities that other plugins mark public would still be reachable through the adapter's execute-ability meta-tool.",
+      "evidence": [
+        "includes/class-admindra-mcp-content.php:21",
+        "includes/class-admindra-mcp-content.php:177",
+        "includes/class-admindra-mcp-content.php:235",
+        "includes/class-admindra-mcp.php:216"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Partial",
+      "value": "The only control is one on/off switch for content edits. There is no per-tool or per-role selection, and only administrators can connect.",
+      "summary": "A site owner can only switch between read-only and read plus content edits. Individual tools can't be enabled or disabled, and connections can't be scoped by role (only admins can connect anyway).",
+      "evidence": [
+        "includes/class-admindra-mcp.php:216",
+        "includes/class-admindra-mcp-content.php:45",
+        "includes/class-admindra-mcp-connect.php:112"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "Annotations only: readonly is true for read tools and false for the two write tools; destructive is false and idempotent true for every tool. update-post also needs expected_modified_gmt (an optimistic-lock check) and saves a revision first."
+      },
+      "summary": "There is no confirmation step on the plugin side. No tool deletes or publishes. Edits must quote the version of the post they read and are saved as revisions, which limits the damage but is not a confirmation.",
+      "evidence": [
+        "includes/class-admindra-mcp.php:363",
+        "includes/class-admindra-mcp-content.php:189",
+        "includes/class-admindra-mcp-content.php:208"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "N/A",
+      "value": null,
+      "summary": "There are no delete tools. The plugin explicitly never deletes, publishes or unpublishes posts.",
+      "evidence": [
+        "includes/class-admindra-mcp-content.php:3",
+        "includes/class-admindra-mcp.php:221"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Partial",
+      "value": "Tool calls are not logged in wp-admin. With WP_DEBUG and WP_DEBUG_LOG both on, the bundled McpLogger writes the redacted request body (the JSON-RPC tool call) and the authenticated user ID to debug.log. The adapter's observability handler is the null handler by default. Post edits leave revisions.",
+      "summary": "There is no audit log in wp-admin. Who called what can only be traced through debug.log when debugging is on, or through post revisions for content edits. The readme says 1.0.0 had an audit log; it was removed in 1.1.0.",
+      "evidence": [
+        "vendor/wp-media/mcp-oauth/inc/Logging/McpLogger.php:38",
+        "vendor/wp-media/mcp-oauth/inc/Transport/OAuthHttpTransport.php:128",
+        "vendor/wp-media/mcp-oauth/inc/Context.php:42"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 10,
+        "meta_tools": [
+          "mcp-adapter/discover-abilities",
+          "mcp-adapter/get-ability-info",
+          "mcp-adapter/execute-ability"
+        ],
+        "names": [
+          "admindra-mcp/status",
+          "admindra-mcp/plugins",
+          "admindra-mcp/themes",
+          "admindra-mcp/pages",
+          "admindra-mcp/updates",
+          "admindra-mcp/find-posts",
+          "admindra-mcp/read-post",
+          "admindra-mcp/update-post",
+          "admindra-mcp/update-site-identity",
+          "admindra-mcp/read-file"
+        ]
+      },
+      "summary": "The server exposes MCP Adapter's three meta-tools. Behind them are 10 AdMindra abilities: site status, plugin and theme inventory, a shortcode/registration-page audit, cached update info, find/read/edit posts, edit title/tagline, and read a plugin or theme source file. Other plugins' public abilities would also be discoverable.",
+      "evidence": [
+        "vendor/wp-media/mcp-oauth/inc/Transport/Server.php:52",
+        "includes/class-admindra-mcp.php:404",
+        "includes/class-admindra-mcp.php:416",
+        "includes/class-admindra-mcp.php:460"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "plugins",
+        "themes",
+        "settings"
+      ],
+      "summary": "Posts and pages can be read and edited (title, content, excerpt only). Plugins and themes can only be read (inventory, updates, source files). Settings are limited to the site title and tagline. Media, users, comments, taxonomies, blocks and WooCommerce are not covered.",
+      "evidence": [
+        "includes/class-admindra-mcp-content.php:125",
+        "includes/class-admindra-mcp.php:487",
+        "includes/class-admindra-mcp.php:506",
+        "includes/class-admindra-mcp-content.php:234"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Partial",
+          "tool": "admindra-mcp/find-posts",
+          "note": "limit=5 returns title and status, but sorted by last modified rather than publish date, across all public post types unless type=post"
+        },
+        "T2": {
+          "status": "Fail",
+          "tool": null,
+          "note": "no create-post or media tool"
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "admindra-mcp/read-post + admindra-mcp/update-post",
+          "note": "read raw content, then write the full new content with expected_modified_gmt; needs content edits switched on"
+        },
+        "T4": {
+          "status": "Fail",
+          "tool": null,
+          "note": "no media tools"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "admindra-mcp/plugins",
+          "note": "file, name, version, active"
+        },
+        "T6": {
+          "status": "Pass",
+          "tool": "admindra-mcp/update-site-identity",
+          "note": "tagline parameter; needs content edits switched on"
+        },
+        "T7": {
+          "status": "Fail",
+          "tool": null,
+          "note": "no delete tool"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": null,
+          "note": "non-admins are refused at consent and every ability requires manage_options; no publish or delete tools exist"
+        }
+      },
+      "summary": "Inspection tasks and simple text edits work. Creating posts, media uploads and deletion are not possible.",
+      "evidence": [
+        "includes/class-admindra-mcp-content.php:128",
+        "includes/class-admindra-mcp-content.php:176",
+        "includes/class-admindra-mcp.php:487",
+        "includes/class-admindra-mcp-content.php:239",
+        "includes/class-admindra-mcp.php:313"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": null,
+      "summary": "All tools are registered with wp_register_ability under an admindra-mcp category, and served through the official MCP Adapter's discover/execute-ability meta-tools.",
+      "evidence": [
+        "includes/class-admindra-mcp.php:350",
+        "includes/class-admindra-mcp.php:50",
+        "vendor/wp-media/mcp-oauth/inc/Transport/Server.php:42"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http"
+        ],
+        "protocol_version": "set by the separately installed MCP Adapter (0.7+ required); not shipped in this plugin",
+        "runs_in_wordpress": true
+      },
+      "summary": "A custom OAuthHttpTransport hands requests to MCP Adapter's HttpRequestHandler at /wp-json/mcp/mcp-oauth-server (POST/GET/DELETE), inside WordPress. The protocol version comes from the MCP Adapter plugin, which the site owner must install.",
+      "evidence": [
+        "vendor/wp-media/mcp-oauth/inc/Transport/OAuthHttpTransport.php:44",
+        "vendor/wp-media/mcp-oauth/inc/Transport/OAuthHttpTransport.php:56",
+        "vendor/wp-media/mcp-oauth/inc/Transport/OAuthHttpTransport.php:110",
+        "includes/class-admindra-mcp-setup.php:52"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [
+        "Plugin/theme file edits and updates (separate 'AdMindra MCP Maintenance' add-on, free but needs an AdMindra account; not on WordPress.org)"
+      ],
+      "summary": "Everything in this plugin is free and needs no account. File edits and plugin/theme updates are in a separate add-on that requires an AdMindra account; they are out of scope for a content-focused connector.",
+      "evidence": [
+        "includes/class-admindra-mcp.php:283",
+        "admindra-mcp.php:37"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Fail",
+      "value": null,
+      "summary": "The OAuth endpoints refuse non-HTTPS requests. The only credential is OAuth from allowlisted clients (claude.ai and chatgpt.com metadata documents), so a bridge such as mcp-remote can't sign in, and there is no application-password or key alternative. Claude's custom connector reaches the site from Anthropic's cloud, so it needs a public HTTPS URL.",
+      "evidence": [
+        "includes/class-admindra-mcp-connect.php:109",
+        "vendor/wp-media/mcp-oauth/inc/Auth/ClaudeClientVerifier.php:88",
+        "includes/class-admindra-mcp-connect.php:66"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Partial",
+      "value": null,
+      "summary": "It works on a public HTTPS host. The admin screen and readme cover caching exclusions for /.well-known/ and /wp-json/mcp/, and canonical redirects are disabled on the OAuth routes. There is no code fallback for a stripped Authorization header (the FAQ says to ask the host) and no CORS handling.",
+      "evidence": [
+        "vendor/wp-media/mcp-oauth/inc/Transport/OAuthHttpTransport.php:124",
+        "includes/class-admindra-mcp-connect.php:46",
+        "includes/class-admindra-mcp-connect.php:190",
+        "readme.txt:159"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 5,
+        "steps": [
+          "Activate AdMindra MCP",
+          "Click the button to install and activate MCP Adapter (plus HTTPS and pretty permalinks, if not already in place)",
+          "Copy the MCP URL from Tools → AdMindra MCP",
+          "In Claude: Settings → Connectors → Add custom connector, paste the URL, Connect",
+          "Sign in to WordPress as an administrator and approve the consent screen"
+        ]
+      },
+      "summary": "About five steps on a site that already has HTTPS and pretty permalinks, with no developer work needed.",
+      "evidence": [
+        "readme.txt:85",
+        "includes/class-admindra-mcp.php:257",
+        "includes/class-admindra-mcp-connect.php:167"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Claude's \"Add custom connector\" works with just the URL. OAuth uses Client ID Metadata Documents (not dynamic registration), so no client ID or secret is needed. ChatGPT works the same way. Only Claude Code uses a terminal command.",
+      "evidence": [
+        "vendor/wp-media/mcp-oauth/inc/Auth/Discovery/Endpoints.php:137",
+        "includes/class-admindra-mcp-connect.php:168"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Tools → AdMindra MCP shows the site's own MCP URL with a Copy button, step lists for Claude and ChatGPT, a copyable Claude Code command, readiness chips (Adapter, OAuth, HTTPS, permalinks) and links to the discovery documents.",
+      "evidence": [
+        "includes/class-admindra-mcp-connect.php:160",
+        "includes/class-admindra-mcp-connect.php:172",
+        "includes/class-admindra-mcp.php:192",
+        "includes/class-admindra-mcp-connect.php:187"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "https://admindra.com/wordpress-plugin/#admindra-mcp",
+        "https://admindra.com/support/",
+        "https://admindra.com/terms/",
+        "https://admindra.com/privacy/"
+      ],
+      "summary": "The readme has full installation steps and a troubleshooting FAQ. Documentation and Support links appear in the Plugins screen row and in the settings screen footer.",
+      "evidence": [
+        "readme.txt:83",
+        "includes/class-admindra-mcp.php:30",
+        "includes/class-admindra-mcp.php:82",
+        "includes/class-admindra-mcp.php:245"
+      ]
+    }
+  },
+  "notes": "The plugin does not ship MCP Adapter: it must be installed separately (an install button is provided). Without it, abilities are registered but nothing is served. The bundled wp-media/mcp-oauth library is patched locally (patches/).\nPossible bug: abilities set meta['public'] => true (includes/class-admindra-mcp.php:360). MCP Adapter normally looks for meta['mcp']['public'] before discover/execute-ability will expose an ability. Whether this works depends on the adapter version installed; the adapter is not shipped, so this can't be verified from this source.\nThe read-only switch and the admin-only gate apply only to AdMindra's own abilities. The OAuth server's execute-ability meta-tool would also run any MCP-public ability that other plugins register, under their own permission callbacks.\nThe readme's disconnect instructions (delete the Application Password) match the revocation check in the transport.\nThe ability category description still says 'Read-only WordPress diagnostics' (includes/class-admindra-mcp.php:382), although write abilities exist since 1.1.0.\nfind-posts orders by modified date, not publish date.\nThe read-file tool exposes plugin/theme source behind a file guard that refuses wp-config, hidden files and names that suggest secrets.\nThe header comment says the plugin is a 'read-only server', but it has optional write tools."
+}

@@ -1,0 +1,369 @@
+{
+  "slug": "alphabridge-mcp",
+  "version": "4.6.7",
+  "reviewed_at": "2026-10-23T16:11:17+02:00",
+  "duration_s": 111,
+  "cost_usd": 1.9502514,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "bearer-token",
+        "api-key",
+        "oauth"
+      ],
+      "summary": "Each connection token belongs to a WordPress user. It can be sent as `Authorization: Bearer` or `X-Api-Key`, or put in the URL path if the admin turns that on. OAuth sign-in issues the same per-user tokens, and only their hash is stored.",
+      "evidence": [
+        "includes/class-auth.php:40",
+        "includes/class-auth.php:49",
+        "includes/class-auth.php:61",
+        "includes/class-auth.php:111",
+        "includes/class-auth.php:137",
+        "includes/class-rest-controller.php:395"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "Both MCP routes, POST and GET, check permission first. A request without a valid token gets a 401 before any JSON-RPC method runs, so tools/list is refused too.",
+      "evidence": [
+        "includes/class-rest-controller.php:199",
+        "includes/class-rest-controller.php:395",
+        "includes/class-rest-controller.php:397"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Each tool declares a WordPress capability that is checked on every call. The handlers also check per object, for example `current_user_can('delete_post', $id)` before deleting a post.",
+      "evidence": [
+        "includes/class-security.php:31",
+        "includes/tools/class-tools-content.php:1087",
+        "includes/tools/class-tools-content.php:150"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Only a SHA-256 hash of each token is stored. The token is shown once when it is created. OAuth-issued tokens are stored the same way.",
+      "evidence": [
+        "includes/class-settings.php:360",
+        "includes/class-auth.php:111",
+        "includes/class-admin.php:1173"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The MCP endpoint and OAuth sign-in (with dynamic client registration) are on as soon as the plugin is activated, but every call needs a credential. Write access starts off (read only) and the token-in-URL option starts off.",
+      "evidence": [
+        "includes/class-settings.php:54",
+        "includes/class-settings.php:59",
+        "includes/class-oauth.php:212"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Pass",
+      "value": null,
+      "summary": "One site-wide switch, \"Write access for AI assistants\", is off by default and applies to every connection (OAuth, token, hub). With it off, every writing tool and the powerful read tools are refused. Each connection can also be limited to Read only.",
+      "evidence": [
+        "includes/class-site-mode.php:117",
+        "includes/class-security.php:57",
+        "includes/class-tool-registry.php:362"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Admins can switch off single tools or whole groups for the site, and those tools disappear from tools/list. Each connection also has an access level (Read only, Content or Full), chosen at OAuth consent or when the token is created.",
+      "evidence": [
+        "includes/class-security.php:64",
+        "includes/class-security.php:83",
+        "includes/class-rest-controller.php:1152",
+        "includes/class-admin.php:1152"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "MCP annotations (destructiveHint/openWorldHint) plus a global write-access switch; no per-call confirm argument or approval queue"
+      },
+      "summary": "Destructive and publishing tools carry `destructiveHint: true`, so the AI client can ask you first. The plugin itself never asks for confirmation on a single call.",
+      "evidence": [
+        "includes/class-tool-registry.php:166",
+        "includes/class-tool-registry.php:204"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "wp_delete_post moves any post type to the trash unless `force=true` is passed. It refuses rather than deleting permanently when the site has no trash. Media are always deleted permanently through wp_delete_media, which the tool description says.",
+      "evidence": [
+        "includes/tools/class-tools-content.php:1090",
+        "includes/tools/class-tools-content.php:1103",
+        "includes/tools/class-tools-content.php:1114",
+        "includes/tools/class-tools-content.php:1131"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Every tool call, including refused ones, is logged with user ID, tool, status, argument keys and time, up to 200 entries. The settings page shows only the latest 15, with time, tool and status but no user column, so you cannot see who made a call in wp-admin.",
+      "evidence": [
+        "includes/class-audit-log.php:45",
+        "includes/class-audit-log.php:47",
+        "includes/class-admin.php:2012",
+        "includes/class-admin.php:2033"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 40,
+        "names": [
+          "wp_list_posts",
+          "wp_get_post",
+          "wp_create_post",
+          "wp_update_post",
+          "wp_delete_post",
+          "wp_list_revisions",
+          "wp_duplicate_post",
+          "wp_get_post_meta",
+          "wp_site_info",
+          "wp_get_post_types",
+          "wp_get_taxonomies",
+          "wp_get_builder_layout",
+          "wp_get_update_status",
+          "wp_site_health",
+          "wp_dashboard_counts",
+          "wp_seo_detect",
+          "wp_seo_get",
+          "wp_get_user_meta",
+          "wp_get_term_meta",
+          "wp_list_application_passwords",
+          "wp_list_terms",
+          "wp_create_term",
+          "wp_update_term",
+          "wp_delete_term",
+          "wp_list_comments",
+          "wp_moderate_comment",
+          "wp_reply_comment",
+          "wp_delete_comment",
+          "wp_get_term",
+          "wp_get_comment",
+          "wp_search",
+          "wp_list_media",
+          "wp_get_media",
+          "wp_upload_media_from_url",
+          "wp_upload_media",
+          "wp_update_media",
+          "wp_delete_media",
+          "wp_list_sidebars",
+          "wp_get_widgets",
+          "wp_get_site_settings"
+        ]
+      },
+      "summary": "40 tools in the free plugin, matching the readme. Pro (separate) says it brings the total to 135.",
+      "evidence": [
+        "includes/tools/class-tools-content.php:48",
+        "includes/tools/class-tools-taxonomy-comments.php:26",
+        "includes/tools/class-tools-media.php:24",
+        "includes/tools/class-tools-options-settings.php:24"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "comments",
+        "users",
+        "settings",
+        "blocks",
+        "plugins",
+        "themes"
+      ],
+      "summary": "Posts, pages, media, terms and comments can be read and written. Users (profile meta, application password list), settings, blocks/page-builder layouts, plugins and themes (update status, widgets) are read-only. There are no WooCommerce tools in the free plugin.",
+      "evidence": [
+        "includes/tools/class-tools-meta-auth.php:48",
+        "includes/tools/class-tools-options-settings.php:24",
+        "includes/tools/class-tools-builders.php:36",
+        "includes/tools/class-tools-lifecycle.php:27",
+        "includes/tools/class-tools-widgets.php:26"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "wp_list_posts"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "wp_upload_media_from_url + wp_create_post (content stored as given, HTML or block markup; no Markdown conversion)"
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "wp_get_post + wp_update_post (content replaced wholesale; client must resend full content)"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "wp_upload_media_from_url"
+        },
+        "T5": {
+          "status": "Fail",
+          "tool": "none (wp_site_info gives only counts; wp_get_update_status only plugins with updates)"
+        },
+        "T6": {
+          "status": "Fail",
+          "tool": "none (wp_get_site_settings is read-only)"
+        },
+        "T7": {
+          "status": "Partial",
+          "tool": "wp_delete_post (trash by default, force for permanent, logged; confirmation only via destructiveHint)"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "capability + per-object checks (edit_posts/publish/delete_post)"
+        }
+      },
+      "summary": "Content tasks work. The free plugin cannot list installed plugins with versions or change the tagline. Delete goes to the trash and is logged, but the only confirmation is the client-side hint.",
+      "evidence": [
+        "includes/tools/class-tools-content.php:48",
+        "includes/tools/class-tools-content.php:105",
+        "includes/tools/class-tools-media.php:56",
+        "includes/tools/class-tools-system.php:76",
+        "includes/tools/class-tools-options-settings.php:40",
+        "includes/tools/class-tools-content.php:1087"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The free plugin neither registers nor exposes WordPress Abilities: it has its own tool registry. The readme says only Pro can run abilities offered by other plugins.",
+      "evidence": [
+        "includes/class-tool-registry.php:127",
+        "readme.txt:62"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http (POST JSON, no SSE stream; GET 405)"
+        ],
+        "protocol_version": "2025-06-18 (also 2024-11-05, 2025-03-26) and stateless 2026-07-28",
+        "runs_in_wordpress": true
+      },
+      "summary": "MCP runs inside WordPress as JSON-RPC over Streamable HTTP POST at /wp-json/alphabridge/v1/mcp. It supports current protocol versions. The connect.alphabridge-mcp.com hub is an optional extra.",
+      "evidence": [
+        "includes/class-rest-controller.php:47",
+        "includes/class-rest-controller.php:53",
+        "includes/class-rest-controller.php:213",
+        "includes/class-rest-controller.php:414"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Partial",
+      "value": [
+        "page-builder element editing",
+        "theme/plugin file and PHP snippet editing",
+        "undo",
+        "WooCommerce tools",
+        "SEO writes (Yoast/Rank Math)",
+        "menus",
+        "user management",
+        "running other plugins' abilities",
+        "Site Deploy (Agency)"
+      ],
+      "summary": "The MCP server, auth, scopes and the 40 tools are free and need no account. Writing settings, user and plugin management, WooCommerce and abilities are Pro-only.",
+      "evidence": [
+        "readme.txt:56",
+        "includes/class-rest-controller.php:961"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": null,
+      "summary": "HTTPS is not required. You can create a token in wp-admin and use the plugin's ready-made mcp-remote config against http://localhost. The OAuth checks also allow http redirect URIs on localhost.",
+      "evidence": [
+        "includes/class-admin.php:1196",
+        "includes/class-oauth.php:416"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "If the host strips the Authorization header, the token can go in an X-Api-Key header, or in the URL path once the admin enables that option. Responses carry no-store and no-referrer headers. Browser origins are checked against the site URL. The plugin detects ModSecurity blocking OAuth client IDs and falls back to dynamic client registration.",
+      "evidence": [
+        "includes/class-auth.php:49",
+        "includes/class-auth.php:61",
+        "includes/class-rest-controller.php:335",
+        "includes/class-rest-controller.php:364",
+        "includes/class-oauth.php:154"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Pass",
+      "value": {
+        "count": 3,
+        "steps": [
+          "Open Settings → AlphaBridge MCP and copy the endpoint URL",
+          "In Claude: Customize → Connectors → Add custom connector, paste the URL",
+          "Sign in to the site and approve on the consent screen"
+        ]
+      },
+      "summary": "Three steps to the first (read) tool call through OAuth. Write tools also need the \"Write access\" switch turned on, which asks the admin to accept two checkboxes, the second being the vendor's Terms of Use.",
+      "evidence": [
+        "includes/class-admin.php:982",
+        "includes/class-admin.php:983"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "OAuth with dynamic client registration and PKCE is on by default, so you can paste the endpoint into Claude's \"Add custom connector\" or ChatGPT and approve in the browser. Only an admin (manage_options) can approve.",
+      "evidence": [
+        "includes/class-oauth.php:267",
+        "includes/class-oauth.php:1823",
+        "includes/class-admin.php:982"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The settings page has a panel for each client (Claude, ChatGPT, Cursor, other) with numbered steps and this site's own address and endpoint ready to copy. After a token is created it also shows a ready-made Claude Code command and Cursor config.",
+      "evidence": [
+        "includes/class-admin.php:976",
+        "includes/class-admin.php:982",
+        "includes/class-admin.php:1000",
+        "includes/class-admin.php:1193",
+        "includes/class-admin.php:1197"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "https://www.alphabridge-mcp.com/connector.html",
+        "https://www.alphabridge-mcp.com/docs",
+        "https://www.youtube.com/watch?v=DlMJ9tfrqJg",
+        "https://claude.ai/directory/alphabridge",
+        "https://alphabridge-mcp.com"
+      ],
+      "summary": "The readme has installation steps for each client. The settings page links to a step-by-step guide, the docs site and a setup video.",
+      "evidence": [
+        "readme.txt:70",
+        "includes/class-admin.php:961",
+        "includes/class-admin.php:986",
+        "includes/class-admin.php:2120"
+      ]
+    }
+  },
+  "notes": "- **Log claim vs code:** the readme says the settings page \"lists the latest 200 tool calls\". The code keeps 200 entries but the page shows only 15 (class-admin.php:2012), and it has no user column even though the user ID is stored.\n- **Write-access switch:** turning on writes requires agreeing to the vendor's Terms of Use (CultureClub UG) unless the site has a paid licence. Turning it on also re-enables every tool that was previously switched off.\n- **Default access level:** new OAuth connections default to the Full access level (readme changelog 4.5.0).\n- **Who can connect over OAuth:** only users with manage_options can approve on the consent screen (filter `ab_mcp_oauth_capability`), so OAuth connections are always admin connections. Tokens for other users can only be created by hand in the settings form, and only for users the admin may edit (`edit_user`).\n- **Optional external hub:** connect.alphabridge-mcp.com relays calls for up to 10 sites. It stores the site's access key encrypted, per the readme. Direct connection works without it.\n- **No SSE stream:** GET returns 405; subscriptions/listen opens a stream and closes it straight away.\n- **Rate limit:** 120 tool calls per minute per user, using transients.\n- **Pro-only gaps:** settings writes, plugin and user management, and Abilities API support are not in the free plugin."
+}

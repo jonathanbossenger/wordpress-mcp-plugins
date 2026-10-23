@@ -1,0 +1,445 @@
+{
+  "slug": "counterhand-mcp-for-woocommerce",
+  "version": "1.3.2",
+  "reviewed_at": "2026-10-23T15:42:47+02:00",
+  "duration_s": 296,
+  "cost_usd": 2.1539992000000003,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "oauth"
+      ],
+      "summary": "The only credential is a Bearer access token issued through the plugin's own OAuth 2.1 + PKCE flow. Each token belongs to the WordPress user who approved it. On every request that user must still hold manage_woocommerce, and the request then runs as that user.",
+      "evidence": [
+        "src/Features/Tokens/Authentication/TokenAuthenticator.php:35",
+        "src/Features/Tokens/Authentication/TokenAuthenticator.php:74",
+        "src/Features/Tokens/Authentication/TokenAuthenticator.php:85",
+        "src/Features/OAuth/AuthorizeEndpoint.php:65",
+        "src/Features/OAuth/DiscoveryController.php:66"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "Authentication runs before the JSON-RPC body is even parsed, so a request without a valid token gets a 401 and cannot list or call tools. The REST fallback route's permission_callback is __return_true, but it sends every request through the same authenticator. Only the OAuth discovery documents are public.",
+      "evidence": [
+        "src/Features/McpServer/McpEndpoint.php:40",
+        "src/Features/McpServer/McpEndpoint.php:47",
+        "src/Features/McpServer/McpServerFeature.php:90"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every tool call goes through WooCommerce's or WordPress's own REST controllers via rest_do_request(), running as the token owner, so the per-endpoint and per-object permission_callback checks apply. Before a tool is even offered, the plugin also runs that endpoint's permission check for the current user, and the token must hold the tool's scope.",
+      "evidence": [
+        "src/Features/WooCommerceTools/Infrastructure/RestGateway.php:37",
+        "src/Features/WooCommerceTools/Application/GeneratedTool.php:93",
+        "src/Features/McpServer/ToolRegistry.php:92",
+        "src/Features/McpServer/ToolDispatcher.php:51"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Access and refresh tokens are stored only as SHA-256 hashes and checked with hash_equals. The Chat tab's own AI-provider API key (only used on WordPress versions before 7.0) is kept in a plain-text option, but it is not an MCP credential.",
+      "evidence": [
+        "src/Features/Tokens/Domain/TokenSecret.php:29",
+        "src/Features/Tokens/Authentication/TokenAuthenticator.php:61",
+        "src/Features/Playground/ChatSettings.php:123"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The 'Enable the MCP connector' master switch defaults to off. While it is off, neither the /mcp routes nor the OAuth routes are registered. Once it is on, only Products, Orders and Reports are readable by default, and every write group starts off.",
+      "evidence": [
+        "src/Features/Settings/PluginSettings.php:64",
+        "src/Features/McpServer/McpServerFeature.php:34",
+        "src/Features/OAuth/OAuthFeature.php:39",
+        "src/Shared/Tool/ToolGroup.php:164",
+        "src/Features/Settings/PluginSettings.php:81"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Each tool group has separate Read and Write switches, and all writes ship off. Leaving every Write switch off makes the whole server read-only. OAuth is the only connection type, so the switches cover every connection.",
+      "evidence": [
+        "src/Features/Settings/PluginSettings.php:41",
+        "src/Features/McpServer/ToolRegistry.php:114",
+        "src/Features/Settings/views/tab-settings.php:55"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Access is limited by 16 tool groups with separate read/write switches site-wide, and by per-connection scopes the admin can untick on the consent screen. This is per group, not per tool. Role-based differences come only from WooCommerce's own permission checks, and only users with manage_woocommerce can connect at all.",
+      "evidence": [
+        "src/Shared/Tool/ToolGroup.php:21",
+        "src/Features/Tokens/Domain/ApiScope.php:15",
+        "src/Features/McpServer/ToolRegistry.php:95"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "required `confirm: true` argument on update_setting, update_payment_gateway and run_system_status_tool; irreversible system tools refused outright; no destructiveHint annotations; approval button only in the in-admin Chat, not for external MCP clients"
+      },
+      "summary": "Only three high-risk tools refuse to run unless called with confirm=true, and some irreversible maintenance routines are blocked entirely. Deletes, refunds and order-status changes need no confirmation, and tools carry no MCP annotations. The Approve button exists only in the wp-admin Chat tab.",
+      "evidence": [
+        "src/Features/WooCommerceTools/Application/GeneratedTool.php:138",
+        "src/Features/WooCommerceTools/Application/GeneratedTool.php:250",
+        "src/Features/WooCommerceTools/Descriptors/SystemDescriptors.php:124",
+        "src/Features/McpServer/McpServer.php:79"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "delete_post, delete_page, delete_product, delete_product_variation and delete_product_review move items to the trash unless force=true. Terms, tax rates, shipping zones, order notes and refunds are deleted permanently with force=true, because WooCommerce cannot trash them.",
+      "evidence": [
+        "src/Features/WooCommerceTools/Descriptors/ContentDescriptors.php:103",
+        "src/Features/WooCommerceTools/Descriptors/ProductDescriptors.php:180",
+        "src/Features/WooCommerceTools/Descriptors/TaxonomyDescriptors.php:71"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Each tool call can be written to a plugin table with the time, tool, connection label, outcome and arguments (emails and phone numbers masked), viewable on the Action log tab in wp-admin. Logging is off by default (opt-in), but calls to the Settings, Gateways and System groups are always logged.",
+      "evidence": [
+        "src/Features/ActionLog/ActionLogger.php:17",
+        "src/Features/ActionLog/ActionLogFeature.php:58",
+        "src/Shared/Tool/ToolGroup.php:180",
+        "src/Features/Settings/PluginSettings.php:67",
+        "src/Features/ActionLog/Admin/views/tab-log.php:25"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 128,
+        "names": [
+          "list_products",
+          "get_product",
+          "create_product",
+          "update_product",
+          "delete_product",
+          "get_product_meta",
+          "set_product_meta",
+          "delete_product_meta",
+          "describe_woocommerce_fields",
+          "get_product_categories",
+          "get_product_category",
+          "create_product_category",
+          "update_product_category",
+          "delete_product_category",
+          "get_product_tags",
+          "get_product_tag",
+          "create_product_tag",
+          "update_product_tag",
+          "delete_product_tag",
+          "get_product_attributes",
+          "get_product_attribute",
+          "create_product_attribute",
+          "update_product_attribute",
+          "delete_product_attribute",
+          "get_attribute_terms",
+          "get_attribute_term",
+          "create_attribute_term",
+          "update_attribute_term",
+          "delete_attribute_term",
+          "get_shipping_classes",
+          "get_shipping_class",
+          "create_shipping_class",
+          "update_shipping_class",
+          "delete_shipping_class",
+          "get_product_variations",
+          "get_product_variation",
+          "create_product_variation",
+          "update_product_variation",
+          "delete_product_variation",
+          "get_product_reviews",
+          "get_product_review",
+          "create_product_review",
+          "update_product_review",
+          "delete_product_review",
+          "get_coupons",
+          "get_coupon",
+          "create_coupon",
+          "update_coupon",
+          "delete_coupon",
+          "get_coupon_meta",
+          "set_coupon_meta",
+          "delete_coupon_meta",
+          "list_orders",
+          "get_order",
+          "create_order",
+          "update_order_status",
+          "get_order_notes",
+          "get_order_note",
+          "add_order_note",
+          "delete_order_note",
+          "get_order_meta",
+          "set_order_meta",
+          "delete_order_meta",
+          "get_order_refunds",
+          "get_order_refund",
+          "create_order_refund",
+          "delete_order_refund",
+          "list_customers",
+          "get_customer",
+          "get_customer_meta",
+          "get_sales_report",
+          "get_top_sellers",
+          "get_order_totals",
+          "get_product_totals",
+          "get_customer_totals",
+          "get_coupon_totals",
+          "get_review_totals",
+          "get_store_overview",
+          "get_posts",
+          "get_post",
+          "create_post",
+          "update_post",
+          "delete_post",
+          "get_pages",
+          "get_page",
+          "create_page",
+          "update_page",
+          "delete_page",
+          "get_shipping_zones",
+          "get_shipping_zone",
+          "create_shipping_zone",
+          "update_shipping_zone",
+          "delete_shipping_zone",
+          "get_shipping_zone_locations",
+          "update_shipping_zone_locations",
+          "get_shipping_zone_methods",
+          "get_shipping_zone_method",
+          "create_shipping_zone_method",
+          "update_shipping_zone_method",
+          "delete_shipping_zone_method",
+          "get_shipping_methods",
+          "get_shipping_method",
+          "get_tax_rates",
+          "get_tax_rate",
+          "create_tax_rate",
+          "update_tax_rate",
+          "delete_tax_rate",
+          "get_tax_classes",
+          "create_tax_class",
+          "delete_tax_class",
+          "get_countries",
+          "get_country",
+          "get_continents",
+          "get_continent",
+          "get_currencies",
+          "get_currency",
+          "get_current_currency",
+          "get_setting_groups",
+          "get_settings",
+          "get_setting",
+          "update_setting",
+          "get_payment_gateways",
+          "get_payment_gateway",
+          "update_payment_gateway",
+          "get_system_status",
+          "get_system_status_tools",
+          "get_system_status_tool",
+          "run_system_status_tool"
+        ]
+      },
+      "summary": "The tools are generated from descriptors that wrap WooCommerce wc/v3 and WordPress wp/v2 posts/pages routes, plus custom-field (meta) tools, a store-overview tool and a field-describer tool. My count is 128; the readme says 127, which looks like it predates create_order in 1.3.2. Meta tool names are inferred from MetaOperation::tool_name().",
+      "evidence": [
+        "src/Features/WooCommerceTools/WooCommerceToolsFeature.php:35",
+        "src/Features/WooCommerceTools/Application/ToolFactory.php:64",
+        "src/Features/WooCommerceTools/Domain/MetaOperation.php:32",
+        "src/Features/WooCommerceTools/Descriptors/ReportDescriptors.php:47",
+        "src/Features/WooCommerceTools/Application/StoreOverviewTool.php:29"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "settings",
+        "woocommerce"
+      ],
+      "summary": "Mostly WooCommerce: products, orders, customers, coupons, reports, shipping, tax, gateways and WooCommerce settings. Outside WooCommerce, only blog posts and pages are covered. There are no tools for media, users, comments, plugins, themes or blocks, and 'settings' here means WooCommerce settings only. Plugin and theme information is readable only through the system status report.",
+      "evidence": [
+        "src/Features/WooCommerceTools/Descriptors/ContentDescriptors.php:49",
+        "src/Features/WooCommerceTools/Descriptors/StoreConfigDescriptors.php:91",
+        "src/Features/WooCommerceTools/Descriptors/SystemDescriptors.php:49"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "get_posts (per_page=5; Content group must be enabled)"
+        },
+        "T2": {
+          "status": "Partial",
+          "tool": "create_post (drafts by default; content is raw HTML passed to wp/v2, no Markdown conversion or block markup generation; images only via featured_media ID or an <img> tag, since there is no media upload tool)"
+        },
+        "T3": {
+          "status": "Partial",
+          "tool": "update_post (title fine; content replaces the whole body, and get_post returns rendered content only, context=view, so appending risks losing block markup)"
+        },
+        "T4": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T5": {
+          "status": "Partial",
+          "tool": "get_system_status (active_plugins / inactive_plugins sections; System group, Advanced, off by default)"
+        },
+        "T6": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T7": {
+          "status": "Partial",
+          "tool": "delete_post (trash by default, force=true for permanent; no confirmation; logged only if action log enabled)"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "OAuth consent and every request require manage_woocommerce; subscribers cannot obtain or use a token"
+        }
+      },
+      "summary": "Basic post listing and drafting work once the Content group is switched on. There are no tools for uploading media or changing the tagline, and plugins are visible only through the system status report.",
+      "evidence": [
+        "src/Features/WooCommerceTools/Descriptors/ContentDescriptors.php:66",
+        "src/Features/WooCommerceTools/Descriptors/ContentDescriptors.php:84",
+        "src/Features/WooCommerceTools/Application/GeneratedTool.php:169",
+        "src/Features/WooCommerceTools/Descriptors/SystemDescriptors.php:52",
+        "src/Features/OAuth/AuthorizeEndpoint.php:65",
+        "src/Features/Tokens/Authentication/TokenAuthenticator.php:75"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Fail",
+      "value": null,
+      "summary": "The plugin does not use the WordPress Abilities API or the MCP Adapter. It ships its own JSON-RPC MCP server and tool registry.",
+      "evidence": [
+        "src/Features/McpServer/McpServer.php:22",
+        "src/Features/McpServer/ToolRegistry.php:26"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http (POST, JSON responses only, no SSE stream)"
+        ],
+        "protocol_version": "2025-11-25",
+        "runs_in_wordpress": true
+      },
+      "summary": "MCP is served inside WordPress at /mcp, with a fallback at /wp-json/counterhand/v1/mcp. Requests are POSTs with JSON replies; notifications get 202 and GET gets 405. It negotiates protocol versions 2025-11-25 down to 2024-11-05.",
+      "evidence": [
+        "src/Features/McpServer/McpServer.php:24",
+        "src/Features/McpServer/McpEndpoint.php:32",
+        "src/Features/McpServer/McpEndpoint.php:88",
+        "src/Features/McpServer/McpServerFeature.php:81"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [],
+      "summary": "There is no Pro version and no account requirement. Everything, including OAuth, the action log and the chat, is in the free plugin.",
+      "evidence": [
+        "readme.txt:72",
+        "readme.txt:135"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Claude Desktop's custom connector connects from Anthropic's cloud, so the plugin says it needs a public HTTPS site. The only auth is OAuth with Client ID Metadata Documents (no dynamic client registration), so a local bridge like mcp-remote works only if it supports CIMD; the code doesn't settle that. Claude Code, Cursor and VS Code are documented to work against localhost.",
+      "evidence": [
+        "readme.txt:129",
+        "src/Features/OAuth/DiscoveryController.php:86",
+        "src/Features/OAuth/ClientMetadataResolver.php:98",
+        "src/Features/Settings/ConnectReadiness.php:24"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "It handles a stripped Authorization header (REDIRECT_HTTP_AUTHORIZATION, plus an X-Counterhand-Token header fallback) and has a REST-route fallback for broken permalinks. The Connect tab runs a self-check that the endpoint and discovery documents are reachable. The readme gives an nginx rule for blocked /.well-known/ paths. No CORS headers are sent, so browser-based MCP clients may fail.",
+      "evidence": [
+        "src/Features/McpServer/McpServerFeature.php:113",
+        "src/Features/Tokens/Authentication/TokenAuthenticator.php:95",
+        "src/Features/McpServer/McpServerFeature.php:80",
+        "src/Features/Settings/ConnectReadiness.php:164",
+        "readme.txt:143"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 4,
+        "steps": [
+          "WooCommerce → Counterhand MCP → Settings: tick 'Enable the MCP connector' (off by default) and save",
+          "Connect AI apps tab: click 'Copy URL & open Claude'",
+          "In Claude: Customize → Connectors → Add custom connector, paste the URL, Add, then Connect",
+          "Approve the scopes on the store's consent screen"
+        ]
+      },
+      "summary": "About four steps and no developer work, but the store must be publicly reachable over HTTPS for Claude. The readme's install steps leave out the master switch, which is off by default.",
+      "evidence": [
+        "src/Features/Settings/views/tab-settings.php:36",
+        "src/Features/Settings/McpClient.php:67",
+        "readme.txt:124"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Connecting is OAuth with a browser consent screen: paste the URL into Claude's 'Add custom connector' and approve. No terminal or JSON editing is needed. The client registers via CIMD rather than dynamic client registration, which Claude supports.",
+      "evidence": [
+        "src/Features/OAuth/DiscoveryController.php:86",
+        "src/Features/Settings/McpClient.php:68"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The Connect AI apps tab shows this site's endpoint URL with a Copy button, a reachability check, and step lists for Claude, ChatGPT, Cursor, VS Code, Claude Code and other clients. It also has copyable snippets, Cursor/VS Code install buttons and links to each client's official docs.",
+      "evidence": [
+        "src/Features/Settings/views/tab-connect.php:47",
+        "src/Features/Settings/views/tab-connect.php:115",
+        "src/Features/Settings/McpClient.php:58"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "https://counterhand.app/",
+        "https://github.com/miroslav-balan-at/counterhand-mcp-for-woocommerce",
+        "https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp",
+        "https://help.openai.com/en/articles/12584461-developer-mode-and-mcp-apps-in-chatgpt",
+        "https://cursor.com/docs/context/mcp",
+        "https://code.visualstudio.com/api/extension-guides/ai/mcp",
+        "https://code.claude.com/docs/en/mcp",
+        "https://modelcontextprotocol.io/docs/develop/connect-remote-servers"
+      ],
+      "summary": "The readme covers installation, troubleshooting (404s, /.well-known blocking, public reachability) and how security works. wp-admin links to GitHub from the plugin row and to each client's docs from the Connect tab. The readme's setup steps leave out enabling the master switch.",
+      "evidence": [
+        "readme.txt:122",
+        "readme.txt:141",
+        "src/Features/Settings/SettingsFeature.php:56",
+        "src/Features/Settings/views/tab-connect.php:134"
+      ]
+    }
+  },
+  "notes": "Readme vs code: (1) The readme's Installation steps say to switch on tool groups and copy the URL, but never mention the 'Enable the MCP connector' master switch, which defaults to false. Until it is on, /mcp and OAuth do not exist. (2) The readme says 127 tools; the code registers 128 (create_order arrived in 1.3.2). (3) ApiScope.php's comment says Gateways and Settings are 'deliberately read-only here', but the enum does define GatewaysWrite and SettingsWrite, so the comment is stale. (4) The readme and scope wording mention 'brands', but the taxonomy descriptors register no brand tools. (5) The Connections tab can only revoke; tokens come only from the OAuth flow, and the X-Counterhand-Token header is just another way to send an OAuth token. Architecture: tools are generated from descriptors and run through rest_do_request() as the token owner, so WooCommerce validation and permissions apply, with read/write group switches and consent scopes on top. Only users with manage_woocommerce can authorize or keep a connection alive. A demoted owner's tokens stop working on the next request. The in-admin Chat tab (Playground) runs the same dispatcher and has a real human approval step for risky calls. External MCP clients do not get that approval step; they only get the confirm argument on three tools. Unhandled tool exceptions go to the WooCommerce logger. The system status report hands the full environment section, including absolute paths, to anyone with system:read."
+}

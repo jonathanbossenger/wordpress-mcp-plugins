@@ -1,0 +1,463 @@
+{
+  "slug": "invizo-mcp",
+  "version": "2.0.8",
+  "reviewed_at": "2026-10-23T14:52:58+02:00",
+  "duration_s": 148,
+  "cost_usd": 1.7193119999999997,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "application-password",
+        "cookie"
+      ],
+      "summary": "The MCP Adapter transport and every ability require a logged-in WordPress user with manage_options. The plugin creates and lists WordPress Application Passwords for this. Cookie auth through the REST API also works in principle, because the check is just is_user_logged_in().",
+      "evidence": [
+        "includes/class-invizo-mcp-auth.php:17-28",
+        "includes/class-invizo-mcp-standalone.php:22-25",
+        "includes/class-invizo-mcp-standalone.php:79-88",
+        "includes/class-invizo-mcp-settings.php:130-136"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "A request with no credentials gets a 401 from can_access(). The adapter's transport, discover, info and execute capabilities are all filtered to manage_options, so an anonymous caller can neither list nor call tools.",
+      "evidence": [
+        "includes/class-invizo-mcp-auth.php:21-26",
+        "includes/class-invizo-mcp-standalone.php:22-25"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Partial",
+      "value": null,
+      "summary": "There is one capability check, manage_options, applied at the transport and in each ability's permission callback, plus a site-wide scope check in each handler. No handler checks object-level capabilities such as current_user_can('delete_post', $id). Because only administrators can connect, the scopes are the only finer-grained limit.",
+      "evidence": [
+        "includes/class-invizo-mcp-auth.php:24",
+        "includes/class-invizo-mcp-standalone.php:79-88",
+        "includes/class-invizo-mcp-handlers.php:529-553",
+        "includes/class-invizo-mcp-wp-handlers.php:180-185"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The only credentials are WordPress core Application Passwords, which core stores hashed. The new password is shown once, on the page load that created it, and the plugin stores no secrets of its own. Version 2.0 also deletes the legacy shared_secret on upgrade.",
+      "evidence": [
+        "includes/class-invizo-mcp-settings.php:130-143",
+        "includes/class-invizo-mcp-settings.php:207-211",
+        "invizo-mcp.php:136-137"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Pass",
+      "value": null,
+      "summary": "On a new install the endpoint is off ('enabled' => false) and no scopes are selected. The MCP Adapter is not even loaded until an admin enables the endpoint. One exception: sites upgrading from 1.x that had a shared secret configured are migrated with the endpoint already enabled.",
+      "evidence": [
+        "invizo-mcp.php:111-118",
+        "invizo-mcp.php:136-141",
+        "includes/class-invizo-mcp-standalone.php:27-29"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every ability is mapped to a read, write or delete scope, and the scopes apply to every connection. If an admin ticks only read scopes, write and delete abilities are hidden from discovery and refused at execution. There is no single 'read-only' switch, but selecting only read scopes has the same effect.",
+      "evidence": [
+        "includes/class-invizo-mcp-standalone.php:84-86",
+        "includes/class-invizo-mcp-standalone.php:94",
+        "includes/class-invizo-mcp-standalone.php:296-357"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Partial",
+      "value": null,
+      "summary": "There are about 50 scopes, one per area and operation (e.g. read:posts, delete:woocommerce). They apply site-wide, not per tool and not per Application Password or role, so every connection gets the same set.",
+      "evidence": [
+        "includes/class-invizo-mcp-auth.php:33-43",
+        "includes/class-invizo-mcp-standalone.php:296-357",
+        "includes/class-invizo-mcp-settings.php:234-253"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Pass",
+      "value": {
+        "mechanism": "required confirm:true argument (with dry_run preview) enforced in handlers, plus readonly/destructive/idempotent ability annotations"
+      },
+      "summary": "Delete tools, user and site-setting updates, post meta updates and most WooCommerce writes return an error unless the call includes confirm: true, and dry_run: true returns a preview instead. Abilities also carry destructive and readonly annotations.",
+      "evidence": [
+        "includes/class-invizo-mcp-wp-handlers.php:194-202",
+        "includes/class-invizo-mcp-handlers.php:935-963",
+        "includes/class-invizo-mcp-handlers.php:539-551",
+        "includes/class-invizo-mcp-wp-handlers.php:1084",
+        "includes/class-invizo-mcp-standalone.php:278-294"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "posts_delete, pages and CPT deletes, comments, media, LearnPress and WooCommerce product and coupon deletes pass force only when the caller sets force: true, so posts go to the trash by default. Some deletes are always permanent: menu items (force true), terms, menus and users.",
+      "evidence": [
+        "includes/class-invizo-mcp-handlers.php:553",
+        "includes/class-invizo-mcp-wp-handlers.php:229",
+        "includes/class-invizo-mcp-wp-handlers.php:337",
+        "includes/class-invizo-mcp-wp-handlers.php:546",
+        "includes/class-invizo-mcp-wp-handlers.php:770",
+        "includes/class-invizo-mcp-handlers.php:1090-1091"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Fail",
+      "value": null,
+      "summary": "Tool calls are not logged anywhere: the plugin has no audit log, no custom table and no error_log calls. The only trace is the 'Last used' date that WordPress core keeps for each Application Password.",
+      "evidence": [
+        "includes/class-invizo-mcp-settings.php:282-288",
+        "includes/class-invizo-mcp-standalone.php:89-91"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 3,
+        "names": [
+          "discover-abilities",
+          "get-ability-info",
+          "execute-ability"
+        ],
+        "abilities_count": 144,
+        "abilities": [
+          "blocks_create",
+          "blocks_delete",
+          "blocks_get",
+          "blocks_list",
+          "blocks_update",
+          "categories_create",
+          "categories_delete",
+          "categories_get",
+          "categories_list",
+          "categories_update",
+          "comments_create",
+          "comments_delete",
+          "comments_get",
+          "comments_list",
+          "comments_update",
+          "cpt_get",
+          "cpt_items_create",
+          "cpt_items_delete",
+          "cpt_items_get",
+          "cpt_items_list",
+          "cpt_items_update",
+          "cpt_list",
+          "cpt_types_create",
+          "cpt_types_delete",
+          "cpt_types_get",
+          "cpt_types_list",
+          "cpt_types_update",
+          "events_create",
+          "events_get",
+          "events_list",
+          "events_update",
+          "lp_courses_create",
+          "lp_courses_delete",
+          "lp_courses_get",
+          "lp_courses_list",
+          "lp_courses_update",
+          "lp_enrollments_list",
+          "lp_lessons_create",
+          "lp_lessons_delete",
+          "lp_lessons_get",
+          "lp_lessons_list",
+          "lp_lessons_update",
+          "lp_orders_get",
+          "lp_orders_list",
+          "lp_orders_update",
+          "lp_questions_create",
+          "lp_questions_delete",
+          "lp_questions_get",
+          "lp_questions_list",
+          "lp_questions_update",
+          "lp_quizzes_create",
+          "lp_quizzes_delete",
+          "lp_quizzes_get",
+          "lp_quizzes_list",
+          "lp_quizzes_update",
+          "lp_terms_create",
+          "lp_terms_list",
+          "lp_terms_update",
+          "media_delete",
+          "media_get",
+          "media_list",
+          "media_update",
+          "media_upload",
+          "menu_items_create",
+          "menu_items_delete",
+          "menu_items_list",
+          "menu_items_update",
+          "menus_create",
+          "menus_delete",
+          "menus_get",
+          "menus_list",
+          "menus_update",
+          "meta_fields_create",
+          "meta_fields_delete",
+          "meta_fields_get",
+          "meta_fields_list",
+          "meta_fields_update",
+          "pages_create",
+          "pages_delete",
+          "pages_get",
+          "pages_list",
+          "pages_update",
+          "patterns_list",
+          "plugins_list",
+          "post_meta_get",
+          "post_meta_update",
+          "posts_create",
+          "posts_delete",
+          "posts_get",
+          "posts_list",
+          "posts_search",
+          "posts_update",
+          "revisions_delete",
+          "revisions_get",
+          "revisions_list",
+          "search_content",
+          "site_get_settings",
+          "site_post_statuses_list",
+          "site_post_types_list",
+          "site_settings_get",
+          "site_settings_update",
+          "site_taxonomies_list",
+          "site_update_settings",
+          "styles_get",
+          "styles_update",
+          "tags_create",
+          "tags_delete",
+          "tags_get",
+          "tags_list",
+          "tags_update",
+          "templates_get",
+          "templates_list",
+          "templates_update",
+          "themes_get_active",
+          "themes_list",
+          "users_create",
+          "users_delete",
+          "users_get",
+          "users_list",
+          "users_update",
+          "woo_coupons_create",
+          "woo_coupons_delete",
+          "woo_coupons_list",
+          "woo_coupons_update",
+          "woo_customers_get",
+          "woo_customers_list",
+          "woo_customers_update",
+          "woo_orders_add_note",
+          "woo_orders_create",
+          "woo_orders_get",
+          "woo_orders_list",
+          "woo_orders_update_status",
+          "woo_products_create",
+          "woo_products_delete",
+          "woo_products_get",
+          "woo_products_list",
+          "woo_products_update",
+          "woo_terms_create",
+          "woo_terms_list",
+          "woo_terms_update",
+          "woo_variations_create",
+          "woo_variations_delete",
+          "woo_variations_list",
+          "woo_variations_update"
+        ]
+      },
+      "summary": "The MCP Adapter's default server exposes three meta-tools. Behind them sit 144 abilities, registered as invizo/<action> with underscores turned into hyphens. Elementor, Gutenberg-block and Rank Math features are parameters of page and post writes, not separate abilities.",
+      "evidence": [
+        "includes/class-invizo-mcp-standalone.php:69-106",
+        "includes/class-invizo-mcp-standalone.php:359-390"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "comments",
+        "plugins",
+        "themes",
+        "settings",
+        "blocks",
+        "woocommerce"
+      ],
+      "summary": "Plugins and themes are read-only (list only). Settings are limited to an allowlist of nine core options. The plugin also covers menus, custom post types, post meta, revisions, templates, global styles, LearnPress and The Events Calendar.",
+      "evidence": [
+        "includes/class-invizo-mcp-standalone.php:359-390",
+        "includes/class-invizo-mcp-wp-handlers.php:1118-1120",
+        "includes/class-invizo-mcp-wp-handlers.php:1154-1165"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "invizo/posts-list (returns id, title, status, date; default 10, per_page param)"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "invizo/posts-create (content stored as supplied HTML/block markup after wp_kses_post; no Markdown conversion; image via HTML in content or featured_media). Pages also accept gutenberg_blocks rendered to block markup"
+        },
+        "T3": {
+          "status": "Partial",
+          "tool": "invizo/posts-get + invizo/posts-update (update replaces post_content wholesale; client must resend the full content to append)"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "invizo/media-upload (file_url via media_sideload_image)"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "invizo/plugins-list (name, version, active)"
+        },
+        "T6": {
+          "status": "Pass",
+          "tool": "invizo/site-settings-update with settings.blogdescription and confirm:true"
+        },
+        "T7": {
+          "status": "Partial",
+          "tool": "invizo/posts-delete (trash by default, force for permanent, confirm:true required; not logged)"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "n/a — any non-manage_options user is refused at the transport and ability level"
+        }
+      },
+      "summary": "Most standard tasks work, provided the matching scopes are enabled. Appending to a post means resending the full content, and deletes are not logged.",
+      "evidence": [
+        "includes/class-invizo-mcp-handlers.php:157-192",
+        "includes/class-invizo-mcp-handlers.php:194-293",
+        "includes/class-invizo-mcp-handlers.php:311-313",
+        "includes/class-invizo-mcp-handlers.php:562-609",
+        "includes/class-invizo-mcp-wp-handlers.php:1154-1165",
+        "includes/class-invizo-mcp-wp-handlers.php:1070-1116",
+        "includes/class-invizo-mcp-handlers.php:529-560",
+        "includes/class-invizo-mcp-auth.php:24-26"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The plugin registers an 'invizo' ability category and 144 abilities through wp_register_ability, and serves them through the WordPress MCP Adapter.",
+      "evidence": [
+        "includes/class-invizo-mcp-standalone.php:19-20",
+        "includes/class-invizo-mcp-standalone.php:59-106",
+        "includes/class-invizo-mcp-standalone.php:36-37"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Partial",
+      "value": {
+        "transports": [
+          "streamable-http (MCP Adapter REST transport at /wp-json/mcp/invizo)"
+        ],
+        "protocol_version": "unknown — composer.lock pins wordpress/mcp-adapter v0.5.0, but vendor/ is absent from the downloaded package",
+        "runs_in_wordpress": true
+      },
+      "summary": "The plugin is designed to serve MCP inside WordPress through the bundled MCP Adapter v0.5.0, at the route /wp-json/mcp/invizo. However, the WordPress.org package I reviewed contains no vendor/ directory, so invizo_mcp_load_dependencies() fails and the endpoint shows a 'dependencies missing' notice instead of running, unless another plugin happens to load the MCP Adapter. The readme says vendor/ is bundled; the package does not contain it.",
+      "evidence": [
+        "composer.lock:74-75",
+        "invizo-mcp.php:176-196",
+        "includes/class-invizo-mcp-standalone.php:36-40",
+        "includes/class-invizo-mcp-standalone.php:47-57",
+        "includes/class-invizo-mcp-settings.php:415-417"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [],
+      "summary": "There is no Pro version, licence check or account requirement. All MCP features are in the free plugin.",
+      "evidence": [
+        "readme.txt:24",
+        "invizo-mcp.php:79-82"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The generated Claude Desktop config uses the @automattic/mcp-wordpress-remote bridge with an Application Password. On plain http://localhost, WordPress only allows Application Passwords when WP_ENVIRONMENT_TYPE is set to 'local', so many local setups need a wp-config.php change first. The settings page warns about this.",
+      "evidence": [
+        "includes/class-invizo-mcp-settings.php:340-353",
+        "includes/class-invizo-mcp-settings.php:423-428",
+        "readme.txt:135-137"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Partial",
+      "value": null,
+      "summary": "It should work on HTTPS hosts. It detects and reports when Application Passwords are disabled, but it has no fallback when the host strips the Authorization header, adds no CORS handling, and includes no notes on caching or WAFs.",
+      "evidence": [
+        "includes/class-invizo-mcp-settings.php:418-428",
+        "includes/class-invizo-mcp-auth.php:17-28"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 5,
+        "steps": [
+          "Settings > Invizo MCP: tick 'Enable the standalone MCP endpoint'",
+          "Tick the scopes needed and Save Access Settings",
+          "Create an Application Password",
+          "Open the Claude Desktop tab, copy the generated JSON into claude_desktop_config.json",
+          "Restart Claude Desktop"
+        ]
+      },
+      "summary": "From activation to the first tool call takes about five steps in wp-admin and Claude Desktop, including editing a JSON config file. Node.js and npx must be installed for the bridge.",
+      "evidence": [
+        "includes/class-invizo-mcp-settings.php:225-253",
+        "includes/class-invizo-mcp-settings.php:272-278",
+        "includes/class-invizo-mcp-settings.php:387-391",
+        "readme.txt:227-235"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Fail",
+      "value": null,
+      "summary": "The plugin offers no OAuth or connector URL. Every client needs a terminal command (Claude Code) or an edited config file (Claude Desktop, Cursor, Codex, Antigravity) with an Application Password embedded.",
+      "evidence": [
+        "includes/class-invizo-mcp-settings.php:378-408"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The settings page shows the endpoint URL and per-client tabs with copy buttons. The snippets are filled in with this site's endpoint, the admin's username and the newly created Application Password, plus a direct-HTTP alternative.",
+      "evidence": [
+        "includes/class-invizo-mcp-settings.php:169-171",
+        "includes/class-invizo-mcp-settings.php:306-338",
+        "includes/class-invizo-mcp-settings.php:340-408"
+      ]
+    },
+    "DOCS": {
+      "status": "Partial",
+      "value": [
+        "readme.txt (Installation, Client Configuration, FAQ sections)",
+        "https://invizo.io/ (author site, security contact only)"
+      ],
+      "summary": "Setup is documented well in the readme and the admin page has its own instructions. However, the admin screens link to no external docs site.",
+      "evidence": [
+        "readme.txt:225-290",
+        "readme.txt:475-485",
+        "includes/class-invizo-mcp-settings.php:309-311"
+      ]
+    }
+  },
+  "notes": "1) The biggest problem: the downloaded WordPress.org package has no vendor/ directory. composer.lock pins wordpress/mcp-adapter v0.5.0, php-mcp-schema v0.1.2 and the Jetpack autoloader, and the readme says vendor/ ships with the plugin. Without it, invizo_mcp_load_dependencies() fails and the plugin shows a 'Bundled MCP dependencies are missing' notice instead of serving MCP, unless another plugin happens to load \\WP\\MCP\\Core\\McpAdapter. Other plugins fetched by the same tool kept their vendor/ folders, so this looks like a packaging error in the release, not something the fetcher stripped. 2) Only administrators can connect (manage_options), so scopes are the only way to limit an AI. An Application Password for that admin also unlocks the full core REST API, so scopes do not limit the credential itself. 3) posts_create accepts any 'author' ID and status 'publish', and posts_create/pages_create are not confirm-gated, only previewable with dry_run. 4) Ability registration reads scope settings at registration time to set meta.mcp.public, which hides abilities whose scopes are off. 5) Deleting users, menus, terms and menu items is permanent, though confirm:true is still required. 6) Sites upgrading from 1.x that had a shared secret configured get the endpoint auto-enabled. 7) The readme says 'all 143 existing actions'. The code lists 144, which matches 143 plus woo_orders_create added in 2.0.7."
+}

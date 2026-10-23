@@ -1,0 +1,288 @@
+{
+  "slug": "ylabs-ai-assistant-connector",
+  "version": "0.9.14",
+  "reviewed_at": "2026-10-23T13:25:38+02:00",
+  "duration_s": 82,
+  "cost_usd": 0.9046023999999999,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "application-password",
+        "cookie"
+      ],
+      "summary": "WordPress itself runs no MCP endpoint. The MCP server is WP Agent's hosted service, which calls the site's REST API with a WordPress Application Password. That password is tied to a WordPress user. The plugin also accepts the same Application Password in an X-WPAgent-Authorization header and checks it with core's wp_authenticate_application_password.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:62",
+        "ylabs-ai-assistant-connector.php:93",
+        "ylabs-ai-assistant-connector.php:441",
+        "ylabs-ai-assistant-connector.php:453"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "Every route the plugin adds under wp-agent/v1 needs a logged-in user, and anonymous requests get 401 or 403. The plugin defines no MCP tools inside WordPress.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:442",
+        "ylabs-ai-assistant-connector.php:454",
+        "ylabs-ai-assistant-connector.php:428"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "SEO meta read and write check edit_post on each post. The site overview needs manage_options, and its plugin list also needs activate_plugins. SEO status needs edit_posts. Everything else goes through core REST, which runs its own per-object capability checks.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:433",
+        "ylabs-ai-assistant-connector.php:445",
+        "ylabs-ai-assistant-connector.php:457",
+        "ylabs-ai-assistant-connector.php:495",
+        "ylabs-ai-assistant-connector.php:608"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "N/A",
+      "value": null,
+      "summary": "The plugin issues and stores no secrets of its own. The credential is a core Application Password, which WordPress stores hashed. The plain password is held by WP Agent's cloud service, outside the site. Uninstall deletes old image-key options left by earlier versions.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:93",
+        "uninstall.php:13"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Nothing connects until an admin pairs the site through the hosted WP Agent flow and approves an Application Password. But on activation the plugin turns Application Passwords back on for all users, at PHP_INT_MAX priority, even when a security plugin or the host disabled them. It still respects core's HTTPS-or-local rule.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:44",
+        "ylabs-ai-assistant-connector.php:51"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Fail",
+      "value": null,
+      "summary": "The plugin has no read-only mode. The connection can do everything the approving user's role allows.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:62"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Fail",
+      "value": null,
+      "summary": "wp-admin has no setting to limit which tools or actions the connection may use. The only limit is the role of the user whose Application Password is used. Any scoping inside the hosted service is not visible in this code.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:331"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Unknown",
+      "value": {
+        "mechanism": "none in plugin; tools are defined in the hosted WP Agent service"
+      },
+      "summary": "The plugin has no confirmation step. The MCP tools and any annotations live in WP Agent's cloud service, which is not part of this code.",
+      "evidence": []
+    },
+    "SAFE-DELETE": {
+      "status": "Unknown",
+      "value": null,
+      "summary": "The plugin has no delete routes. Deletes would go from the hosted service to core REST, which trashes posts unless force=true is sent. Whether the service sends force is not visible here.",
+      "evidence": []
+    },
+    "SAFE-LOG": {
+      "status": "Fail",
+      "value": null,
+      "summary": "The plugin records no requests or tool calls. The admin page only shows whether a 'WP Agent' Application Password exists. Core's last-used date on the Application Password is the only trace on the site.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:247",
+        "ylabs-ai-assistant-connector.php:367"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 0,
+        "names": [],
+        "plugin_rest_routes": [
+          "GET wp-agent/v1/site-state",
+          "GET wp-agent/v1/seo-status",
+          "GET wp-agent/v1/seo-meta/{id}",
+          "POST wp-agent/v1/seo-meta/{id}"
+        ],
+        "note": "MCP tools are defined in the hosted WP Agent service (mcp.getwpagent.com), not in the plugin"
+      },
+      "summary": "The plugin exposes no MCP tools. It adds four REST routes (site overview, SEO status, SEO meta read and write) and exposes Yoast, Rank Math and DELUCKS meta in core REST. WP Agent's cloud service uses these together with core REST.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:517",
+        "ylabs-ai-assistant-connector.php:525",
+        "ylabs-ai-assistant-connector.php:541",
+        "ylabs-ai-assistant-connector.php:550",
+        "ylabs-ai-assistant-connector.php:595"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "plugins",
+        "settings"
+      ],
+      "summary": "The plugin's own routes cover SEO meta on posts and pages, plus a read-only site overview with a plugin list and theme info. The readme says the hosted service also handles content, media, menus and settings through core REST, but that code is not in this plugin.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:468",
+        "ylabs-ai-assistant-connector.php:501",
+        "ylabs-ai-assistant-connector.php:550"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Unknown",
+          "tool": "hosted service via core REST /wp/v2/posts"
+        },
+        "T2": {
+          "status": "Unknown",
+          "tool": "hosted service via core REST"
+        },
+        "T3": {
+          "status": "Unknown",
+          "tool": "hosted service via core REST"
+        },
+        "T4": {
+          "status": "Unknown",
+          "tool": "hosted service (readme: stock-photo upload)"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "GET wp-agent/v1/site-state (plugins: name, version, active)"
+        },
+        "T6": {
+          "status": "Unknown",
+          "tool": "hosted service via core REST /wp/v2/settings"
+        },
+        "T7": {
+          "status": "Unknown",
+          "tool": "hosted service via core REST; not logged by plugin"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "WordPress capability checks on the Application Password user"
+        }
+      },
+      "summary": "Only plugin listing (T5) can be confirmed in this code, through site-state. A subscriber's credential cannot publish or delete posts, because core and plugin capability checks apply. The other tasks depend on the hosted service and cannot be verified here.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:495",
+        "ylabs-ai-assistant-connector.php:506",
+        "ylabs-ai-assistant-connector.php:433"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Fail",
+      "value": null,
+      "summary": "The plugin does not use the Abilities API or the MCP Adapter.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:515"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Fail",
+      "value": {
+        "transports": [],
+        "protocol_version": null,
+        "runs_in_wordpress": false
+      },
+      "summary": "There is no MCP server in WordPress. WP Agent's hosted relay at mcp.getwpagent.com does the MCP work, and the plugin only supplies REST helpers and an auth fallback.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:343",
+        "ylabs-ai-assistant-connector.php:21"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Fail",
+      "value": [
+        "MCP server itself (hosted WP Agent service, requires a WP Agent account; free tier per readme)"
+      ],
+      "summary": "Using MCP needs a WP Agent account and their cloud service. The readme mentions a free tier. The plugin alone gives no MCP access.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:343",
+        "readme.txt:59"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Fail",
+      "value": null,
+      "summary": "The MCP server runs in WP Agent's cloud and calls the site's REST API, so the site needs a public URL. Application Passwords also need HTTPS on non-local sites. A localhost site cannot be reached.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:343",
+        "ylabs-ai-assistant-connector.php:48"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The plugin handles a stripped Authorization header by accepting the credential in X-WPAgent-Authorization, supports plain-permalink ?rest_route= URLs and subdirectory installs, and turns Application Passwords back on where a host or security plugin disabled them. Calls are server-to-server, so CORS is not needed.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:69",
+        "ylabs-ai-assistant-connector.php:84",
+        "ylabs-ai-assistant-connector.php:44"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 5,
+        "steps": [
+          "Install and activate the plugin",
+          "Open WP Agent in wp-admin and click Connect Site",
+          "Sign in or create a WP Agent account on getwpagent.com",
+          "Approve the Application Password on WordPress's authorize-application screen",
+          "Add WP Agent as a connector in Claude (not documented in the plugin)"
+        ]
+      },
+      "summary": "Setup takes about five steps through the hosted WP Agent flow. The plugin does not explain the Claude Desktop side.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:396",
+        "readme.txt:47"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Pairing happens in the browser through WP Agent's web flow and core's Application Password approval screen, with no terminal or JSON. How Claude connects (presumably a hosted connector) lives outside the plugin and is not documented in it.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:343",
+        "readme.txt:59"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The admin page has a Connect Site button that opens the hosted flow with this site filled in, plus connection status. It shows no MCP URL, config snippet or Claude-specific steps.",
+      "evidence": [
+        "ylabs-ai-assistant-connector.php:343",
+        "ylabs-ai-assistant-connector.php:396",
+        "ylabs-ai-assistant-connector.php:400"
+      ]
+    },
+    "DOCS": {
+      "status": "Partial",
+      "value": [
+        "https://www.getwpagent.com",
+        "https://mcp.getwpagent.com/connect/start",
+        "https://www.getwpagent.com/terms",
+        "https://www.getwpagent.com/privacy"
+      ],
+      "summary": "The readme has three short install steps, and the admin page links to getwpagent.com under 'Learn more'. There is no detailed setup guide for Claude in the plugin.",
+      "evidence": [
+        "readme.txt:45",
+        "ylabs-ai-assistant-connector.php:355"
+      ]
+    }
+  },
+  "notes": "This is a companion plugin for a hosted MCP relay (WP Agent at mcp.getwpagent.com), not an MCP server. All MCP tools live off-site and are not in this code. The plugin is a single PHP file. It adds: (1) a filter that turns Application Passwords back on for all users at PHP_INT_MAX priority, overriding security plugins or hosts that disabled them; (2) an X-WPAgent-Authorization header fallback for hosts that strip Authorization; (3) four wp-agent/v1 REST routes for SEO meta and a site overview; (4) Yoast, Rank Math and DELUCKS meta exposed in core REST, gated by edit_post. Where the code contradicts its own text: the file header (line 20) says core REST has no endpoints for plugin/theme activation, menus or options and that 'everything WP Agent needs that core REST can't do lives here'. In fact the plugin adds no such routes, and core REST does have plugins and menus endpoints. The readme says 'Connect WP Agent' but the button is labelled 'Connect Site'. The admin page shows 'Connected' whenever any user has an Application Password whose name starts with 'WP Agent' (it checks at most 100 users), so the badge can mislead. The header auth fallback calls wp_authenticate_application_password directly instead of wp_validate_application_password. It works, but core's application-password-in-use bookkeeping is skipped."
+}

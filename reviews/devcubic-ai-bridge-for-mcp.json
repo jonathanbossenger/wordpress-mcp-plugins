@@ -1,0 +1,354 @@
+{
+  "slug": "devcubic-ai-bridge-for-mcp",
+  "version": "1.0.3",
+  "reviewed_at": "2026-10-23T13:27:03+02:00",
+  "duration_s": 118,
+  "cost_usd": 1.2925444,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "oauth",
+        "bearer-token"
+      ],
+      "summary": "The MCP endpoint accepts only OAuth 2.1 bearer tokens. The plugin issues them through its own authorization server (dynamic client registration, PKCE, refresh tokens), and each token is tied to the WordPress user who approved it. Application passwords and cookies are not used for the MCP route.",
+      "evidence": [
+        "includes/class-mcp-connector-server.php:39",
+        "includes/class-mcp-connector-server.php:68-103",
+        "includes/class-mcp-connector-oauth.php:176",
+        "includes/class-mcp-connector-oauth.php:464-484"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "A POST without a valid, unexpired, unrevoked token gets a 401 with a WWW-Authenticate header before any JSON-RPC method runs, so tools cannot be listed or called. GET and DELETE are open but only return a 405. The OAuth register and token endpoints are public, as OAuth requires, and are rate limited per IP.",
+      "evidence": [
+        "includes/class-mcp-connector-server.php:68-101",
+        "includes/class-mcp-connector-server.php:45-60",
+        "includes/class-mcp-connector-oauth.php:58",
+        "includes/class-mcp-connector-oauth.php:323"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every tool declares a WordPress capability. That capability is checked when tools are listed and again when a tool is called. The handlers then send the work to core's /wp/v2 (or WooCommerce's /wc/v3) REST controllers as the connected user, so per-object checks such as edit_post and delete_post apply. The SEO module writes post meta directly, so it checks edit_post for the specific post itself.",
+      "evidence": [
+        "includes/class-mcp-connector-tools.php:130",
+        "includes/class-mcp-connector-tools.php:154",
+        "includes/class-mcp-connector-tools.php:937-949",
+        "includes/class-mcp-connector-seo.php:81",
+        "includes/class-mcp-connector-tools.php:845"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Access tokens, refresh tokens, auth codes and client secrets are stored only as SHA-256 hashes. The client secret is returned once, at registration. The audit log stores tool arguments only, never tokens.",
+      "evidence": [
+        "includes/class-mcp-connector-oauth.php:542-544",
+        "includes/class-mcp-connector-oauth.php:473-474",
+        "includes/class-mcp-connector-oauth.php:91",
+        "includes/class-mcp-connector-db.php:72-87"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": null,
+      "summary": "MCP is live as soon as the plugin is activated; there is no on/off switch. Any logged-in user, of any role, can connect. Access always requires OAuth, but the defaults are permissive: read-only mode is off, direct publishing is allowed, and delete tools are on.",
+      "evidence": [
+        "includes/class-mcp-connector-tools.php:24-29",
+        "devcubic-ai-bridge-for-mcp.php:61-77",
+        "includes/class-mcp-connector-oauth.php:180-184"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Pass",
+      "value": null,
+      "summary": "A site-wide read-only switch hides every tool except list_* and get_* tools, plus extension tools that declare 'readonly'. It applies to every connection, because OAuth is the only credential type. Tools added by other plugins that do not declare 'readonly' are blocked in this mode.",
+      "evidence": [
+        "includes/class-mcp-connector-tools.php:47-60",
+        "includes/class-mcp-connector-admin.php:286-292"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Admins can disable any individual tool site-wide, including tools added by other plugins. There is also a switch that hides all delete tools. Per-role limits come from WordPress capabilities: each user only gets the tools their role allows. There are no per-connection limits.",
+      "evidence": [
+        "includes/class-mcp-connector-tools.php:36-52",
+        "includes/class-mcp-connector-admin.php:308-330",
+        "includes/class-mcp-connector-tools.php:124-139"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Fail",
+      "value": {
+        "mechanism": "none"
+      },
+      "summary": "Destructive tools have no destructiveHint or other annotations, no confirm argument and no approval queue. The optional 'Require human review' mode turns publish requests into Pending Review and blocks edits to published content, but it does not cover deletes.",
+      "evidence": [
+        "includes/class-mcp-connector-tools.php:131-135",
+        "includes/class-mcp-connector-tools.php:760-769",
+        "includes/class-mcp-connector-tools.php:783-787"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Delete tools for posts, pages, custom post types, comments and WooCommerce products move items to the trash unless force=true is passed. Category and tag deletes are always permanent, because WordPress terms have no trash. Media deletes need force=true, because core media cannot be trashed by default.",
+      "evidence": [
+        "includes/class-mcp-connector-tools.php:760-769",
+        "includes/class-mcp-connector-tools.php:533-545",
+        "includes/class-mcp-connector-cpt.php:245-250",
+        "includes/class-mcp-connector-woo.php:291-296"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every tool call is written to a custom table: user, client ID, tool, arguments (up to 1,000 characters), status, error and time. Administrators see the last 50 entries under 'Recent tool activity' on the plugin's wp-admin page. Entries are kept for 30 days by default, and the log can be switched off with a filter.",
+      "evidence": [
+        "includes/class-mcp-connector-server.php:187",
+        "includes/class-mcp-connector-server.php:222-253",
+        "includes/class-mcp-connector-admin.php:157-158",
+        "includes/class-mcp-connector-admin.php:164-215",
+        "includes/class-mcp-connector-db.php:149-157"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": "43 fixed + 5 per public REST-enabled custom post type",
+        "names": [
+          "list_posts",
+          "get_post",
+          "create_post",
+          "update_post",
+          "delete_post",
+          "list_pages",
+          "get_page",
+          "create_page",
+          "update_page",
+          "delete_page",
+          "list_media",
+          "get_media",
+          "upload_media",
+          "delete_media",
+          "list_comments",
+          "get_comment",
+          "create_comment",
+          "update_comment",
+          "delete_comment",
+          "list_categories",
+          "create_category",
+          "update_category",
+          "delete_category",
+          "list_tags",
+          "create_tag",
+          "update_tag",
+          "delete_tag",
+          "list_products",
+          "get_product",
+          "create_product",
+          "update_product",
+          "delete_product",
+          "list_orders",
+          "get_order",
+          "update_order_status",
+          "add_order_note",
+          "list_customers",
+          "get_customer",
+          "list_coupons",
+          "create_coupon",
+          "get_sales_report",
+          "get_seo_meta",
+          "set_seo_meta",
+          "list_{cpt}",
+          "get_{cpt}",
+          "create_{cpt}",
+          "update_{cpt}",
+          "delete_{cpt}"
+        ]
+      },
+      "summary": "There are 27 core content tools. WooCommerce adds 14 when it is active, and Yoast SEO or Rank Math adds 2 SEO tools. Each public, REST-enabled custom post type gets 5 generated tools, and ACF fields ride along on create and update. There are no tools for users, plugins, themes or settings.",
+      "evidence": [
+        "includes/class-mcp-connector-tools.php:234-453",
+        "includes/class-mcp-connector-woo.php:34-185",
+        "includes/class-mcp-connector-seo.php:37-64",
+        "includes/class-mcp-connector-cpt.php:58-116"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "comments",
+        "woocommerce"
+      ],
+      "summary": "The tools cover posts, pages, media, categories and tags, comments, WooCommerce (products, orders, customers, coupons and a sales report), custom post types and SEO meta. There are no tools for users, plugins, themes, settings or blocks.",
+      "evidence": [
+        "includes/class-mcp-connector-tools.php:233-453",
+        "includes/class-mcp-connector-woo.php:33-185"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "list_posts",
+          "note": "per_page=5; status defaults to publish, other statuses can be requested; returns title and status"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "upload_media + create_post",
+          "note": "content is stored as given (HTML); nothing is converted to block markup or from Markdown"
+        },
+        "T3": {
+          "status": "Partial",
+          "tool": "get_post + update_post",
+          "note": "update replaces the whole content field and get_post only returns rendered content (no raw/block markup), so appending risks losing block comments or shortcodes"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "upload_media",
+          "note": "file_url via download_url with SSRF validation, or base64"
+        },
+        "T5": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T6": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T7": {
+          "status": "Partial",
+          "tool": "delete_post",
+          "note": "trash by default, force=true for permanent; logged; no confirmation"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": null,
+          "note": "create/update/delete_post need edit_posts/delete_posts, and core's REST controllers check per object; a subscriber can still post comments"
+        }
+      },
+      "summary": "Content tasks work. Editing a post is risky: the tool replaces the whole body, and the post can only be read back as rendered HTML, so block markup or shortcodes may be lost. There are no tools to list plugins or change site settings such as the tagline. Deletes go to the trash and are logged, but nothing asks for confirmation.",
+      "evidence": [
+        "includes/class-mcp-connector-tools.php:573-615",
+        "includes/class-mcp-connector-tools.php:689",
+        "includes/class-mcp-connector-tools.php:739-757",
+        "includes/class-mcp-connector-tools.php:844-920",
+        "includes/class-mcp-connector-tools.php:760-769"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Fail",
+      "value": null,
+      "summary": "The plugin does not use the WordPress Abilities API or the MCP Adapter. It has its own tool registry, which other plugins can extend through the mcp_connector_tools filter.",
+      "evidence": [
+        "includes/class-mcp-connector-tools.php:165-204"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Partial",
+      "value": {
+        "transports": [
+          "streamable-http (POST, JSON responses only, no SSE)"
+        ],
+        "protocol_version": "2025-06-18",
+        "runs_in_wordpress": true
+      },
+      "summary": "The server runs inside WordPress as a single REST route speaking JSON-RPC over Streamable HTTP (POST only; GET returns 405, no SSE). It always reports protocol version 2025-06-18, one revision behind the current 2025-11-25 spec.",
+      "evidence": [
+        "includes/class-mcp-connector-server.php:15",
+        "includes/class-mcp-connector-server.php:31-52",
+        "includes/class-mcp-connector-server.php:143-174"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [],
+      "summary": "There is no Pro version or account requirement. All tools and controls are in the free plugin.",
+      "evidence": [
+        "devcubic-ai-bridge-for-mcp.php:1-13"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The code does not enforce HTTPS, and it accepts localhost redirect URIs. An OAuth-capable bridge such as mcp-remote should therefore work against http://localhost. Claude's 'Add custom connector' cannot reach a local site, and the plugin documents only that route. The readme says HTTPS is required in production and has no instructions for local or bridge setups.",
+      "evidence": [
+        "includes/class-mcp-connector-oauth.php:138-141",
+        "includes/class-mcp-connector-server.php:68-75",
+        "readme.txt:78"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Admins get warnings for the two problems that break the connection without an error: the /.well-known discovery URL being shadowed (by a physical directory, a cache or a WAF), and installs in a subdirectory, where discovery cannot work without a root rewrite. The discovery documents send CORS headers. There is no fallback when a host strips the Authorization header, beyond what WordPress core does itself.",
+      "evidence": [
+        "includes/class-mcp-connector-admin.php:225-266",
+        "includes/class-mcp-connector-wellknown.php:22-46",
+        "includes/class-mcp-connector-server.php:69"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Pass",
+      "value": {
+        "count": 3,
+        "steps": [
+          "Open the DevCubic AI Bridge for MCP admin page and copy the connector URL",
+          "Add it in Claude as a custom connector",
+          "Log in to WordPress in the browser and click Allow on the consent screen"
+        ]
+      },
+      "summary": "After activation it takes three steps: copy the URL, add it as a connector in Claude, then log in and approve. No API keys or config files are needed.",
+      "evidence": [
+        "readme.txt:33-36",
+        "includes/class-mcp-connector-admin.php:138-144",
+        "includes/class-mcp-connector-oauth.php:275-316"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "OAuth discovery, dynamic client registration and PKCE let Claude's 'Add custom connector' connect with just the URL, followed by a browser login. No terminal or JSON editing is needed.",
+      "evidence": [
+        "includes/class-mcp-connector-wellknown.php:48-68",
+        "includes/class-mcp-connector-oauth.php:57-136"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The admin page, visible to every logged-in user, shows this site's MCP URL in a read-only field that selects on click. A short paragraph explains to paste it into a connector and approve in the browser. There is no client-specific step list or config snippet.",
+      "evidence": [
+        "includes/class-mcp-connector-admin.php:138-144"
+      ]
+    },
+    "DOCS": {
+      "status": "Partial",
+      "value": [
+        "readme.txt (How it works, Installation, FAQ, Extending)",
+        "https://devcubic.com/ (Plugin URI, no docs link found)"
+      ],
+      "summary": "The readme covers setup and the extension filters. The admin screen has no links to documentation, and no separate docs site is linked.",
+      "evidence": [
+        "readme.txt:31-36",
+        "readme.txt:80-84",
+        "devcubic-ai-bridge-for-mcp.php:4"
+      ]
+    }
+  },
+  "notes": "- The readme says a Subscriber's AI 'can only read'. In the code, create_comment needs only 'read', so subscribers can post comments (tools.php:379-392).\n- Any logged-in user of any role can authorize a client. There is no setting to restrict which roles may connect, and no global MCP on/off switch.\n- get_post and get_page return only content.rendered (tools.php:689). An LLM that reads a post and writes it back can turn block markup or shortcodes into rendered HTML.\n- Discovery is served only at the exact root paths /.well-known/oauth-protected-resource and /.well-known/oauth-authorization-server. The path-suffixed RFC 9728 form is not handled, and subdirectory installs cannot work without a root rewrite (the admin page warns about this).\n- Dynamic client registration accepts any redirect URI that has a scheme and host, including plain http on non-local hosts (oauth.php:138-141). The consent screen shows the client_name the client chose for itself.\n- In the consent screen string, the translators comment lists 2 placeholders but the string uses 3 (oauth.php:288-293).\n- With WP_DEBUG on, DCR request bodies and token-request metadata (no secrets) are written to debug.log (oauth.php:63, 329).\n- Refresh tokens rotate with a 60-second grace window. The audit log records client_id, but the admin viewer does not display it."
+}
