@@ -1,0 +1,528 @@
+{
+  "slug": "agent-abilities-for-mcp",
+  "version": "1.9.0",
+  "reviewed_at": "2026-10-24T07:37:22+02:00",
+  "duration_s": 217,
+  "cost_usd": 2.9501002,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "application-password",
+        "oauth",
+        "cookie"
+      ],
+      "summary": "The MCP route refuses any request without a resolved WordPress user. The user can come from an Application Password, an OAuth bearer token the plugin issues (hashed, and since 1.7.6 valid only on the MCP route), or a logged-in cookie session. Every credential belongs to a real WordPress user, and an optional IP allowlist adds another check.",
+      "evidence": [
+        "includes/server.php:1040",
+        "includes/server.php:1043",
+        "includes/server.php:1047",
+        "includes/server.php:1720",
+        "agent-abilities-for-mcp.php:309",
+        "agent-abilities-for-mcp.php:316"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "A request with no credentials gets a 401 'Authentication required' from the transport permission callback before it can list or call any tool. The only public endpoints are the OAuth discovery, registration and token endpoints, which are needed for sign-in.",
+      "evidence": [
+        "includes/server.php:1043",
+        "includes/server.php:1044"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every ability has its own permission callback, checked per object where it matters. For example, delete-post checks delete_post on that exact post, settings need manage_options and list-plugins needs activate_plugins. Tools/list also hides tools the connected user cannot use, and the call is checked again when it runs.",
+      "evidence": [
+        "includes/abilities/posts.php:2333",
+        "includes/abilities/posts.php:763",
+        "includes/abilities/settings.php:62",
+        "includes/abilities/plugins.php:48",
+        "includes/server.php:874",
+        "includes/server.php:1681"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "OAuth access tokens, refresh tokens and authorization codes are stored only as SHA-256 hashes. Application Passwords are WordPress core's own (also hashed), and the config snippet only holds a placeholder, never a real secret.",
+      "evidence": [
+        "includes/oauth/tokens.php:148",
+        "includes/oauth/tokens.php:149",
+        "includes/oauth/codes.php:46",
+        "includes/admin/connection.php:324"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The /agent-abilities-for-mcp/mcp route goes live on activation but needs a login, and it serves no tools until an admin enables them (the enabled list starts empty). OAuth is seeded off. High-risk WooCommerce money tools sit behind a second lock. Dynamic client registration is on by default but only reachable once OAuth is on. One catch: the Adapter's default server is set to 'Automatic' and starts when another plugin publishes tools to it, and those tools are outside this plugin's controls.",
+      "evidence": [
+        "includes/registry.php:229",
+        "includes/oauth/discovery.php:151",
+        "includes/oauth/discovery.php:152",
+        "includes/audit/high-risk.php:97",
+        "includes/bootstrap.php:187"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Pass",
+      "value": null,
+      "summary": "One read-only switch removes every non-read ability from the registered set, bridged abilities from other plugins included, for every connection type. Anything that cannot be classified as a read is treated as a write (fail closed). A code filter can force read-only on but never off. Tools that other plugins publish to the Adapter's default server are not covered.",
+      "evidence": [
+        "includes/registry.php:263",
+        "includes/audit/read-only.php:30",
+        "includes/audit/read-only.php:41",
+        "includes/audit/read-only.php:91"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Tools are switched on one at a time site-wide. On top of that, per-role and per-OAuth-connection allowlists can only narrow the set, and the check runs at both discovery and call time. An Application Password connection can be limited by its user's role but has no allowlist of its own.",
+      "evidence": [
+        "includes/allowlist.php:186",
+        "includes/allowlist.php:232",
+        "includes/server.php:883"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "destructiveHint annotations (meta.annotations.destructive=true) on delete/trash tools; no confirm argument or approval queue for destructive calls. A 'Force draft' + Needs review queue exists for publishing, not deletes."
+      },
+      "summary": "Destructive tools are marked destructive, so the client decides whether to ask you, and they are off by default. The plugin itself has no confirm argument or approval step for deletes. Its review queue only holds drafts and publish requests.",
+      "evidence": [
+        "includes/abilities/posts.php:2318",
+        "includes/abilities/posts.php:2321",
+        "includes/abilities/settings.php:46"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "trash-post moves a post to the Trash, and fails if the Trash is disabled. Permanent deletion is a separate delete-post tool, clearly described as permanent and off until enabled. Pages work the same way.",
+      "evidence": [
+        "includes/abilities/posts.php:105",
+        "includes/abilities/posts.php:2275",
+        "includes/abilities/posts.php:2283",
+        "includes/abilities/posts.php:129",
+        "includes/abilities/posts.php:2362"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every call to the plugin's abilities is written to its own database table, denied calls included, with the user, OAuth client, ability, argument keys, an identifier-only detail note, IP and duration. Admins can filter it and export it as CSV on the Activity Log tab in wp-admin.",
+      "evidence": [
+        "includes/register.php:343",
+        "includes/register.php:376",
+        "includes/server.php:1054",
+        "includes/admin/activity-log.php",
+        "agent-abilities-for-mcp.php:483"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 179,
+        "names": [
+          "aafm/get-posts",
+          "aafm/count-posts",
+          "aafm/get-post",
+          "aafm/create-draft",
+          "aafm/create-post",
+          "aafm/update-post",
+          "aafm/replace-in-post",
+          "aafm/replace-sitewide",
+          "aafm/trash-post",
+          "aafm/create-cpt-item",
+          "aafm/update-cpt-item",
+          "aafm/delete-post",
+          "aafm/get-pages",
+          "aafm/get-page",
+          "aafm/create-page",
+          "aafm/update-page",
+          "aafm/trash-page",
+          "aafm/delete-page",
+          "aafm/get-media",
+          "aafm/get-media-item",
+          "aafm/count-media",
+          "aafm/set-featured-image",
+          "aafm/upload-media",
+          "aafm/upload-media-from-url",
+          "aafm/update-media",
+          "aafm/delete-media",
+          "aafm/list-revisions",
+          "aafm/get-revision",
+          "aafm/restore-revision",
+          "aafm/delete-revision",
+          "aafm/get-taxonomies",
+          "aafm/get-post-types",
+          "aafm/get-site-info",
+          "aafm/get-activity-log",
+          "aafm/get-user-meta",
+          "aafm/update-user-meta",
+          "aafm/delete-user-meta",
+          "aafm/get-terms",
+          "aafm/create-term",
+          "aafm/update-term",
+          "aafm/get-term",
+          "aafm/add-post-terms",
+          "aafm/get-term-meta",
+          "aafm/update-term-meta",
+          "aafm/delete-term-meta",
+          "aafm/get-active-theme",
+          "aafm/list-themes",
+          "aafm/list-templates",
+          "aafm/get-template",
+          "aafm/get-global-styles",
+          "aafm/update-template",
+          "aafm/get-site-settings",
+          "aafm/update-site-settings",
+          "aafm/get-post-meta",
+          "aafm/get-all-post-meta",
+          "aafm/update-post-meta",
+          "aafm/delete-post-meta",
+          "aafm/get-comments",
+          "aafm/get-pending-comments",
+          "aafm/moderate-comment",
+          "aafm/get-comment",
+          "aafm/create-comment",
+          "aafm/update-comment",
+          "aafm/delete-comment",
+          "aafm/list-blocks",
+          "aafm/get-block",
+          "aafm/create-block",
+          "aafm/update-block",
+          "aafm/delete-block",
+          "aafm/list-plugins",
+          "aafm/search-content",
+          "aafm/list-menus",
+          "aafm/get-menu",
+          "aafm/list-menu-items",
+          "aafm/create-menu",
+          "aafm/update-menu",
+          "aafm/delete-menu",
+          "aafm/create-menu-item",
+          "aafm/update-menu-item",
+          "aafm/delete-menu-item",
+          "aafm/get-users",
+          "aafm/get-user",
+          "aafm/create-user",
+          "aafm/update-user",
+          "aafm/delete-user",
+          "aafm/wc-list-products",
+          "aafm/wc-get-product",
+          "aafm/wc-create-product",
+          "aafm/wc-update-product",
+          "aafm/wc-delete-product",
+          "aafm/wc-list-product-variations",
+          "aafm/wc-get-product-variation",
+          "aafm/wc-create-product-variation",
+          "aafm/wc-update-product-variation",
+          "aafm/wc-delete-product-variation",
+          "aafm/wc-list-product-attributes",
+          "aafm/wc-create-product-attribute",
+          "aafm/wc-update-product-attribute",
+          "aafm/wc-list-orders",
+          "aafm/wc-get-order",
+          "aafm/wc-create-order",
+          "aafm/wc-update-order",
+          "aafm/wc-update-order-status",
+          "aafm/wc-list-order-notes",
+          "aafm/wc-create-order-note",
+          "aafm/wc-list-order-refunds",
+          "aafm/wc-get-order-refund",
+          "aafm/wc-create-order-refund",
+          "aafm/wc-list-customers",
+          "aafm/wc-get-customer",
+          "aafm/wc-create-customer",
+          "aafm/wc-update-customer",
+          "aafm/wc-list-coupons",
+          "aafm/wc-get-coupon",
+          "aafm/wc-create-coupon",
+          "aafm/wc-update-coupon",
+          "aafm/wc-list-shipping-zones",
+          "aafm/wc-get-shipping-zone",
+          "aafm/wc-create-shipping-zone",
+          "aafm/wc-update-shipping-zone",
+          "aafm/wc-list-shipping-methods",
+          "aafm/wc-get-shipping-method",
+          "aafm/wc-create-shipping-method",
+          "aafm/wc-update-shipping-method",
+          "aafm/wc-list-tax-rates",
+          "aafm/wc-get-tax-rate",
+          "aafm/wc-create-tax-rate",
+          "aafm/wc-update-tax-rate",
+          "aafm/wc-list-tax-classes",
+          "aafm/wc-create-tax-class",
+          "aafm/wc-get-sales-report",
+          "aafm/wc-get-top-sellers-report",
+          "aafm/wc-count-orders",
+          "aafm/wc-count-products",
+          "aafm/wc-list-payment-gateways",
+          "aafm/wc-get-payment-gateway",
+          "aafm/wc-update-payment-gateway",
+          "aafm/acf-list-field-groups",
+          "aafm/acf-get-post-fields",
+          "aafm/acf-update-post-fields",
+          "aafm/acf-get-term-fields",
+          "aafm/acf-update-term-fields",
+          "aafm/acf-get-user-fields",
+          "aafm/acf-update-user-fields",
+          "aafm/yoast-get-post",
+          "aafm/yoast-update-post",
+          "aafm/yoast-get-head",
+          "aafm/rankmath-get-post",
+          "aafm/rankmath-update-post",
+          "aafm/rankmath-get-schema",
+          "aafm/rankmath-update-schema",
+          "aafm/rankmath-get-head",
+          "aafm/aioseo-get-post",
+          "aafm/aioseo-update-post",
+          "aafm/aioseo-get-head",
+          "aafm/slim-seo-get-post",
+          "aafm/slim-seo-update-post",
+          "aafm/tec-get-events",
+          "aafm/tec-get-event",
+          "aafm/tec-create-event",
+          "aafm/tec-update-event",
+          "aafm/tec-delete-event",
+          "aafm/tec-get-venues",
+          "aafm/tec-get-venue",
+          "aafm/tec-create-venue",
+          "aafm/tec-update-venue",
+          "aafm/tec-get-organizers",
+          "aafm/tec-get-organizer",
+          "aafm/tec-create-organizer",
+          "aafm/tec-update-organizer",
+          "aafm/tec-get-tickets",
+          "aafm/tec-get-ticket",
+          "aafm/tec-get-attendees",
+          "aafm/avada-get-page-content",
+          "aafm/avada-replace-text",
+          "aafm/geodirectory-get-listings",
+          "aafm/geodirectory-get-listing",
+          "aafm/geodirectory-create-listing",
+          "aafm/geodirectory-update-listing"
+        ]
+      },
+      "summary": "There are 85 core abilities plus 94 integration abilities (WooCommerce 52, The Events Calendar/Event Tickets 16, ACF 7, SEO plugins 13, Avada 2, GeoDirectory 4), each served as a direct MCP tool named aafm-<name>. Integration tools only appear while their host plugin is active. The plugin can also bridge abilities registered by any other plugin as aafm-bridge/* tools, which are not counted here.",
+      "evidence": [
+        "includes/abilities/posts.php:41",
+        "includes/abilities/pages.php:21",
+        "includes/abilities/media.php:22",
+        "includes/abilities/users.php:44",
+        "includes/abilities/woocommerce/orders.php:64",
+        "includes/abilities/tec/events.php:65",
+        "includes/server.php:161"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "comments",
+        "plugins",
+        "themes",
+        "settings",
+        "blocks",
+        "woocommerce"
+      ],
+      "summary": "The tools cover posts, pages, custom post types, media, terms, users, comments, plugins (list only), themes and templates, a small set of settings, reusable blocks, menus, revisions, meta, and WooCommerce, plus SEO, ACF and events integrations.",
+      "evidence": [
+        "includes/abilities/plugins.php:28",
+        "includes/abilities/themes.php:36",
+        "includes/abilities/settings.php:34",
+        "includes/abilities/blocks.php:31",
+        "includes/abilities/menus.php:38",
+        "includes/abilities/woocommerce/products.php:58"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "aafm/get-posts"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "aafm/create-draft + aafm/upload-media-from-url / aafm/set-featured-image",
+          "note": "Content is stored as supplied (block markup recommended, HTML accepted); there is no Markdown conversion. A block guard warns about invalid block markup."
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "aafm/update-post or aafm/replace-in-post (literal find-and-replace that leaves the rest byte-for-byte)"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "aafm/upload-media-from-url",
+          "note": "HTTPS only, SSRF-hardened, no redirects followed"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "aafm/list-plugins",
+          "note": "returns version and active state; needs activate_plugins"
+        },
+        "T6": {
+          "status": "Pass",
+          "tool": "aafm/update-site-settings",
+          "note": "blogdescription is on the allowlist; needs manage_options"
+        },
+        "T7": {
+          "status": "Partial",
+          "tool": "aafm/trash-post (aafm/delete-post for permanent)",
+          "note": "Trash by default and logged, but there is no plugin-side confirmation; only the destructive annotation"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "permission callbacks",
+          "note": "create needs edit_posts, publishing needs publish_posts, delete needs delete_post on the object"
+        }
+      },
+      "summary": "Seven of the eight standard tasks can be done fully. Deleting is only Partial: it goes to the Trash by default and is logged, but nothing in the plugin asks for confirmation.",
+      "evidence": [
+        "includes/abilities/posts.php:41",
+        "includes/abilities/posts.php:65",
+        "includes/abilities/posts.php:89",
+        "includes/abilities/media.php:1179",
+        "includes/abilities/plugins.php:101",
+        "includes/abilities/settings.php:44",
+        "includes/abilities/posts.php:2275",
+        "includes/abilities/posts.php:763"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every tool is registered as a WordPress Abilities API ability and served through the bundled official MCP Adapter. It can also bridge abilities that other plugins register.",
+      "evidence": [
+        "agent-abilities-for-mcp.php:422",
+        "agent-abilities-for-mcp.php:423",
+        "agent-abilities-for-mcp.php:429",
+        "includes/server.php:1707"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http"
+        ],
+        "protocol_version": "2025-11-25 (also 2026-07-28; legacy 2025-06-18 and 2024-11-05 accepted)",
+        "runs_in_wordpress": true
+      },
+      "summary": "MCP is served inside WordPress at /wp-json/agent-abilities-for-mcp/mcp, using the bundled MCP Adapter 0.7.0's HttpTransport (Streamable HTTP). It negotiates current protocol versions.",
+      "evidence": [
+        "includes/server.php:1714",
+        "includes/bootstrap.php:47",
+        "vendor/wordpress/mcp-adapter/includes/Core/McpVersionNegotiator.php:35",
+        "vendor/wordpress/mcp-adapter/includes/Core/McpAdapter.php:31"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [],
+      "summary": "There is no Pro version or account: the readme says there is no paid tier, and the code has no licence checks.",
+      "evidence": [
+        "readme.txt:192"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The Connection tab builds a ready-made @automattic/mcp-wordpress-remote config for this site, using an Application Password. On a local site it adds NODE_TLS_REJECT_UNAUTHORIZED automatically. OAuth also works over plain HTTP when the environment type is local or development.",
+      "evidence": [
+        "includes/admin/connection.php:321",
+        "includes/admin/connection.php:326",
+        "includes/admin/connection.php:332",
+        "includes/oauth/http.php:29"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "For hosts that strip the Authorization header, the bearer token is also read from REDIRECT_HTTP_AUTHORIZATION, and Connection Doctor detects the problem and shows Apache/nginx snippets to fix it. CORS headers are exposed for browser clients, and discovery documents are mirrored under /wp-json for hosts that block /.well-known. The FAQ covers Cloudflare, WP Engine and nginx dotfile rules.",
+      "evidence": [
+        "includes/oauth/validator.php:477",
+        "includes/oauth/validator.php:479",
+        "includes/admin/doctor.php:142",
+        "includes/admin/doctor.php:332",
+        "agent-abilities-for-mcp.php:286",
+        "agent-abilities-for-mcp.php:293",
+        "readme.txt:298"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 4,
+        "steps": [
+          "Open the plugin's first-run wizard and turn the connection (OAuth) on",
+          "Choose which abilities the agent can use (all are off by default)",
+          "Copy the MCP endpoint from the Connection tab and add it in Claude as a custom connector",
+          "Approve the OAuth consent screen in the browser"
+        ]
+      },
+      "summary": "Following the plugin's own OAuth flow takes about four steps from activation to the first tool call in Claude Desktop.",
+      "evidence": [
+        "includes/admin/quickconnect.php:295",
+        "includes/admin/connection.php:1243",
+        "readme.txt:106"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "OAuth with dynamic client registration lets you paste the endpoint URL into Claude's 'Add custom connector' (or ChatGPT) and approve in the browser, with no terminal or JSON file. DCR is on by default once OAuth is switched on.",
+      "evidence": [
+        "includes/oauth/discovery.php:105",
+        "includes/oauth/discovery.php:152",
+        "agent-abilities-for-mcp.php:291",
+        "includes/admin/connection.php:1237"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The Connection tab shows this site's endpoint with a Copy button and per-client instructions (pick your OS and client). It also generates copyable mcp-remote and mcp-wordpress-remote configs for this site, has a Windows variant, and includes Connection Doctor.",
+      "evidence": [
+        "includes/admin/connection.php:1244",
+        "includes/admin/connection.php:1247",
+        "includes/admin/connection.php:313",
+        "includes/admin/connection.php:1260"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "https://agentabilitieswp.com/",
+        "https://agentabilitieswp.com/docs/",
+        "https://agentabilitieswp.com/docs/getting-started/",
+        "https://agentabilitieswp.com/docs/connecting-a-client/",
+        "https://agentabilitieswp.com/clients/",
+        "https://github.com/unaibamir/agent-abilities-for-mcp"
+      ],
+      "summary": "The readme documents setup step by step, with a detailed troubleshooting FAQ, and links to a docs site. The admin has a Help tab with connection guidance and links to the plugin's website.",
+      "evidence": [
+        "readme.txt:21",
+        "readme.txt:129",
+        "readme.txt:138",
+        "includes/admin/page.php:1735",
+        "includes/admin/page.php:3293"
+      ]
+    }
+  },
+  "notes": "A very carefully built, governance-focused plugin on the official MCP Adapter 0.7.0 (bundled and eager-loaded so its copy wins over older copies in other plugins). Things worth knowing: (1) The Adapter's default server is set to 'Automatic' and starts when another active plugin publishes tools there. Those tools bypass this plugin's read-only mode, allowlists, IP allowlist, rate limit and audit log. The readme says so, and admins can pick 'Always off'. (2) An Application Password is a whole-site credential: the plugin's limits only apply to calls through its MCP endpoint, and there is no allowlist per password (role only). (3) Discovery for bridged abilities falls back to edit_posts when the other plugin's check needs an object id, so some bridged tools are listed to editors and then refused when called. (4) Dynamic client registration is on by default but only reachable once OAuth is on; it is rate-limited and backed by a human consent screen. (5) The high-risk lock only covers native WooCommerce money/authority tools; a filter cannot lock bridged abilities. (6) No plugin-side confirmation for deletes; delete tools are off by default and annotated destructive. The readme's claims match the code: 179 abilities (85 core plus 94 integration), off by default, read-only mode, hashed tokens, Trash by default."
+}

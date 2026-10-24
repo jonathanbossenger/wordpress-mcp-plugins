@@ -1,0 +1,479 @@
+{
+  "slug": "saddle",
+  "version": "1.5.2",
+  "reviewed_at": "2026-10-23T22:31:02+02:00",
+  "duration_s": 157,
+  "cost_usd": 2.4327668,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "application-password",
+        "oauth",
+        "cookie"
+      ],
+      "summary": "The MCP endpoint only answers when a WordPress user has been identified. That can be an Application Password (Basic), a Saddle OAuth bearer token issued after an administrator approves the app, or a logged-in cookie session. Every credential is tied to a WordPress user.",
+      "evidence": [
+        "includes/class-saddle-mcp.php:584",
+        "includes/class-saddle-mcp.php:413",
+        "includes/oauth/class-saddle-oauth-bearer.php:85",
+        "includes/oauth/class-saddle-oauth-bearer.php:144"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "A request with no credentials gets a 401 before any JSON-RPC method runs, and that includes tools/list. Each tool's own permission check also returns false when nobody is logged in. Only the OAuth discovery and dynamic client registration routes are public, and registering a client grants nothing.",
+      "evidence": [
+        "includes/class-saddle-mcp.php:618",
+        "includes/class-saddle-capabilities.php:298",
+        "includes/class-saddle-capabilities.php:397",
+        "includes/oauth/class-saddle-oauth-clients.php:96"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every tool declares a WordPress capability (edit_posts, delete_posts, activate_plugins, manage_options and so on) plus an access tier, and both are checked on every call. The execute callbacks then check per object, for example current_user_can('delete_post', $id) before a delete and read_post before returning content.",
+      "evidence": [
+        "includes/class-saddle-capabilities.php:274",
+        "includes/class-saddle-capabilities.php:302",
+        "includes/abilities/core-content.php:276",
+        "includes/abilities/core-content.php:2567",
+        "includes/abilities/core-content.php:22"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Pasted keys are core Application Passwords, which WordPress stores hashed. They are shown once and confined to the MCP route. OAuth codes and tokens and the confirmation tokens are stored only as SHA-256 hashes.",
+      "evidence": [
+        "includes/oauth/class-saddle-oauth-store.php:27",
+        "includes/oauth/class-saddle-oauth-store.php:116",
+        "includes/class-saddle-approval.php:234",
+        "includes/class-saddle-approval.php:315",
+        "includes/class-saddle-connection.php:141"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The MCP route is registered as soon as the plugin is active and has no off switch, but it needs credentials. New connections and the site tier start at Read only, and OAuth sign-in is off until the owner turns it on.",
+      "evidence": [
+        "includes/class-saddle-mcp.php:377",
+        "includes/class-saddle-capabilities.php:37",
+        "includes/class-saddle-access.php:110",
+        "includes/oauth/class-saddle-oauth.php:176"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Each connected app (Application Password key or OAuth grant) has its own access level: Read only, Edit content or Manage the site. New apps start at Read only. Cookie sessions fall back to the site tier, which defaults to read. There is also a Rehearsal mode in which write tools save nothing, and a Pause switch that blocks every tool.",
+      "evidence": [
+        "includes/class-saddle-access.php:99",
+        "includes/class-saddle-capabilities.php:186",
+        "includes/class-saddle-capabilities.php:81",
+        "includes/class-saddle-capabilities.php:289"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Any single tool can be switched off for all connections. On top of that, each connection gets one of three access tiers. Tools a connection can't use are also left out of its tools/list.",
+      "evidence": [
+        "includes/class-saddle-capabilities.php:46",
+        "includes/class-saddle-capabilities.php:307",
+        "includes/class-saddle-capabilities.php:838",
+        "includes/class-saddle-mcp.php:1006"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Pass",
+      "value": {
+        "mechanism": "Two-step preview + single-use confirm_token (15 min, bound to action/target/permanence), plus a 'Needs your OK' approval queue in wp-admin; destructiveHint annotations also sent"
+      },
+      "summary": "Deletes, option changes, plugin and theme activation, installs and updates first return a preview and a confirm_token, and do nothing until called again with that token. The pending request also appears in wp-admin under Needs your OK, where the owner can approve or reject it. Drafts-only mode sends publish requests through the same gate.",
+      "evidence": [
+        "includes/class-saddle-approval.php:120",
+        "includes/abilities/core-content.php:2630",
+        "includes/abilities/site.php:219",
+        "includes/admin/class-saddle-approvals-rest.php:20",
+        "includes/class-saddle-mcp.php:1117"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "delete-post and delete-page move items to the trash unless force=true is passed. The confirmation token is bound to trash or permanent, so a trash preview cannot be confirmed into a permanent delete. delete-media is permanent because WordPress attachments have no trash, and it still needs confirmation.",
+      "evidence": [
+        "includes/abilities/core-content.php:2571",
+        "includes/abilities/core-content.php:2636",
+        "includes/abilities/core-content.php:2670",
+        "includes/abilities/core-content.php:530"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every executed change, refused call and rehearsed call is stored in a private log post type, along with the WordPress user, the app's name and the time. The free plugin's Home Activity feed shows these entries, and logged changes can be undone from there. Read-only calls are not logged.",
+      "evidence": [
+        "includes/class-saddle-log.php:67",
+        "includes/class-saddle-log.php:82",
+        "includes/class-saddle-log.php:99",
+        "includes/class-saddle-capabilities.php:633"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 141,
+        "names": [
+          "get-site-info",
+          "self-check",
+          "get-instructions",
+          "search-content",
+          "list-post-types",
+          "list-posts",
+          "get-post",
+          "create-post",
+          "update-post",
+          "delete-post",
+          "list-post-revisions",
+          "list-pages",
+          "get-page",
+          "create-page",
+          "update-page",
+          "delete-page",
+          "list-media",
+          "get-media",
+          "upload-media",
+          "update-media",
+          "delete-media",
+          "list-categories",
+          "create-category",
+          "list-tags",
+          "create-tag",
+          "list-plugins",
+          "activate-plugin",
+          "deactivate-plugin",
+          "list-themes",
+          "activate-theme",
+          "list-options",
+          "get-option",
+          "update-option",
+          "flush-cache",
+          "search-plugins",
+          "install-plugin",
+          "install-theme",
+          "list-updates",
+          "update-plugin",
+          "update-theme",
+          "set-auto-update",
+          "get-site-health",
+          "update-core",
+          "update-translations",
+          "list-users",
+          "get-user",
+          "list-menus",
+          "get-menu",
+          "add-menu-item",
+          "update-menu-item",
+          "move-menu-item",
+          "remove-menu-item",
+          "set-menu-location",
+          "list-block-types",
+          "get-block-schema",
+          "get-design-tokens",
+          "bootstrap-design-system",
+          "list-section-recipes",
+          "get-section-recipe",
+          "get-design-system",
+          "list-block-patterns",
+          "get-blocks",
+          "set-blocks",
+          "add-block",
+          "edit-block",
+          "move-block",
+          "remove-block",
+          "insert-block-pattern",
+          "list-templates",
+          "get-template",
+          "get-global-styles",
+          "list-saved-patterns",
+          "set-template",
+          "create-template-part",
+          "save-pattern",
+          "render-node",
+          "get-preview-url",
+          "lint-page",
+          "verify-page",
+          "context-bundle",
+          "list-skills",
+          "get-skill",
+          "recall-changes",
+          "remember",
+          "recall",
+          "forget",
+          "undo-changes",
+          "list-modules",
+          "get-module-settings",
+          "update-module-settings",
+          "unsplash-search",
+          "unsplash-import",
+          "yoast-check-setup",
+          "yoast-get-post-seo",
+          "yoast-edit-post-seo",
+          "yoast-get-term-seo",
+          "yoast-edit-term-seo",
+          "yoast-get-post-schema",
+          "yoast-edit-post-schema",
+          "rank-math-check-setup",
+          "rank-math-get-post-seo",
+          "rank-math-edit-post-seo",
+          "rank-math-get-term-seo",
+          "rank-math-edit-term-seo",
+          "aioseo-check-setup",
+          "aioseo-get-post-seo",
+          "aioseo-edit-post-seo",
+          "wc-check-setup",
+          "wc-list-products",
+          "wc-get-product",
+          "wc-list-orders",
+          "divi-context-bundle",
+          "divi-check-setup",
+          "divi-list-modules",
+          "divi-get-page",
+          "divi-set-page",
+          "divi-set-page-settings",
+          "divi-get-module-schema",
+          "divi-get-style-schema",
+          "divi-add-module",
+          "divi-edit-module",
+          "divi-move-module",
+          "divi-remove-module",
+          "divi-list-loop-query-types",
+          "divi-enable-loop",
+          "divi-edit-loop",
+          "divi-disable-loop",
+          "divi-list-dynamic-sources",
+          "divi-apply-dynamic-content",
+          "divi-clear-dynamic-content",
+          "divi-apply-global-preset",
+          "divi-list-condition-types",
+          "divi-set-display-conditions",
+          "divi-list-global-colors",
+          "divi-get-global-fonts",
+          "divi-list-variables",
+          "divi-list-global-presets",
+          "divi-get-global-preset",
+          "divi-list-library-items",
+          "divi-list-theme-builder-templates",
+          "divi-list-theme-builder-conditions"
+        ]
+      },
+      "summary": "There are about 141 first-class tools, all named saddle/… and exposed as saddle-…. Integration tools (Yoast, Rank Math, AIOSEO, WooCommerce, Divi, Unsplash) appear only when that plugin or service is set up. Other plugins can add more tools through the integration engine, and those stay off until the owner enables them.",
+      "evidence": [
+        "includes/abilities/core-content.php:66",
+        "includes/abilities/site.php:39",
+        "includes/abilities/blocks.php:33",
+        "includes/abilities/divi.php:25",
+        "includes/class-saddle-integration-engine.php:329"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "plugins",
+        "themes",
+        "settings",
+        "blocks",
+        "woocommerce"
+      ],
+      "summary": "The tools cover posts and custom post types, pages, media, categories and tags, users (read only), plugins and themes (activate, install, update), an allowlist of settings, blocks and templates, menus, SEO plugins, Divi 5 and WooCommerce (read only). There are no comment tools.",
+      "evidence": [
+        "includes/abilities/core-content.php:546",
+        "includes/abilities/users.php:28",
+        "includes/abilities/site.php:171",
+        "includes/abilities/woocommerce.php:99",
+        "includes/abilities/menus.php:40"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "saddle-list-posts (per_page, orderby date)"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "saddle-upload-media + saddle-create-post (defaults to draft; content stored as given — block markup is normalized via parse/serialize_blocks, no Markdown conversion); also set-blocks/add-block"
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "saddle-update-post (only passed fields change) or saddle-add-block to append without rewriting"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "saddle-upload-media (source_url)"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "saddle-list-plugins (needs Manage the site tier)"
+        },
+        "T6": {
+          "status": "Pass",
+          "tool": "saddle-update-option name=blogdescription (admin tier, preview + confirm_token)"
+        },
+        "T7": {
+          "status": "Pass",
+          "tool": "saddle-delete-post (trash by default, confirm_token, logged and undoable)"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "create-post needs edit_posts, delete-post needs delete_posts + delete_post per object; subscriber refused"
+        }
+      },
+      "summary": "All eight standard tasks are possible. Settings and plugin tasks need the app raised to Manage the site, and writes need Edit content.",
+      "evidence": [
+        "includes/abilities/core-content.php:179",
+        "includes/abilities/core-content.php:243",
+        "includes/abilities/core-content.php:2754",
+        "includes/abilities/core-content.php:462",
+        "includes/abilities/site.php:40",
+        "includes/abilities/site.php:216",
+        "includes/abilities/core-content.php:269"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every tool is registered with wp_register_ability under a 'saddle' category. When the MCP Adapter is present they are served as a custom adapter server. Abilities from other plugins are not exposed on Saddle's endpoint.",
+      "evidence": [
+        "includes/abilities/core-content.php:46",
+        "includes/abilities/core-content.php:66",
+        "includes/class-saddle-mcp.php:82"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http (POST JSON-RPC at /wp-json/saddle/v1/mcp; GET/DELETE answered 405)",
+          "MCP Adapter HttpTransport when a supported adapter is active"
+        ],
+        "protocol_version": "2025-11-25 (also 2025-06-18, 2024-11-05)",
+        "runs_in_wordpress": true
+      },
+      "summary": "The plugin serves its own JSON-RPC Streamable HTTP endpoint inside WordPress, which speaks protocol 2025-11-25 and acknowledges notifications with 202. When the MCP Adapter is active, it hands the same route to the adapter.",
+      "evidence": [
+        "includes/class-saddle-mcp.php:45",
+        "includes/class-saddle-mcp.php:405",
+        "includes/class-saddle-mcp.php:536",
+        "includes/class-saddle-mcp.php:96"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [
+        "Divi design-system writes (global colors/fonts/variables/presets)",
+        "Divi Library and Theme Builder writes",
+        "whole-page Divi build/clone",
+        "site-wide bulk swaps",
+        "WooCommerce bulk product updates"
+      ],
+      "summary": "The MCP server, OAuth, the safety controls, logging and all core content, site and block tools are in the free plugin. Pro only adds bulk and Divi-specific features.",
+      "evidence": [
+        "readme.txt:122",
+        "readme.txt:131"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": null,
+      "summary": "For a site on the owner's own computer, the connect wizard gives Claude Desktop an mcp-remote config with a Basic Application Password header. OAuth's HTTPS requirement is waived when the environment type is 'local'. The claude.ai custom connector can't reach a local site, and the wizard says so.",
+      "evidence": [
+        "admin/src/connect-apps.js:64",
+        "admin/src/connect-apps.js:524",
+        "includes/oauth/class-saddle-oauth.php:155"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "If the host strips the Authorization header, the plugin tries to recover it from REDIRECT_HTTP_AUTHORIZATION or getallheaders. A connection check tests the header with a loopback request and offers a one-click .htaccess fix or an nginx snippet. OAuth discovery documents send CORS headers. OAuth needs HTTPS and pretty permalinks.",
+      "evidence": [
+        "includes/class-saddle-connection.php:19",
+        "includes/class-saddle-connection.php:342",
+        "includes/class-saddle-connection.php:832",
+        "includes/class-saddle-connection.php:894",
+        "includes/oauth/class-saddle-oauth-discovery.php:177"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 4,
+        "steps": [
+          "Saddle → AI apps → Connect an app, pick Claude",
+          "Turn on sign-in for apps (OAuth) when the wizard offers it",
+          "In Claude, Add custom connector with the shown URL (or click 'Add to Claude')",
+          "Approve the connection on the site's consent screen (raise access from Read only if changes are wanted)"
+        ]
+      },
+      "summary": "Following the readme, connecting Claude takes about four steps with no terminal. Allowing changes is one more step on the AI apps screen. The custom-connector path needs a public HTTPS site.",
+      "evidence": [
+        "readme.txt:138",
+        "admin/src/connect-apps.js:52",
+        "admin/src/connect-apps.js:618"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The plugin includes an OAuth 2.1 server with dynamic client registration and a consent screen, so Claude's 'Add custom connector' (and ChatGPT) work with just the site URL. The wizard has a prefilled 'Add to Claude' link. Local sites and older Claude desktop builds still need the JSON config.",
+      "evidence": [
+        "includes/oauth/class-saddle-oauth-clients.php:101",
+        "includes/oauth/class-saddle-oauth-consent.php:215",
+        "admin/src/connect-apps.js:618"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Saddle → AI apps has a connect wizard for each app. It shows copyable configs built from this site's MCP URL and slug, per-app instructions, one-click install links for Claude, Cursor and VS Code, and a setup guide drawer.",
+      "evidence": [
+        "admin/src/connect-apps.js:44",
+        "admin/src/connect-apps.js:548",
+        "admin/src/connect-apps.js:594",
+        "admin/src/components/SetupGuideDrawer.jsx"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "https://saddle.to",
+        "https://saddle.to/docs",
+        "https://wordpress.org/plugins/saddle/ (wp-admin docs link default)"
+      ],
+      "summary": "The readme has installation steps and links to saddle.to/docs for per-app setup. The wp-admin frame has a docs link (it defaults to the WordPress.org plugin page) and in-app step-by-step setup guides.",
+      "evidence": [
+        "readme.txt:21",
+        "readme.txt:33",
+        "readme.txt:138",
+        "includes/admin/class-saddle-settings.php:508",
+        "admin/src/components/Frame.jsx:379"
+      ]
+    }
+  },
+  "notes": "Saddle 1.5.2 is a strong implementation built on the Abilities API. It has its own Streamable HTTP transport inside WordPress (it switches to the MCP Adapter when a supported version is active), tier, capability and per-object checks, per-app access levels, per-tool switches, pause, rehearsal and drafts-only modes, a confirmation-token approval gate with a wp-admin queue, an activity log with undo, and OAuth 2.1 with dynamic client registration. Things worth knowing: (1) The MCP route is always registered and has no on/off setting; safety comes from authentication plus the Read-only default. (2) Application Passwords that Saddle issues are confined to the MCP route. Application Passwords the owner made by hand also work on the endpoint; they start at Read only, but they are not confined from the rest of the REST API (core behaviour). (3) Cookie sessions get the site-wide tier, not a per-app tier. (4) The wp-admin 'docs' link defaults to the WordPress.org plugin page rather than saddle.to/docs. (5) delete-media is permanent because attachments have no trash, but it still goes through the confirmation gate. (6) Read-only tool calls are not logged; only changes and refusals are. (7) There are no comment tools, and WooCommerce tools are read only in the free plugin. (8) The OAuth bearer docblock says '61 abilities', which is out of date; the real count is about 141."
+}

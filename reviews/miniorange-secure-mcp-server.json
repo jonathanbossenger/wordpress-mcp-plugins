@@ -1,0 +1,379 @@
+{
+  "slug": "miniorange-secure-mcp-server",
+  "version": "1.5.3",
+  "reviewed_at": "2026-10-23T22:41:33+02:00",
+  "duration_s": 185,
+  "cost_usd": 2.2731614,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "oauth"
+      ],
+      "summary": "The /mosmcp/v1/mcp endpoint only accepts OAuth 2.1 bearer tokens issued by the plugin's own authorization server (PKCE S256, audience-bound). Each token belongs to the WordPress user who approved it, and the request runs as that user.",
+      "evidence": [
+        "includes/common/apis/mcp/class-mcp-routes.php:33",
+        "includes/common/controllers/mcp/class-rest-controller.php:84",
+        "includes/common/controllers/mcp/class-rest-controller.php:111",
+        "includes/common/controllers/mcp/class-rest-controller.php:137",
+        "includes/common/services/oauth/class-oauth-server.php:195"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "Requests without a valid bearer token get a 401 from the permission callback before any JSON-RPC handling, so tools can't be listed or called. Only a /health probe is public: it shows endpoint URLs and the number of enabled agents.",
+      "evidence": [
+        "includes/common/controllers/mcp/class-rest-controller.php:88",
+        "includes/common/apis/mcp/class-mcp-routes.php:44",
+        "includes/common/controllers/mcp/class-rest-controller.php:46"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every bundled ability declares a WordPress capability, often per object (e.g. delete_post with the post ID). The registrar wraps each one in a current_user_can() permission callback, and WP_Ability::execute() runs it on every tool call.",
+      "evidence": [
+        "libraries/abilities/src/class-ability-registrar.php:263",
+        "libraries/abilities/src/class-ability-registrar.php:312",
+        "libraries/abilities/src/packs/core/class-posts-pack.php:607",
+        "libraries/abilities/src/packs/core/class-posts-pack.php:608",
+        "includes/common/services/mcp/class-mcp-server.php:639"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Authorization codes, access tokens and refresh tokens are stored only as hashes and looked up by hash.",
+      "evidence": [
+        "includes/common/repositories/class-store.php:21",
+        "includes/common/controllers/mcp/class-rest-controller.php:92",
+        "includes/common/services/oauth/class-oauth-server.php:259"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The route exists after activation, but every MCP call is refused until an admin creates and enables an agent (NHI) and grants abilities to roles. Fresh installs seed no agent, and REST-route grants are deny-by-default.",
+      "evidence": [
+        "includes/common/services/mcp/class-mcp-server.php:309",
+        "includes/common/migration/class-migration.php:231",
+        "includes/common/repositories/class-nhi-store.php:387"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Site-wide create/update/delete kill switches exist, but only for the governed REST-bridge tool (mosmcp/rest-call), not for the 350+ bundled abilities. Admins can approximate read-only by granting only read abilities to a role, but there is no single global read-only switch.",
+      "evidence": [
+        "includes/common/services/rest/class-rest-bridge.php:38",
+        "includes/common/services/rest/class-rest-bridge.php:452"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The Agent Registry grants abilities, and REST routes per method, to each WordPress role. Tools outside the user's role grants are hidden from tools/list and refused on tools/call. OAuth is the only connection type, so this covers every connection.",
+      "evidence": [
+        "includes/common/controllers/mcp/class-rest-controller.php:148",
+        "includes/common/services/mcp/class-mcp-server.php:779",
+        "includes/common/services/mcp/class-mcp-server.php:608",
+        "includes/common/repositories/class-nhi-store.php:404"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Pass",
+      "value": {
+        "mechanism": "Permanent-delete abilities require a confirm=true argument that is enforced server-side; the plugin's own and core abilities also get readOnlyHint/destructiveHint annotations."
+      },
+      "summary": "Irreversible deletes are refused unless the call passes confirm=true, and destructive tools carry destructiveHint annotations. The readme's 'human-in-the-loop approval' is not implemented in the plugin code; it may be a gateway feature.",
+      "evidence": [
+        "libraries/abilities/src/packs/core/class-posts-pack.php:676",
+        "libraries/abilities/src/packs/core/class-posts-provider.php:570",
+        "includes/common/services/mcp/class-mcp-server.php:911",
+        "includes/common/services/mcp/class-mcp-server.php:1095"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Deleting a post is split into separate tools: post-trash (recoverable, with post-restore) and post-delete-permanently, which needs confirm=true.",
+      "evidence": [
+        "libraries/abilities/src/packs/core/class-posts-pack.php:602",
+        "libraries/abilities/src/packs/core/class-posts-pack.php:638",
+        "libraries/abilities/src/packs/core/class-posts-pack.php:673"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every tools/call (success, failed or denied) is written to an audit table with user, agent, client, tool, status, error, latency, IP and time. Admins can filter and read it on the Activity log screen in wp-admin.",
+      "evidence": [
+        "includes/common/services/logging/class-audit-logger.php:95",
+        "includes/common/services/mcp/class-mcp-server.php:612",
+        "includes/common/services/mcp/class-mcp-server.php:718",
+        "includes/common/apis/audit/class-audit-routes.php:32"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": "About 360 counted in the source (357 single-line ability names across 26 files, plus the ACF, Kadence, Users, Comments, Yoast and Divi packs, which use other formats); the readme claims 426. Integration packs register only when their plugin is active. Every ability is exposed as a tool (name with / replaced by __).",
+        "names": [
+          "mosmcp/post-create-draft",
+          "mosmcp/post-update",
+          "mosmcp/post-update-own",
+          "mosmcp/post-duplicate",
+          "mosmcp/post-publish",
+          "mosmcp/post-schedule",
+          "mosmcp/post-trash",
+          "mosmcp/post-restore",
+          "mosmcp/post-delete-permanently",
+          "mosmcp/post-find",
+          "mosmcp/post-get",
+          "mosmcp/post-list-all",
+          "mosmcp/post-list-drafts",
+          "mosmcp/post-list-published",
+          "mosmcp/post-set-featured-image",
+          "(25 page-* abilities)",
+          "mosmcp/media-upload-from-url",
+          "mosmcp/media-upload-file",
+          "mosmcp/media-find",
+          "mosmcp/media-get",
+          "mosmcp/media-update-alt-text",
+          "mosmcp/media-delete-permanently",
+          "(categories, tags, revisions, comments, users, CPT abilities)",
+          "mosmcp/content-find-in-posts",
+          "mosmcp/content-replace-in-post",
+          "mosmcp/content-replace-in-meta",
+          "mosmcp/content-replace-in-option",
+          "mosmcp/site-get-tagline",
+          "mosmcp/site-update-title",
+          "mosmcp/site-update-tagline",
+          "mosmcp/site-update-timezone",
+          "mosmcp/site-set-homepage",
+          "mosmcp/plugin-list",
+          "mosmcp/plugin-get",
+          "mosmcp/plugin-activate",
+          "mosmcp/plugin-deactivate",
+          "mosmcp/plugin-update",
+          "mosmcp/plugin-set-auto-updates",
+          "mosmcp/theme-list",
+          "mosmcp/theme-get-active",
+          "(block theme, theme draft, theme files abilities)",
+          "mosmcp/cron-list-events",
+          "mosmcp/cron-run-event",
+          "mosmcp/site-flush-cache",
+          "mosmcp/site-read-error-log",
+          "(site health abilities)",
+          "(WooCommerce products, orders, customers, coupons, reports)",
+          "(ACF, Yoast, Rank Math, Elementor, Kadence, Divi, CF7/WPForms/Gravity/Fluent Forms abilities)",
+          "mosmcp/rest-list-routes",
+          "mosmcp/rest-describe-route",
+          "mosmcp/rest-call",
+          "(any third-party abilities registered with the Abilities API)"
+        ]
+      },
+      "summary": "The plugin exposes every registered Abilities API ability as an MCP tool. That is around 360 bundled mosmcp/* abilities across core content, site admin, theming and many plugin integrations, plus a governed generic REST-call tool.",
+      "evidence": [
+        "libraries/abilities/src/packs/core/class-posts-pack.php:62",
+        "libraries/abilities/src/packs/core/class-media-pack.php:108",
+        "libraries/abilities/src/packs/site/class-plugins-pack.php:83",
+        "libraries/abilities/src/packs/site/class-site-settings-pack.php:435",
+        "includes/common/services/rest/class-rest-abilities.php:186",
+        "includes/common/services/mcp/class-mcp-server.php:761"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "comments",
+        "plugins",
+        "themes",
+        "settings",
+        "blocks",
+        "woocommerce"
+      ],
+      "summary": "Covers core content, users, comments, plugins (no install), themes and theme editing, site settings, block templates and patterns, and WooCommerce, plus ACF, SEO, page builders and forms.",
+      "evidence": [
+        "libraries/abilities/src/packs/core/class-posts-pack.php:42",
+        "libraries/abilities/src/packs/users/class-users-pack.php",
+        "libraries/abilities/src/packs/comments/class-comments-pack.php",
+        "libraries/abilities/src/packs/site/class-plugins-pack.php:83",
+        "libraries/abilities/src/packs/theming/class-block-theme-pack.php",
+        "libraries/abilities/src/packs/woocommerce/class-products-abilities.php"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "mosmcp/post-list-all"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "mosmcp/media-upload-from-url + mosmcp/post-create-draft (content stored as supplied HTML/block markup after an HTML policy check; no Markdown conversion)"
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "mosmcp/post-update (title) + mosmcp/content-replace-in-post (partial edit without rewriting)"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "mosmcp/media-upload-from-url"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "mosmcp/plugin-list"
+        },
+        "T6": {
+          "status": "Pass",
+          "tool": "mosmcp/site-update-tagline"
+        },
+        "T7": {
+          "status": "Pass",
+          "tool": "mosmcp/post-trash (default, restorable) or mosmcp/post-delete-permanently (confirm=true required); both logged to the audit table"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "Role grants plus per-ability current_user_can (edit_posts/publish_posts/delete_post) block a subscriber"
+        }
+      },
+      "summary": "All eight standard tasks can be done with the bundled abilities, once an admin grants them to the user's role.",
+      "evidence": [
+        "libraries/abilities/src/packs/core/class-posts-pack.php:922",
+        "libraries/abilities/src/packs/core/class-posts-pack.php:105",
+        "libraries/abilities/src/packs/editing/class-editing-pack.php:156",
+        "libraries/abilities/src/packs/core/class-media-pack.php:108",
+        "libraries/abilities/src/packs/site/class-plugins-pack.php:83",
+        "libraries/abilities/src/packs/site/class-site-settings-pack.php:435",
+        "libraries/abilities/src/packs/core/class-posts-pack.php:602",
+        "libraries/abilities/src/packs/core/class-posts-pack.php:451"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Built on the WordPress Abilities API: it registers its own abilities and turns every ability in wp_get_abilities() into an MCP tool, including abilities from other plugins. It ships its own MCP server, not the MCP Adapter.",
+      "evidence": [
+        "includes/common/services/mcp/class-mcp-server.php:761",
+        "libraries/abilities/src/class-ability-registrar.php:263"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http (POST + JSON, no SSE stream)"
+        ],
+        "protocol_version": "2025-06-18",
+        "runs_in_wordpress": true
+      },
+      "summary": "A JSON-RPC MCP server runs inside WordPress at /wp-json/mosmcp/v1/mcp (Streamable HTTP, POST only, protocol 2025-06-18). However, the plugin labels direct connections 'deprecated' and steers users to the miniOrange cloud gateway (gateway.miniorange.ai/v2/mcp).",
+      "evidence": [
+        "includes/common/apis/mcp/class-mcp-routes.php:32",
+        "includes/common/services/mcp/class-mcp-server.php:35",
+        "includes/common/services/mcp/class-mcp-server.php:245"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Partial",
+      "value": [
+        "Recommended connection path is the miniOrange hosted gateway (gateway.miniorange.ai); direct connections are labelled deprecated and 'will stop working'",
+        "Readme-advertised prompt-injection detection, rate limits/quotas, DLP masking and human-in-the-loop approval are not in the plugin code (presumably gateway-side)"
+      ],
+      "summary": "There is no Pro gating in the plugin; all tools and controls work locally. But the plugin pushes users onto miniOrange's hosted gateway, warns that direct connections will stop working, and several advertised security features exist only outside the plugin.",
+      "evidence": [
+        "includes/common/services/mcp/class-mcp-server.php:245",
+        "includes/common/services/mcp/class-mcp-server.php:438",
+        "includes/common/repositories/class-store.php:33"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The server doesn't require HTTPS, and OAuth dynamic client registration accepts localhost redirect URIs, so a local bridge like mcp-remote can probably complete the OAuth flow. However, the plugin's own instructions only cover the cloud gateway or claude.ai connectors (both need a public URL), and the readme says localhost sites can't be reached.",
+      "evidence": [
+        "includes/common/services/oauth/class-oauth-server.php:840",
+        "includes/common/utils/class-utils.php:168",
+        "readme.txt:334",
+        "main file miniorange-secure-mcp-server.php:45"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Handles a stripped Authorization header via several fallbacks, including the gateway's X-MO-Authorization header. It marks MCP and OAuth responses no-cache (including for LiteSpeed), corrects http/https behind proxies, serves .well-known discovery with CORS, and has a Troubleshooting page with WAF/CDN fixes.",
+      "evidence": [
+        "includes/common/utils/class-utils.php:191",
+        "includes/common/utils/class-utils.php:240",
+        "includes/common/utils/class-utils.php:84",
+        "includes/common/services/http/class-no-cache.php:21",
+        "includes/common/services/discovery/class-discovery.php:181",
+        "includes/common/services/diagnostics/class-fix-catalog.php:710"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 5,
+        "steps": [
+          "Open Secure MCP Server and click Register your first agent",
+          "Name the agent and grant abilities per role, click Create & Continue",
+          "Choose Claude under Connect your AI client and open the miniOrange connector / add the gateway URL",
+          "Enter your site URL at the gateway sign-in",
+          "Log in to WordPress and click Allow access"
+        ]
+      },
+      "summary": "About five steps after activation, all done in the browser, following the readme's Claude flow.",
+      "evidence": [
+        "readme.txt:50",
+        "readme.txt:69"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "No terminal or JSON config is needed: OAuth 2.1 with dynamic client registration lets Claude/ChatGPT add the URL as a custom connector. The recommended URL is miniOrange's gateway, though the site's own /mosmcp/v1/mcp URL also supports DCR.",
+      "evidence": [
+        "includes/common/services/oauth/class-oauth-server.php:51",
+        "includes/common/services/discovery/class-discovery.php:96",
+        "views/build/assets/index.js \"https://gateway.miniorange.ai/v2/mcp\""
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The admin app has an onboarding checklist and a Connect your AI client screen with per-client panels and copyable URLs, including the site URL and gateway URL. The site's own MCP endpoint is passed to the app as well.",
+      "evidence": [
+        "includes/common/views/admin/class-admin-app.php:232",
+        "views/build/assets/index.js \"Connect your AI client\""
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "https://plugins.miniorange.com/mcp-server-documentation",
+        "https://plugins.miniorange.com/connect-wordpress-with-claude-mcp-guide",
+        "https://plugins.miniorange.com/setup-chatgpt-to-wordpress-abilities-api-using-mcp",
+        "https://www.youtube.com/watch?v=MUtolq0HRhM"
+      ],
+      "summary": "The readme has step-by-step setup for Claude and ChatGPT and links a docs site. The admin app has a Setup Guide toolbar link and a Troubleshooting page.",
+      "evidence": [
+        "readme.txt:22",
+        "readme.txt:67",
+        "readme.txt:191"
+      ]
+    }
+  },
+  "notes": "The readme and the code contradict each other on the cloud relay. The readme says \"Everything runs on your own server. No third-party relay sits between your AI client and your site\" (readme.txt:37, 330), yet it gives https://gateway.miniorange.ai/v2/mcp as \"Your MCP server endpoint\" (readme.txt:86). The code goes further: it labels any non-gateway (direct) OAuth client deprecated. It sends models server instructions and appends notices to tool results telling the user that direct connections \"will stop working\" and that they should switch to the miniOrange Gateway (includes/common/services/mcp/class-mcp-server.php:245, 438). That is prompt-level steering inside tool output. The admin onboarding hardcodes the gateway URL. The on-site MCP server works today, but the vendor intends traffic to go through its cloud.\n\nReadme claims that are not in the plugin code: prompt-injection detection, behavioural anomaly detection, rate limits/quotas, DLP masking, and human-in-the-loop approval (readme.txt:211-214). There is no global per-tool on/off toggle either; scoping is done through role grants.\n\nThe public /health endpoint reports whether agents exist and how many are enabled (nhi_count). This is minor information disclosure.\n\nThe readme's FAQ claims Divi 3/4 support, but its feature list says Divi 4/5."
+}

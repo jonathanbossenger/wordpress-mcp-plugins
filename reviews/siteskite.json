@@ -1,0 +1,448 @@
+{
+  "slug": "siteskite",
+  "version": "2.2.11",
+  "reviewed_at": "2026-10-24T07:37:22+02:00",
+  "duration_s": 198,
+  "cost_usd": 2.6238200000000003,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Partial",
+      "value": [
+        "oauth",
+        "application-password",
+        "cookie",
+        "api-key"
+      ],
+      "summary": "The main door is OAuth issued by the site itself. Every token belongs to an administrator, and the plugin re-checks that the user still has manage_options on every request. Application Password or cookie logins only work once the site is linked to a SiteSkite account. A separate relay API (/siteskite/v1/abilities) accepts one shared site API key (or an old guest key) that is not tied to any WordPress user.",
+      "evidence": [
+        "includes/Mcp/McpServer.php:51",
+        "includes/Mcp/McpServer.php:74",
+        "includes/Mcp/McpServer.php:90",
+        "includes/Mcp/OAuth/BearerAuth.php:79",
+        "includes/Mcp/AbilitiesRest.php:49",
+        "includes/Mcp/AbilitiesRest.php:72"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "A request with no credentials gets a 401 with an OAuth challenge, or a 403 when MCP is off or the site is not linked. It cannot list or call tools. Only CORS preflight (OPTIONS) is answered without a login.",
+      "evidence": [
+        "includes/Mcp/McpServer.php:28",
+        "includes/Mcp/McpServer.php:65",
+        "includes/Mcp/AbilitiesRest.php:69"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Partial",
+      "value": null,
+      "summary": "One manage_options check sits at the endpoint, and the OAuth path repeats it. Individual tools such as update_post and toggle_plugin never call current_user_can for the specific object. On the shared API-key relay no WordPress user is set at all, and the tools still run.",
+      "evidence": [
+        "includes/Mcp/McpServer.php:90",
+        "includes/Mcp/OAuth/BearerAuth.php:79",
+        "includes/Mcp/Abilities/CoreAbilities.php:443",
+        "includes/Mcp/Abilities/CoreAbilities.php:630",
+        "includes/Mcp/AbilitiesRest.php:112"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Partial",
+      "value": null,
+      "summary": "OAuth codes, access tokens and refresh tokens are stored only as SHA-256 hashes. The SiteSkite API key, which also works as an MCP relay credential, and the legacy guest key are stored as plain-text options. The API key is masked in wp-admin and redacted from the plugin's logs.",
+      "evidence": [
+        "includes/Mcp/OAuth/TokenStore.php:167",
+        "includes/Mcp/OAuth/TokenStore.php:451",
+        "includes/Mcp/AbilitiesRest.php:72",
+        "includes/Mcp/McpGuestPairing.php:37",
+        "templates/admin-page.php:15",
+        "includes/Logger/Logger.php:48"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": null,
+      "summary": "MCP itself is off until an admin turns it on, and it is pinned to the domain it was enabled on. But once MCP is on, the Advanced Power Tools (run PHP, WP-CLI, file writes) are on by default, and OAuth access is on by default. The readme claims power tools are off until you enable them, but the code says otherwise.",
+      "evidence": [
+        "includes/Mcp/McpSettings.php:35",
+        "includes/Mcp/McpSettings.php:29",
+        "includes/Mcp/OAuth/Availability.php:21",
+        "readme.txt:198"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Pass",
+      "value": null,
+      "summary": "A site-wide read-only mode (setting or filter) blocks every non-read ability and every power tool when the tool runs. This covers every connection type, because all of them go through the same executor.",
+      "evidence": [
+        "includes/Mcp/McpSettings.php:78",
+        "includes/Mcp/AccessPolicy.php:50",
+        "includes/Mcp/AbilityRegistry.php:457",
+        "includes/Mcp/McpSettings.php:65"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "In the MCP Abilities screen the owner can switch each ability on or off, and this applies to every connection. OAuth tokens also carry coarse read, content or admin tiers, but a client gets the admin tier unless it asks for less.",
+      "evidence": [
+        "includes/Mcp/AbilitiesHub.php:39",
+        "includes/Mcp/AbilityRegistry.php:439",
+        "includes/Mcp/OAuth/Scopes.php:123",
+        "includes/Mcp/OAuth/Scopes.php:222"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "destructiveHint/readOnlyHint annotations (execute meta-tool marked destructive) plus instructions asking the agent to confirm; undo tokens and session rollback after the fact"
+      },
+      "summary": "Nothing on the plugin side asks for confirmation before a destructive call. Only the annotations and the text instructions ask the agent to confirm first. Undo tokens (about 72 hours) and change-log rollback let an owner reverse writes afterwards.",
+      "evidence": [
+        "includes/Mcp/AbilityRegistry.php:220",
+        "includes/Mcp/MetaTools.php:97",
+        "includes/Mcp/McpServer.php:439",
+        "includes/Mcp/AbilityRegistry.php:489"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "N/A",
+      "value": null,
+      "summary": "There is no tool for deleting posts or pages. The comment moderation tool offers trash and permanent delete as separate actions, and deleting a skill moves it to the trash. Posts can only be deleted through the PHP or WP-CLI power tools.",
+      "evidence": [
+        "includes/Mcp/Abilities/ContentAbilities.php:321",
+        "includes/Mcp/Abilities/ContentAbilities.php:325",
+        "includes/Mcp/Skills/UserSkillStore.php:215"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every ability call, including denied and failed ones, is written to a hash-chained audit table. Each entry records the user, how they signed in, the OAuth client, IP, ability, an argument summary, the outcome and the time. Logging is on by default and admins can read it in the AI MCP Activity tab and roll back changes under Logs & Roll Back.",
+      "evidence": [
+        "includes/Mcp/Audit/AuditLog.php:69",
+        "includes/Mcp/Audit/AuditLog.php:93",
+        "includes/Mcp/Audit/AuditLog.php:131",
+        "includes/Mcp/AbilityRegistry.php:522",
+        "includes/Mcp/Admin/ActivityPage.php:38"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 110,
+        "meta_tools": [
+          "siteskite_discover_abilities",
+          "siteskite_get_ability_info",
+          "siteskite_execute_ability"
+        ],
+        "names": [
+          "siteskite_site_welcome",
+          "siteskite_site_context",
+          "siteskite_list_content",
+          "siteskite_get_post",
+          "siteskite_create_page",
+          "siteskite_update_post",
+          "siteskite_publish_post",
+          "siteskite_list_plugins",
+          "siteskite_install_plugin",
+          "siteskite_toggle_plugin",
+          "siteskite_replace_in_post",
+          "siteskite_list_revisions",
+          "siteskite_restore_revision",
+          "siteskite_list_comments",
+          "siteskite_moderate_comment",
+          "siteskite_create_preview_link",
+          "siteskite_menus_list",
+          "siteskite_menus_update",
+          "siteskite_media_list",
+          "siteskite_media_sideload",
+          "siteskite_forms_list",
+          "siteskite_forms_create_cf7",
+          "siteskite_gutenberg_get_runtime",
+          "siteskite_gutenberg_get_content",
+          "siteskite_gutenberg_queue_change",
+          "siteskite_gutenberg_enable_batch",
+          "siteskite_gutenberg_get_batch",
+          "siteskite_gutenberg_cancel_batch",
+          "siteskite_gutenberg_apply_batch",
+          "siteskite_gutenberg_list_batches",
+          "siteskite_gutenberg_get_finalization_url",
+          "siteskite_gutenberg_cancel_item",
+          "siteskite_elementor_get_environment",
+          "siteskite_elementor_get_document",
+          "siteskite_elementor_get_outline",
+          "siteskite_elementor_clone_page",
+          "siteskite_elementor_replace_text",
+          "siteskite_elementor_replace_image",
+          "siteskite_elementor_replace_document",
+          "siteskite_elementor_list_widget_types",
+          "siteskite_elementor_list_templates",
+          "siteskite_elementor_insert_block",
+          "siteskite_elementor_apply_template",
+          "siteskite_divi_status",
+          "siteskite_divi_get_outline",
+          "siteskite_divi_replace_text",
+          "siteskite_divi_clone_page",
+          "siteskite_wpbakery_get_environment",
+          "siteskite_wpbakery_get_content",
+          "siteskite_wpbakery_replace_content",
+          "siteskite_seo_status",
+          "siteskite_seo_get_meta",
+          "siteskite_seo_set_meta",
+          "siteskite_woo_status",
+          "siteskite_woo_create_coupons",
+          "siteskite_woo_create_products",
+          "siteskite_woo_list_orders",
+          "siteskite_woo_get_order",
+          "siteskite_woo_update_order_status",
+          "siteskite_woo_list_products",
+          "siteskite_woo_get_product",
+          "siteskite_woo_update_product",
+          "siteskite_woo_list_coupons",
+          "siteskite_woo_get_coupon",
+          "siteskite_woo_list_customers",
+          "siteskite_acf_status",
+          "siteskite_acf_list_field_groups",
+          "siteskite_acf_get_fields",
+          "siteskite_acf_update_field",
+          "siteskite_ops_status",
+          "siteskite_redirection_list",
+          "siteskite_redirection_create",
+          "siteskite_cache_purge",
+          "siteskite_security_status",
+          "siteskite_updraft_list_backups",
+          "siteskite_forms_inbox_status",
+          "siteskite_wpforms_get_form",
+          "siteskite_wpforms_list_entries",
+          "siteskite_wpforms_get_entry",
+          "siteskite_cf7_list_messages",
+          "siteskite_cf7_get_message",
+          "siteskite_community_status",
+          "siteskite_community_list_members",
+          "siteskite_community_get_member",
+          "siteskite_community_list_groups",
+          "siteskite_community_activity_feed",
+          "siteskite_analytics_status",
+          "siteskite_analytics_overview",
+          "siteskite_analytics_top_pages",
+          "siteskite_analytics_traffic_sources",
+          "siteskite_analytics_search_queries",
+          "siteskite_skills_list",
+          "siteskite_skills_get",
+          "siteskite_skills_write",
+          "siteskite_skills_edit",
+          "siteskite_skills_delete",
+          "siteskite_undo_last_operation",
+          "siteskite_changelog_list",
+          "siteskite_changelog_rollback",
+          "siteskite_changelog_rollback_session",
+          "siteskite_execute_php",
+          "siteskite_run_wp_cli",
+          "siteskite_get_wp_cli_job",
+          "siteskite_list_directory",
+          "siteskite_read_file",
+          "siteskite_write_file",
+          "siteskite_delete_file",
+          "siteskite_edit_file",
+          "siteskite_create_upload_link"
+        ]
+      },
+      "summary": "tools/list shows only 3 meta tools (discover, get info, execute). Behind them sit 110 abilities from the plugin's own registry. Many of them only work when the matching plugin is active (WooCommerce, Elementor, Divi, ACF and so on), and 9 are Advanced Power Tools.",
+      "evidence": [
+        "includes/Mcp/MetaTools.php:35",
+        "includes/Mcp/AbilityRegistry.php:22",
+        "includes/Mcp/Abilities/CoreAbilities.php:14",
+        "includes/Mcp/Abilities/AdvancedAbilities.php:17",
+        "includes/Mcp/Abilities/WooAbilities.php:37"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "comments",
+        "plugins",
+        "blocks",
+        "woocommerce"
+      ],
+      "summary": "The tools cover posts and pages (create, update, publish, revisions), media sideloading, categories and tags when creating or updating posts, comment moderation, installing and toggling plugins, Gutenberg blocks and page builders, and WooCommerce. Settings, themes and users have no dedicated tools: they can only be reached through the PHP, WP-CLI or file power tools, or as read-only BuddyPress members and Woo customers.",
+      "evidence": [
+        "includes/Mcp/Abilities/CoreAbilities.php:55",
+        "includes/Mcp/Abilities/CoreAbilities.php:381",
+        "includes/Mcp/Abilities/SiteChromeAbilities.php:63",
+        "includes/Mcp/Abilities/ContentAbilities.php:79",
+        "includes/Mcp/Abilities/GutenbergAbilities.php:42",
+        "includes/Mcp/Abilities/WooAbilities.php:37"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "siteskite_list_content (post_type=post, limit=5; ordered by modified date, returns title and status)"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "siteskite_create_page (post_type=post, status=draft, featured_image_url) or siteskite_media_sideload + content; content stored as given (raw HTML or block markup), with an optional Gutenberg queue that converts HTML to blocks in the browser"
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "siteskite_get_post + siteskite_update_post (full content replace), or siteskite_replace_in_post"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "siteskite_media_sideload"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "siteskite_list_plugins"
+        },
+        "T6": {
+          "status": "Partial",
+          "tool": "No option tool; only via siteskite_run_wp_cli or siteskite_execute_php (Advanced Power Tools)"
+        },
+        "T7": {
+          "status": "Partial",
+          "tool": "No delete-post tool; only via siteskite_run_wp_cli (wp post delete). Logged in the audit log, no plugin-side confirmation"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "Endpoint and OAuth tokens require manage_options, so a subscriber cannot connect"
+        }
+      },
+      "summary": "Most content tasks have typed tools. Changing the tagline and deleting a post have no dedicated tool and need the PHP or WP-CLI power tools. Subscribers are refused because every user-based login must be an administrator.",
+      "evidence": [
+        "includes/Mcp/Abilities/CoreAbilities.php:240",
+        "includes/Mcp/Abilities/CoreAbilities.php:320",
+        "includes/Mcp/Abilities/CoreAbilities.php:443",
+        "includes/Mcp/Abilities/CoreAbilities.php:490",
+        "includes/Mcp/Abilities/SiteChromeAbilities.php:63",
+        "includes/Mcp/Abilities/AdvancedAbilities.php:33",
+        "includes/Mcp/OAuth/BearerAuth.php:79"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Fail",
+      "value": null,
+      "summary": "The plugin uses its own AbilityRegistry. It neither registers WordPress Abilities API abilities nor uses the MCP Adapter, and the code never calls wp_register_ability.",
+      "evidence": [
+        "includes/Mcp/AbilityRegistry.php:11",
+        "includes/Mcp/AbilityRegistry.php:22"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http (POST JSON responses only; GET/SSE returns 405)"
+        ],
+        "protocol_version": "2025-06-18 supported; defaults to 2025-03-26",
+        "runs_in_wordpress": true
+      },
+      "summary": "A JSON-RPC MCP server runs inside WordPress at /wp-json/mcp/siteskite. It supports batches and Mcp-Session-Id and negotiates protocol versions up to 2025-06-18. There is no SSE stream.",
+      "evidence": [
+        "includes/Mcp/McpServer.php:14",
+        "includes/Mcp/McpServer.php:114",
+        "includes/Mcp/McpServer.php:302"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [
+        "Platform MCP (mcp.siteskite.com fleet/multi-site connector) needs a SiteSkite account",
+        "Application Password / cookie access to the on-site endpoint only once the site is linked to a SiteSkite API key"
+      ],
+      "summary": "The on-site MCP server, all of its abilities, OAuth, read-only mode, the audit log and rollback all work without an account. Only the hosted multi-site Platform MCP, and the Application Password login, need a SiteSkite account.",
+      "evidence": [
+        "includes/Mcp/OAuth/Availability.php:11",
+        "includes/Mcp/McpServer.php:45",
+        "includes/Mcp/McpSettings.php:166",
+        "readme.txt:25"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": null,
+      "summary": "OAuth stays available over plain http on localhost, 127.0.0.1, .test, .local and .localhost hosts, or when the environment type is local. A client that does OAuth, such as mcp-remote or Claude Code, can therefore connect to a local site. The plugin does not mention mcp-remote, and Claude's cloud custom connectors cannot reach localhost.",
+      "evidence": [
+        "includes/Mcp/OAuth/Availability.php:64",
+        "includes/Mcp/OAuth/Availability.php:76"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "It works on typical public hosts. If the Authorization header arrives under a different name it falls back to REDIRECT_HTTP_AUTHORIZATION or HTTP_AUTHORIZATION, and CORS is limited to an allowlist and exposes WWW-Authenticate. On plain permalinks it uses ?rest_route= URLs, a Diagnostics tab detects a stripped header, and the relay can fall back to admin-ajax. OAuth needs HTTPS on public hosts.",
+      "evidence": [
+        "includes/Mcp/OAuth/BearerAuth.php:115",
+        "includes/Mcp/McpServer.php:504",
+        "includes/Mcp/McpSettings.php:100",
+        "includes/Mcp/OAuth/Availability.php:64",
+        "includes/API/FallbackAPI.php:415"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Pass",
+      "value": {
+        "count": 3,
+        "steps": [
+          "Open SiteSkite → AI MCP and switch MCP on",
+          "Click 'Add to Claude' (opens Claude's connector screen with name and URL prefilled) or paste the copied MCP address",
+          "Sign in to WordPress and approve the app on the consent screen"
+        ]
+      },
+      "summary": "Following the Connect tab, it takes three steps from turning MCP on to the first tool call: enable, add the connector, approve over OAuth.",
+      "evidence": [
+        "templates/mcp-connect-page.php:59",
+        "templates/partials/mcp-tab-connect.php:130",
+        "templates/partials/mcp-tab-connect.php:202",
+        "includes/Mcp/McpQuickConnectUrls.php:13"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The plugin runs its own OAuth server with dynamic client registration and RFC 9728 discovery. The Connect tab links straight to Claude's custom-connector screen with the URL filled in, so no terminal or JSON is needed.",
+      "evidence": [
+        "includes/Mcp/OAuth/Endpoints.php:25",
+        "includes/Mcp/OAuth/Discovery.php:235",
+        "includes/Mcp/OAuth/BearerAuth.php:150",
+        "includes/Mcp/McpQuickConnectUrls.php:13"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The AI MCP → Connect tab shows numbered steps, one-click buttons for ChatGPT, Claude and Cursor, and the site's own MCP URL with a Copy button. It also offers a starter prompt and per-client config snippets and setup prompts.",
+      "evidence": [
+        "templates/partials/mcp-tab-connect.php:162",
+        "templates/partials/mcp-tab-connect.php:270",
+        "templates/partials/mcp-tab-connect.php:345",
+        "includes/Mcp/McpPlatformClientSnippets.php:142"
+      ]
+    },
+    "DOCS": {
+      "status": "Partial",
+      "value": [
+        "https://knowledgebase.siteskite.com/",
+        "https://www.siteskite.com/",
+        "https://mcp.siteskite.com"
+      ],
+      "summary": "The readme covers Site MCP setup, and the in-admin Connect tab works as a guide. The only docs links in wp-admin are a general Knowledgebase link on the dashboard and in the plugin row; nothing links to MCP-specific docs. The readme also contradicts the code on whether power tools start off.",
+      "evidence": [
+        "readme.txt:44",
+        "readme.txt:156",
+        "templates/admin-page.php:243",
+        "includes/Core/AdminRowLinks.php:26"
+      ]
+    }
+  },
+  "notes": "The readme says \"Advanced Power Tools off until you enable them\" (readme.txt:198). In the code, McpSettings::DEFAULT_ADVANCED is '1', so PHP execution, WP-CLI and file read/write/delete are live as soon as MCP is switched on (unless read-only mode is on). OAuth grants default to the mcp:admin tier when the client asks for no scope (Scopes::grant_for_request), so a typical connected app gets the power tools too. The relay REST routes /siteskite/v1/abilities, /abilities/execute and /prompts accept a shared X-SiteSkite-Key, which can also be sent as an api_key query parameter, or a legacy guest key, also accepted as ?guest_key=. They then run abilities without setting any WordPress user. Audit entries for those calls therefore show user 0, and capability-aware core functions run unauthenticated. The Application Password and cookie path on /mcp/siteskite is refused unless the site is linked to a SiteSkite account (McpServer.php:74). This matches the comment in is_plugin_mcp_available about quotas. MCP is pinned to its domain: a cloned database lands with MCP disabled. The server injects a large instructions block that includes the full active-plugin list, theme and PHP/WP versions, and user context. A WebMCP option exposes the endpoint to logged-in visitors' browser agents; it is off by default, and the endpoint still requires manage_options."
+}

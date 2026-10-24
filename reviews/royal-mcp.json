@@ -1,0 +1,441 @@
+{
+  "slug": "royal-mcp",
+  "version": "1.5.11",
+  "reviewed_at": "2026-10-23T22:31:02+02:00",
+  "duration_s": 173,
+  "cost_usd": 2.616195,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "oauth",
+        "api-key",
+        "cookie"
+      ],
+      "summary": "The endpoint accepts OAuth 2.1 bearer tokens (PKCE, dynamic client registration) and a site API key sent as `Authorization: Bearer` or `X-Royal-MCP-API-Key`. The API key is tied to the admin who generated it, and calls run as that user. Browser-session cookie auth with a REST nonce is only possible when the WebMCP option is turned on, and it is off by default.",
+      "evidence": [
+        "includes/MCP/Server.php:493",
+        "includes/MCP/Server.php:548",
+        "includes/MCP/Server.php:616",
+        "includes/MCP/Server.php:819",
+        "royal-mcp.php:323"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "Every JSON-RPC method needs a valid credential, including initialize and tools/list. A request with no credential gets a 401 with an OAuth discovery header. The only public routes are discovery documents (server card, skills index, OAuth metadata), and these list categories and counts, not tools.",
+      "evidence": [
+        "includes/MCP/Server.php:1813",
+        "includes/MCP/Server.php:719",
+        "royal-mcp.php:920"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every built-in tool first needs the capability mapped to it, and then the handler checks the specific object, for example `current_user_can('delete_post', $id)` or a check that the user may create and publish that post type. Option writes need `manage_options` plus an allowlist.",
+      "evidence": [
+        "includes/MCP/Server.php:3311",
+        "includes/MCP/Server.php:3799",
+        "includes/MCP/Server.php:3507",
+        "includes/MCP/Server.php:6310",
+        "includes/MCP/Server.php:9372"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The API key is stored only as a SHA-256 hash and shown once after it is generated. OAuth access tokens, refresh tokens, auth codes and client secrets are also stored as hashes. The exception is the optional 'manual OAuth client secret' under Advanced: it is saved in plain text in the settings option and shown again (masked, with a show and a copy button) on the settings page.",
+      "evidence": [
+        "royal-mcp.php:322",
+        "includes/MCP/Server.php:782",
+        "includes/OAuth/Token_Store.php:322",
+        "templates/admin/settings.php:190"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Pass",
+      "value": null,
+      "summary": "MCP starts switched off (`enabled => false`), and every request is refused until an admin turns it on. Option writes, WebMCP browser access and other extra write permissions are also off by default. Abilities are registered by default, but calls through them also check the on/off switch.",
+      "evidence": [
+        "royal-mcp.php:324",
+        "includes/MCP/Server.php:496",
+        "includes/MCP/Server.php:6318",
+        "includes/MCP/Server.php:3261",
+        "templates/admin/settings.php:398"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Pass",
+      "value": null,
+      "summary": "A site-wide read-only mode blocks every tool that changes the site, for every connection type. A drafts-only mode is also available. Admins can set Full, Read-only or Drafts only for each OAuth client, for the API key, and for other routes (Abilities/MCP Adapter and browser agents).",
+      "evidence": [
+        "includes/MCP/Server.php:253",
+        "includes/MCP/Server.php:3316",
+        "includes/MCP/Server.php:3326",
+        "includes/MCP/Support/Access_Levels.php:17"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Limits are coarse. There are access levels per connection (full, read-only, drafts-only), role settings for who may connect via OAuth and via other routes, and an option-write allowlist. There is no switch in wp-admin to turn off a single tool. The `?tools=` profile only shortens the tool list the client sees and does not block calls, and the `royal_mcp_disabled_tools` filter the readme mentions does not exist in the code.",
+      "evidence": [
+        "includes/MCP/Support/Access_Levels.php:113",
+        "includes/MCP/Tool_Profiles.php:57",
+        "templates/admin/settings.php:291",
+        "readme.txt:257"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "destructiveHint/readOnlyHint annotations on every tool; no confirm argument or approval queue for destructive calls (client-registration approval exists, plus 72-hour undo and dry_run on find/replace)"
+      },
+      "summary": "Destructive tools carry MCP `destructiveHint` annotations, so whether the user is asked depends on the client. The plugin itself never asks for confirmation before a delete. It does offer an undo of recent changes for 72 hours, `dry_run` previews on some tools, and an optional admin approval step for new OAuth clients.",
+      "evidence": [
+        "includes/MCP/Server.php:229",
+        "includes/MCP/Server.php:304",
+        "includes/MCP/Server.php:1416",
+        "includes/OAuth/Server.php:506"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "`wp_delete_post` and `wp_delete_page` move items to the trash unless `force: true` is passed. If trashing is impossible (the trash is disabled, or the item is already in it), the call is refused rather than deleting permanently. A permanent delete is snapshotted so it can be undone.",
+      "evidence": [
+        "includes/MCP/Server.php:1102",
+        "includes/MCP/Server.php:3804",
+        "includes/MCP/Server.php:1416"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every MCP method and tool call is written to a database table and shown on an Activity Log screen in wp-admin with time, tool, status and argument names. A 'Recent changes' screen shows each write with the WordPress user who made it, kept for 72 hours. The main activity log rows do not record the user.",
+      "evidence": [
+        "includes/MCP/Server.php:3066",
+        "templates/admin/logs.php:68",
+        "includes/Admin/Changes_Page.php:222"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": "108 core tools + about 170 integration tools that only appear when the matching plugin is active (WooCommerce 29, Elementor 14, page builders 14, Divi 9, Wordfence 8, and more)",
+        "names": [
+          "wp_get_posts",
+          "wp_get_post",
+          "wp_create_post",
+          "wp_update_post",
+          "wp_replace_in_post",
+          "wp_get_post_types",
+          "wp_delete_post",
+          "wp_count_posts",
+          "wp_get_pages",
+          "wp_get_page",
+          "wp_create_page",
+          "wp_update_page",
+          "wp_replace_in_page",
+          "wp_delete_page",
+          "wp_get_media",
+          "wp_get_media_item",
+          "wp_find_media",
+          "wp_upload_media_from_url",
+          "wp_upload_media",
+          "wp_set_featured_image",
+          "wp_update_media",
+          "wp_delete_media",
+          "wp_count_media",
+          "wp_get_categories",
+          "wp_get_tags",
+          "wp_create_term",
+          "wp_update_term",
+          "wp_delete_term",
+          "wp_add_post_terms",
+          "wp_get_terms",
+          "wp_count_terms",
+          "wp_get_taxonomies",
+          "wp_get_term_meta",
+          "wp_update_term_meta",
+          "wp_delete_term_meta",
+          "wp_get_comments",
+          "wp_create_comment",
+          "wp_delete_comment",
+          "wp_get_pending_comments",
+          "wp_approve_comment",
+          "wp_spam_comment",
+          "wp_trash_comment",
+          "wp_get_users",
+          "wp_get_user",
+          "wp_get_post_meta",
+          "wp_get_post_terms",
+          "wp_update_post_meta",
+          "wp_add_post_meta",
+          "wp_delete_post_meta",
+          "wp_get_site_info",
+          "wp_get_site_status",
+          "wp_get_error_log_tail",
+          "wp_get_cron_schedule",
+          "royal_mcp_connection_health",
+          "discover_tools",
+          "get_tool_info",
+          "execute_tool",
+          "wp_verify_rendered_page",
+          "mcp_undo_last_operation",
+          "mcp_list_recent_changes",
+          "mcp_get_change",
+          "wp_search",
+          "wp_get_option",
+          "wp_get_plugin_settings",
+          "wp_update_option",
+          "wp_get_menus",
+          "wp_get_menu_items",
+          "wp_create_menu",
+          "wp_create_menu_item",
+          "wp_update_menu_item",
+          "wp_delete_menu_item",
+          "wp_reorder_menu_items",
+          "wp_get_plugins",
+          "wp_get_themes",
+          "wp_get_active_theme",
+          "wp_get_theme_mods",
+          "wp_update_theme_mod",
+          "wp_get_custom_css",
+          "wp_update_custom_css",
+          "wp_get_widgets",
+          "wp_get_sidebars",
+          "wp_update_widget",
+          "wp_get_seo_meta",
+          "wp_update_seo_meta",
+          "seo_audit_meta_tags",
+          "wp_get_permalink_structure",
+          "wp_update_permalink_structure",
+          "wp_get_post_revisions",
+          "wp_create_preview_link",
+          "wp_get_revision_content",
+          "wp_diff_revisions",
+          "wp_restore_revision",
+          "wp_get_block_outline",
+          "wp_list_block_types",
+          "wp_validate_blocks",
+          "wp_insert_blocks",
+          "wp_replace_block",
+          "wp_move_block",
+          "wp_delete_block",
+          "wp_replace_text_in_blocks",
+          "wp_update_block_attributes",
+          "wp_list_synced_patterns",
+          "wp_get_synced_pattern",
+          "wp_create_synced_pattern",
+          "wp_update_synced_pattern",
+          "wp_get_global_styles",
+          "wp_list_block_templates",
+          "wp_get_block_template"
+        ]
+      },
+      "summary": "108 core WordPress tools, plus integration tools for more than 25 third-party plugins that are added only when those plugins are active.",
+      "evidence": [
+        "includes/MCP/Server.php:1407",
+        "includes/MCP/Server.php:1553"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "comments",
+        "plugins",
+        "themes",
+        "settings",
+        "blocks",
+        "woocommerce"
+      ],
+      "summary": "Covers content, media, terms, comments, users (read only), plugins (list only), themes and customizer, allowlisted options, menus, widgets, blocks and templates, plus WooCommerce when it is active.",
+      "evidence": [
+        "includes/MCP/Server.php:1410",
+        "includes/MCP/Server.php:1464",
+        "includes/MCP/Server.php:1504",
+        "includes/MCP/Server.php:1534",
+        "includes/MCP/Server.php:1553"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "wp_get_posts"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "wp_upload_media_from_url + wp_create_post (content stored as sent: block markup or HTML, no Markdown conversion; wp_insert_blocks also available)"
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "wp_update_post (title) + wp_replace_in_post / wp_insert_blocks (append without resending body)"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "wp_upload_media_from_url"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "wp_get_plugins"
+        },
+        "T6": {
+          "status": "Partial",
+          "tool": "wp_update_option (blogdescription is on the default writable allowlist, but option writes must first be enabled in settings)"
+        },
+        "T7": {
+          "status": "Partial",
+          "tool": "wp_delete_post (trash by default, logged with undo; no plugin-side confirmation, only destructiveHint)"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "per-tool capability checks (Post_Access::create_refusal, delete_post) plus the role setting for who may connect"
+        }
+      },
+      "summary": "Most standard tasks work out of the box. Changing the tagline needs the 'Allow AI to write WordPress options' switch turned on first, and deletes are trashed and logged but not confirmed by the plugin.",
+      "evidence": [
+        "includes/MCP/Server.php:3346",
+        "includes/MCP/Server.php:3536",
+        "includes/MCP/Server.php:4260",
+        "includes/MCP/Server.php:9371",
+        "includes/MCP/Server.php:6340",
+        "includes/MCP/Server.php:3793"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every tool is registered as a WordPress ability under `royal-mcp/*` on WordPress 6.9+. When the MCP Adapter is present, the plugin also creates its own `royal-mcp-server` there. It does not expose abilities registered by other plugins.",
+      "evidence": [
+        "royal-mcp.php:180",
+        "includes/Abilities/Registrar.php:124",
+        "includes/Abilities/MCP_Adapter_Server.php:64"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http"
+        ],
+        "protocol_version": "2025-11-25 default; negotiates 2024-11-05, 2025-06-18, 2025-11-25, 2026-07-28",
+        "runs_in_wordpress": true
+      },
+      "summary": "MCP is served over Streamable HTTP from a WordPress REST route (POST for JSON-RPC, DELETE to end a session), with a `/mcp` root alias. GET only returns a single keepalive for Claude's session probe. The old /sse route is kept but deprecated.",
+      "evidence": [
+        "royal-mcp.php:890",
+        "includes/MCP/Server.php:134",
+        "includes/MCP/Server.php:146",
+        "includes/MCP/Server.php:1632"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [
+        "more tools (Pro advertises 350+)",
+        "bulk edits",
+        "fuller audit trail",
+        "custom tool-profile builder"
+      ],
+      "summary": "The free plugin includes the full MCP server, OAuth, about 108 core tools, the safety modes and the activity log. Pro adds more tools, bulk edits, a fuller audit trail and a custom tool-profile builder.",
+      "evidence": [
+        "includes/Admin/Pro_Notice.php:62",
+        "includes/MCP/Tool_Profiles.php:111"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The server itself allows localhost origins and loopback OAuth redirects, and `mcp-remote` with the API key works against http://localhost. However, the settings page rewrites the MCP URL and the Claude Desktop config snippet to `https:` and warns that MCP clients need a public HTTPS URL. On a plain-HTTP local site the user has to change the URL back to http by hand.",
+      "evidence": [
+        "templates/admin/settings.php:14",
+        "templates/admin/settings.php:110",
+        "templates/admin/settings.php:737",
+        "includes/MCP/Server.php:406"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The plugin handles the usual host problems. It detects a stripped Authorization header and shows the .htaccess fix, and API keys can also be sent in an `X-Royal-MCP-API-Key` header. OAuth discovery documents are also served under /wp-json for hosts that block /.well-known. MCP responses are sent with `no-store`, CORS is handled, and there are checks for Sucuri/WAF interference.",
+      "evidence": [
+        "includes/Admin/Authorization_Header_Notice.php:197",
+        "includes/MCP/Server.php:638",
+        "royal-mcp.php:942",
+        "royal-mcp.php:245",
+        "includes/MCP/Server.php:1699"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 4,
+        "steps": [
+          "Royal MCP → Settings: turn on 'Enable Royal MCP Integration' and save",
+          "Copy the MCP Server URL",
+          "In Claude Desktop: Settings → Connectors → Add custom connector, paste the URL",
+          "Click Connect and Authorize on the WordPress consent screen"
+        ]
+      },
+      "summary": "Four steps from activation to the first tool call using the OAuth custom connector. The alternative API-key route for Claude Desktop (install Node, edit the config JSON, restart) takes more steps.",
+      "evidence": [
+        "templates/admin/settings.php:60",
+        "templates/admin/settings.php:678",
+        "templates/admin/help/claude.php:39"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "OAuth with dynamic client registration means a site owner can paste the MCP URL into Claude's or ChatGPT's 'Add custom connector' and approve it in the browser, with no terminal or config file.",
+      "evidence": [
+        "includes/OAuth/Server.php:495",
+        "templates/admin/settings.php:681",
+        "readme.txt:241"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The settings page shows this site's MCP URL with a copy button, a step list for each client (Claude.ai, ChatGPT, Claude Desktop, Cursor, and more), a Claude Desktop config snippet with the URL already filled in, and copyable terminal commands for Claude Code and Codex. A separate Help page adds troubleshooting.",
+      "evidence": [
+        "templates/admin/settings.php:85",
+        "templates/admin/settings.php:661",
+        "templates/admin/settings.php:737",
+        "templates/admin/settings.php:627",
+        "includes/Admin/Help_Page.php:78"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "https://royalplugins.com/support/royal-mcp/",
+        "https://royalplugins.com/support/royal-mcp/connecting-to-claude/",
+        "https://royalplugins.com/support/royal-mcp/connecting-to-chatgpt/",
+        "https://royalplugins.com/support/royal-mcp/connect-claude-desktop-api-key/",
+        "https://royalplugins.com/support/royal-mcp/using-royal-mcp-with-claude-desktop.html"
+      ],
+      "summary": "The readme has installation steps. A docs site is linked from the plugin row, the settings page setup guides and the in-plugin Help page.",
+      "evidence": [
+        "readme.txt:165",
+        "royal-mcp.php:268",
+        "templates/admin/settings.php:686",
+        "includes/Admin/Help_Page.php:24"
+      ]
+    }
+  },
+  "notes": "- The readme (line 257) says plugin authors can turn off tools with a `royal_mcp_disabled_tools` filter. That filter does not exist anywhere in the code.\n- The `?tools=core` / `?tools=seopress` profiles only shorten tools/list. They do not block tools/call, so they are not a security control.\n- The settings page always rewrites the MCP URL to https, even on http sites, so the copy-ready Claude Desktop snippet breaks on plain-HTTP local sites.\n- Activity log rows do not record the WordPress user. The user is only visible on the 72-hour 'Recent changes' screen for write operations.\n- Abilities registration is on by default (WP 6.9+). Calls through it still respect the on/off switch, the role settings and per-tool capability checks.\n- Read-only status for built-in tools is inferred from the verb in the tool name. For third-party tools added through the `royal_mcp_tools` filter, read-only depends on that tool declaring `readOnlyHint`.\n- The optional static OAuth client secret is stored in plain text in `royal_mcp_settings` and shown again on the settings page. All other credentials are hashed."
+}

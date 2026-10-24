@@ -42,17 +42,16 @@ Check `/usage` in Claude Code before and after a few plugins to see what one cos
   mountdev-ai-mcp-connector, wsp-mcp-ai-agents-connector, alphabridge-mcp.
   Then, in three more batches of three: iato-mcp, abilities-bridge, diviops-agent, aicom, vibe-ai,
   cowboy-mcp, track-debug, acadium-agent-publisher, publishio.
-  22 of 35 done (`mcp-adapter` is the baseline and is not fetched or reviewed), $31.30 at API prices
-  in total. Each batch of three took 2½–5 minutes; the nine plugins since cost $1.86–$2.64 per batch.
-- Still to review, smallest first (PHP lines). Plain `python3 review.py` follows shortlist order instead,
-  so name the slugs to keep this order:
-  - royal-mcp 51k, saddle 53k, stifli-flex-mcp 55k
-  - rectus-content-access-for-mcp 63k, miniorange-secure-mcp-server 82k, webo-mcp 85k
-  - nibwp 86k, siteskite 91k, agent-abilities-for-mcp 112k
-  - acrossai-mcp-manager 115k, albert-ai-butler 135k, ai-workflow-automation-ai-agent-hub 164k
-  - easy-mcp-ai 244k
-- The first 13 were 0.6k–23k PHP lines and cost $0.90–$2.62 each; the nine since (25k–48k lines) cost
-  $0.49–$0.97 each. The rest are 51k–244k, so keep checking `/usage` between batches.
+  Then royal-mcp, saddle, stifli-flex-mcp ($7.14 for the batch, about 3 minutes), and
+  rectus-content-access-for-mcp, miniorange-secure-mcp-server, webo-mcp ($6.91, about 3½ minutes).
+  On 2026-10-24: nibwp, siteskite, agent-abilities-for-mcp ($8.37, about 3¾ minutes), and
+  acrossai-mcp-manager, albert-ai-butler, ai-workflow-automation-ai-agent-hub ($7.83, about 4½ minutes),
+  and finally easy-mcp-ai on its own ($3.57, about 2½ minutes).
+  All 35 done (`mcp-adapter` is the baseline and is not fetched or reviewed), $65.12 at API prices
+  in total.
+- Cost by size: the first 13 (0.6k–23k PHP lines) cost $0.90–$2.62 each; the next nine (25k–48k)
+  $0.49–$0.97 each; the six after (51k–85k) $1.54–$3.10 each; the next six (86k–164k) $2.23–$2.95
+  each; easy-mcp-ai (244k) $3.57.
 - strifebridge-mcp: its 7 unverified citations say `includes/api.php` but the file is `api/api.php`.
   The cited lines exist there and match the review, so it's a wrong path, not made-up evidence.
 - Decided (2026-10-23): HOST-LOCAL passes when a local connection is possible, whether or not the plugin documents it.

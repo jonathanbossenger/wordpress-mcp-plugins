@@ -1,0 +1,414 @@
+{
+  "slug": "easy-mcp-ai",
+  "version": "2.2.2",
+  "reviewed_at": "2026-10-24T07:50:32+02:00",
+  "duration_s": 155,
+  "cost_usd": 3.5651634000000003,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "oauth",
+        "api-key",
+        "bearer-token"
+      ],
+      "summary": "The MCP endpoint accepts OAuth 2.1 access tokens or plugin-issued API keys (wpmcp_…). Keys can be sent as a Bearer header, as Basic auth or, unless the admin turns on header-only mode, in the URL path. Every credential is bound to a WordPress user, and the request runs as that user via wp_set_current_user. WordPress application passwords and cookies are not accepted at the MCP route.",
+      "evidence": [
+        "includes/mcp/class-transport.php:17",
+        "includes/mcp/class-transport.php:468-495",
+        "includes/auth/class-token-auth.php:15-47",
+        "includes/mcp/class-transport.php:1567-1574"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "The REST route's permission_callback is __return_true, but handle_post itself returns 401 with a WWW-Authenticate challenge when there is no Authorization header or the token is invalid. No method, including tools/list, runs without a valid token.",
+      "evidence": [
+        "includes/mcp/class-transport.php:85",
+        "includes/mcp/class-transport.php:428-430",
+        "includes/mcp/class-transport.php:568-570"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every tool declares a required capability, and the server checks it with current_user_can before running the tool. Most tools then run through internal WordPress REST requests (rest_do_request), so core's per-object permission checks also apply, for example delete_post on a specific ID.",
+      "evidence": [
+        "includes/mcp/class-server.php:1241-1246",
+        "includes/tools/posts/class-delete-post.php:24-26",
+        "includes/tools/posts/class-delete-post.php:89",
+        "includes/tools/class-base-tool.php:1791-1816"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "API keys and OAuth access and refresh tokens are stored as SHA-256 or HMAC-SHA256 hashes, and OAuth client secrets are stored as SHA-256 hashes. A newly created key is kept briefly in user meta so it can be shown once, and a daily cron job purges it after about a day. Third-party SEO and analytics credentials are encrypted (AES-256-GCM, according to the readme).",
+      "evidence": [
+        "includes/auth/class-token-keys.php:178-191",
+        "includes/auth/class-token-manager.php:36-46",
+        "includes/oauth/class-oauth-token-manager.php:56-64",
+        "includes/oauth/class-client-registry.php:378",
+        "includes/class-plugin.php:1337-1362"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The MCP endpoint is live as soon as the plugin is activated. OAuth and Dynamic Client Registration are also on by default. Every call still needs a valid token, and OAuth sign-in requires the publish_posts capability by default. Privileged tool groups, self-service keys and plain-HTTP OAuth are off by default.",
+      "evidence": [
+        "includes/class-config.php:100-104",
+        "includes/class-config.php:92",
+        "includes/class-config.php:82",
+        "includes/class-plugin.php:1036-1037"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Pass",
+      "value": null,
+      "summary": "API tokens have a 'read' access preset that limits them to read-only tools. OAuth grants can be limited to read scopes on the consent screen. Both use the same scope map, so read-only access is available for every connection type.",
+      "evidence": [
+        "includes/admin/class-access-presets.php:38-45",
+        "includes/admin/class-access-presets.php:158-161",
+        "includes/mcp/class-server.php:1218-1227"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Each API token and each OAuth grant has its own list of allowed tools, with presets for read, write, full and per-role (editor, author) access. Site-wide disabled-tool and allowed-pattern settings apply on top of that. Privileged tools must be named explicitly and are not matched by wildcards.",
+      "evidence": [
+        "includes/auth/class-permission-guard.php:36-104",
+        "includes/admin/class-access-presets.php:106-114",
+        "includes/admin/class-access-presets.php:177-204",
+        "includes/class-config.php:79-80"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Pass",
+      "value": {
+        "mechanism": "Optional plugin-side approval queue (approval_required setting, off by default). When it is on, tools annotated as destructive, plus any tools listed in approval_always, pause until someone approves them on an approval page or card. The approval is then redeemed once. All tools also carry destructiveHint annotations."
+      },
+      "summary": "There is a real approval gate on the plugin side. Destructive tool calls can be held until a human approves them, and admins can force or skip approval per tool. The gate is off by default, so out of the box only the destructiveHint annotations apply.",
+      "evidence": [
+        "includes/approvals/class-approval-gate.php:85-87",
+        "includes/approvals/class-approval-gate.php:278-311",
+        "includes/mcp/class-server.php:1322-1360",
+        "includes/class-config.php:131-133"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "wp_delete_post moves the post to the trash by default. Permanent deletion happens only when force=true, and the tool description tells the AI to prefer the trash. The comment tools include separate trash and untrash actions.",
+      "evidence": [
+        "includes/tools/posts/class-delete-post.php:17",
+        "includes/tools/posts/class-delete-post.php:45-49",
+        "includes/tools/posts/class-delete-post.php:82-89"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The free plugin writes every tool call, including refused ones, to its own audit-log table with the token, tool, arguments, status, IP and time. Admins can read it on the Activity page in wp-admin. Change History adds before/after snapshots of what changed. Logging is on by default with 30-day retention.",
+      "evidence": [
+        "includes/mcp/class-server.php:1368",
+        "includes/mcp/class-server.php:2438-2446",
+        "includes/admin/rest/class-activity-controller.php:73",
+        "includes/class-config.php:77-78",
+        "includes/class-plugin.php:1010-1014"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 317,
+        "names": [
+          "wp_list_posts",
+          "wp_get_post",
+          "wp_get_post_full",
+          "wp_create_post",
+          "wp_update_post",
+          "wp_delete_post",
+          "wp_replace_in_post",
+          "wp_search_posts",
+          "wp_count_posts",
+          "wp_add_post_terms",
+          "wp_create_preview_link",
+          "wp_list_pages",
+          "wp_get_page",
+          "wp_create_page",
+          "wp_update_page",
+          "wp_delete_page",
+          "wp_list_cpt_items",
+          "wp_create_cpt_item",
+          "wp_update_cpt_item",
+          "wp_delete_cpt_item",
+          "wp_list_media",
+          "wp_get_media",
+          "wp_upload_media",
+          "wp_upload_media_from_url",
+          "wp_update_media",
+          "wp_edit_media_image",
+          "wp_delete_media",
+          "wp_regenerate_media_sizes",
+          "wp_list_categories",
+          "wp_create_category",
+          "wp_list_tags",
+          "wp_create_term",
+          "wp_list_terms",
+          "wp_list_users",
+          "wp_create_user",
+          "wp_update_user",
+          "wp_delete_user",
+          "wp_list_comments",
+          "wp_approve_comment",
+          "wp_trash_comment",
+          "wp_delete_comment",
+          "wp_list_plugins",
+          "wp_install_plugin",
+          "wp_activate_plugin",
+          "wp_deactivate_plugin",
+          "wp_update_plugin",
+          "wp_delete_plugin",
+          "wp_uninstall_plugin",
+          "wp_list_themes",
+          "wp_install_theme",
+          "wp_switch_theme",
+          "wp_get_site_settings",
+          "wp_update_site_settings",
+          "wp_get_post_blocks",
+          "wp_update_post_blocks",
+          "wp_create_block",
+          "wp_update_block",
+          "wp_list_templates",
+          "wp_update_template",
+          "wp_get_global_styles",
+          "wp_update_global_styles",
+          "wp_list_menus",
+          "wp_list_widgets",
+          "wp_list_revisions",
+          "wp_restore_revision",
+          "wp_history_list",
+          "wp_history_diff",
+          "wp_history_apply",
+          "wp_rest_read",
+          "wp_rest_write",
+          "wp_rest_delete",
+          "wp_cli_run (privileged)",
+          "search-replace / files (privileged)",
+          "wp_clear_cache",
+          "wp_get_site_health",
+          "wp_update_core",
+          "WooCommerce (~47 tools)",
+          "Yoast/Rank Math/AIOSEO/SEOPress/Slim SEO/TSF SEO tools",
+          "ACF, The Events Calendar, BuddyPress, Redirection tools",
+          "GA4, Search Console, Semrush, SE Ranking, DataForSEO, Ahrefs tools",
+          "plus any admin-selected Abilities API abilities"
+        ]
+      },
+      "summary": "There are about 317 built-in tool classes (the readme says 280+, the plugin header says 243). Each selected Abilities API ability becomes an extra tool. Integration tools only appear when the matching plugin is active and its integration is turned on.",
+      "evidence": [
+        "includes/tools/posts/class-list-posts.php:36",
+        "includes/tools/plugins/class-list-plugins.php:33",
+        "includes/tools/rest/class-rest-write.php:24",
+        "includes/tools/cli/class-cli-run.php:43",
+        "includes/class-plugin.php:1083-1107"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "comments",
+        "plugins",
+        "themes",
+        "settings",
+        "blocks",
+        "woocommerce"
+      ],
+      "summary": "The tools cover every listed area, plus menus, widgets, templates, global styles, revisions, cache, site health, SEO plugins, ACF, events, BuddyPress and external analytics.",
+      "evidence": [
+        "includes/tools/posts/class-create-post.php:13",
+        "includes/tools/plugins/class-list-plugins.php:33",
+        "includes/tools/site/class-update-site-settings.php:17",
+        "includes/tools/blocks/class-update-post-blocks.php:1",
+        "includes/tools/woocommerce/class-list-products.php:1"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "wp_list_posts"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "wp_create_post + wp_upload_media_from_url; content is stored as given (HTML or Gutenberg block markup), with no Markdown conversion"
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "wp_update_post / wp_replace_in_post / wp_create_block"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "wp_upload_media_from_url"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "wp_list_plugins (version and status)"
+        },
+        "T6": {
+          "status": "Pass",
+          "tool": "wp_update_site_settings (description field)"
+        },
+        "T7": {
+          "status": "Pass",
+          "tool": "wp_delete_post (trash by default; force=true for permanent; optional approval gate; logged in the audit log)"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "OAuth sign-in requires publish_posts; per-tool capability checks plus core REST permissions block a subscriber"
+        }
+      },
+      "summary": "All eight standard tasks can be done. Confirmation for T7 needs the optional approval gate to be switched on.",
+      "evidence": [
+        "includes/tools/posts/class-list-posts.php:36",
+        "includes/tools/posts/class-create-post.php:17",
+        "includes/tools/media/class-upload-media-from-url.php:56",
+        "includes/tools/plugins/class-list-plugins.php:244",
+        "includes/tools/site/class-update-site-settings.php:49-51",
+        "includes/tools/posts/class-delete-post.php:82-89",
+        "includes/class-config.php:92",
+        "includes/mcp/class-server.php:1241-1246"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The plugin acts as an adapter for the WordPress Abilities API: abilities that the admin selects under Tools → Abilities become MCP tools through Dynamic_Tool_Registrar. It also registers its own LearnPress abilities.",
+      "evidence": [
+        "includes/class-plugin.php:1083-1107",
+        "includes/class-plugin.php:116-117",
+        "includes/tools/class-dynamic-tool-registrar.php:1"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http (POST JSON, plus SSE only for subscriptions/listen)"
+        ],
+        "protocol_version": "2026-07-28 (also 2025-11-25, 2025-06-18, 2025-03-26)",
+        "runs_in_wordpress": true
+      },
+      "summary": "The plugin runs its own Streamable HTTP MCP server at /wp-json/easy-mcp-ai/v1/mcp inside WordPress, with sessions, OPTIONS and DELETE handling. It supports the current protocol version and older ones.",
+      "evidence": [
+        "includes/mcp/class-transport.php:14-17",
+        "includes/mcp/class-transport.php:83-110",
+        "includes/mcp/class-server.php:21-23",
+        "includes/mcp/class-server.php:496-497"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [],
+      "summary": "There is no Pro version or license gate. Every tool, OAuth, the approval queue and the audit log are in the free plugin. External data tools need the site owner's own provider API keys.",
+      "evidence": [
+        "easy-mcp-ai.php:15-16",
+        "readme.txt:177-179"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": null,
+      "summary": "For Claude Desktop, the Connections page shows a ready claude_desktop_config.json snippet that uses npx mcp-remote with a Bearer API token, which works on http://localhost. OAuth also accepts plain HTTP on loopback addresses. The setup screen warns that cloud connectors need a public URL or a tunnel.",
+      "evidence": [
+        "assets/build/page-connections.js \"Add to claude_desktop_config.json with a manual token\"",
+        "assets/build/page-setup.js \"Cloud apps need a public URL. Use a tunnel\"",
+        "readme.txt:203"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The plugin works around common host problems. It recovers a stripped Authorization header from other server variables, accepts the key as Basic auth or in the URL path, and serves OAuth discovery from a fallback route when /.well-known/ is blocked. It adds MCP headers to CORS, sends no-store cache headers, and runs diagnostics with fixes, including .htaccess rules. OAuth needs HTTPS on live sites.",
+      "evidence": [
+        "easy-mcp-ai.php:238-268",
+        "includes/mcp/class-transport.php:356-378",
+        "includes/mcp/class-transport.php:166-187",
+        "includes/mcp/class-transport.php:1746-1754",
+        "includes/mcp/class-transport.php:1447-1462",
+        "readme.txt:208-214"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Pass",
+      "value": {
+        "count": 3,
+        "steps": [
+          "Open Easy MCP AI → Dashboard and click Connect to Claude, or copy the MCP server URL",
+          "In Claude, go to Settings → Connectors, add a custom connector, paste the URL and click Connect",
+          "Sign in to WordPress, choose permissions and click Approve"
+        ]
+      },
+      "summary": "Following the plugin's own instructions, Claude Desktop connects over OAuth in three steps after activation.",
+      "evidence": [
+        "readme.txt:30-34",
+        "readme.txt:128-131"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "OAuth 2.1 with Dynamic Client Registration and discovery documents lets Claude's 'Add custom connector' connect with only the URL. No terminal or config file is needed.",
+      "evidence": [
+        "includes/class-config.php:100-103",
+        "includes/class-plugin.php:225-338",
+        "readme.txt:118"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The Setup, Dashboard and Connections screens show this site's MCP URL with a copy button, connect buttons, and per-client config snippets and commands filled in with this site's endpoint and token.",
+      "evidence": [
+        "assets/build/page-setup.js \"Claude Desktop & Cowork\"",
+        "assets/build/page-connections.js \"Add to claude_desktop_config.json with a manual token\"",
+        "readme.txt:218"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "https://easymcpai.com/",
+        "https://easymcpai.com/integrations",
+        "https://easymcpai.com/integrations/claude-ai",
+        "https://easymcpai.com/integrations/chatgpt",
+        "https://easymcpai.com/integrations/n8n",
+        "https://easymcpai.com/abilities-directory",
+        "https://easymcpai.com/diagnose",
+        "https://easymcpai.com/trusted-proxies",
+        "https://easymcpai.com/well-known"
+      ],
+      "summary": "The readme has detailed setup steps for each client, and wp-admin shows in-app setup guides. The plugin links from wp-admin to easymcpai.com pages: the abilities directory, diagnostics and troubleshooting. The integration guides are linked mainly from the readme.",
+      "evidence": [
+        "readme.txt:28-58",
+        "readme.txt:126-133",
+        "assets/build/page-tools.js \"https://easymcpai.com/abilities-directory\"",
+        "includes/admin/class-support-text.php:50",
+        "includes/diagnostics/class-check-transport.php:422"
+      ]
+    }
+  },
+  "notes": "The tool count is stated three different ways: the plugin header says 243, the readme says 280+, and the code has about 317 tool classes. The plugin includes powerful privileged tools: wp_cli_run, database search-replace and file read/query. Their groups are off by default, they only run while the audit log is on, wildcard scopes cannot grant them, and they are excluded from the role presets. The REST passthrough tools (wp_rest_write and wp_rest_delete) expose any REST route, limited only by the user's capabilities. Both OAuth and Dynamic Client Registration are on by default. API keys can be passed in the URL path (/mcp/wpmcp_…) unless the admin turns on the api_key_header_only hardening option, and URL keys can leak through server logs. A daily outbound request fetches signed 'skills' from skills.easymcpai.com once a client has connected (opt-out constant EASY_MCP_AI_SKILLS_SYNC). The plugin also loads the Themeisle SDK. The approval gate is a strong feature, but it is off by default (approval_required=false)."
+}

@@ -1,0 +1,421 @@
+{
+  "slug": "webo-mcp",
+  "version": "3.0.32",
+  "reviewed_at": "2026-10-23T22:41:33+02:00",
+  "duration_s": 205,
+  "cost_usd": 3.1036702000000007,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "application-password",
+        "cookie",
+        "bearer-token",
+        "api-key"
+      ],
+      "summary": "Every route needs a WordPress user. The accepted logins are an Application Password, a logged-in session, a short-lived URL token (`?mcp_token`) tied to a user, an optional Bearer/JWT tied to a user (off by default), and a paired WEBO Hub token plus HMAC signature that acts as the admin who paired it. The API key and HMAC secret are only an extra layer on top of a WordPress login and never work alone.",
+      "evidence": [
+        "inc/router/class-mcp-router.php:1184",
+        "inc/router/AccessHelper.php:64",
+        "inc/router/UrlTokenAuth.php:57",
+        "inc/auth/class-bearer-token-auth.php:37",
+        "inc/router/class-hub-connector.php:356",
+        "inc/router/AccessHelper.php:172"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "Every router route (POST/GET `mcp/v1/router`, SSE, and the `mcp/mcp-adapter-default-server` alias) uses a permission callback that returns 401 without credentials, so a request with no credentials cannot even run `initialize`. Only the `/webo-mcp/v1/health` and `/domain-proof` endpoints are public. Health reveals the WordPress and plugin versions.",
+      "evidence": [
+        "inc/router/class-mcp-router.php:33",
+        "inc/router/class-mcp-router.php:1206",
+        "webo-mcp.php:1088",
+        "inc/router/class-hub-connector.php:36"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "MCP access needs `edit_posts` or higher. Each tool also declares a capability (e.g. `manage_options`, `upload_files`, `promote_users`) that the registry checks before running it, and post tools check `edit_post`, `delete_post` and `read_post` against the specific post.",
+      "evidence": [
+        "inc/router/AccessHelper.php:28",
+        "inc/registry/class-tool-registry.php:301",
+        "inc/tools/class-wordpress-tools.php:434",
+        "inc/tools/class-wordpress-tools.php:452",
+        "inc/tools/class-wordpress-tools.php:2389"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Partial",
+      "value": null,
+      "summary": "URL connector tokens are stored only as HMAC-SHA256 hashes and shown once. The optional API key, HMAC secret, JWT secret and Hub site token/secret are stored in plain text in wp_options. The API key and HMAC secret are shown only once after they are generated.",
+      "evidence": [
+        "inc/router/UrlTokenAuth.php:445",
+        "inc/admin/class-credentials-ui.php:305",
+        "inc/admin/class-credentials-ui.php:384",
+        "inc/router/class-hub-connector.php:149",
+        "inc/auth/class-bearer-token-auth.php:252"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": null,
+      "summary": "There is no on/off switch: the MCP router is live as soon as the plugin is activated, but it always needs an authenticated user with `edit_posts`. The broader options are off by default: Bearer/JWT login, allowlists and \"full\" ability bridging. The default bridge mode is \"layered\".",
+      "evidence": [
+        "webo-mcp.php:1111",
+        "inc/auth/class-enterprise-auth-feature.php:25",
+        "inc/router/ClientToolPolicy.php:53",
+        "inc/bridge/class-ability-bridge.php:42"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Read-only mode exists only for agent profiles and for Bearer/JWT tokens with a `read_only` claim. Profiles are matched on the client name the MCP client reports itself, so an Application Password connection is only read-only if its client name matches a read-only profile. URL tokens can be limited to read tools through their tool list.",
+      "evidence": [
+        "inc/agents/class-tool-call-policy.php:138",
+        "inc/agents/class-agent-profiles.php:129",
+        "inc/router/class-mcp-router.php:792"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Admins can turn on per-tool allowlists keyed by user, role or client/Application Password name. URL tokens are limited to the tools listed when they are created, agent profiles have their own tool allowlists, and Bearer/JWT tokens can carry a tool list. All of this is enforced on both tools/list and tools/call.",
+      "evidence": [
+        "inc/router/ClientToolPolicy.php:99",
+        "inc/router/ClientToolPolicy.php:225",
+        "inc/router/UrlTokenAuth.php:121",
+        "inc/router/class-mcp-router.php:789"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "Plugin-side: mutations default to dry_run preview; destructive actions (post delete, bulk status change, search-replace, bulk comment delete) also require dry_run=false plus force=true or a checkpoint_id. Not covered: media delete, which runs immediately. Annotations always set destructiveHint=false."
+      },
+      "summary": "Post deletes and bulk edits return a preview unless the AI passes `dry_run=false` and `force=true` (or a checkpoint ID). `webo/media-mutate` delete skips this and permanently deletes the attachment at once. The tool annotations always report `destructiveHint: false`, even for delete tools.",
+      "evidence": [
+        "inc/core/class-mutation-guard.php:58",
+        "inc/tools/class-wordpress-tools.php:2360",
+        "inc/tools/class-wordpress-tools.php:1992",
+        "inc/tools/class-wordpress-tools.php:7657",
+        "inc/router/class-mcp-router.php:338"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Partial",
+      "value": null,
+      "summary": "`webo/content-mutate` delete calls `wp_delete_post($id, $force)`. The usual way to confirm a delete is `force=true`, and that same flag makes the delete permanent; the post only goes to the trash when a checkpoint ID is given instead. Media deletes are always permanent.",
+      "evidence": [
+        "inc/tools/class-wordpress-tools.php:1445",
+        "inc/tools/class-wordpress-tools.php:1456",
+        "inc/core/class-mutation-guard.php:66",
+        "inc/tools/class-wordpress-tools.php:7657"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every tools/call, including denied and failed calls, is written to a size-limited audit log. Each entry records the user, roles, tool, action, object ID, time, client, status and an anonymised IP. Admins can read it on the plugin's Audit tab in wp-admin, and logging can only be switched off when WP_DEBUG is on.",
+      "evidence": [
+        "inc/audit/class-audit-log.php:109",
+        "inc/audit/class-audit-log.php:63",
+        "inc/admin/sections/class-section-audit.php:30",
+        "inc/router/class-mcp-router.php:833"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 91,
+        "names": [
+          "webo/content-query",
+          "webo/create-content-checkpoint",
+          "webo/restore-content-checkpoint",
+          "webo/content-mutate",
+          "webo/create-post",
+          "webo-content/create-post",
+          "webo-content/update-post-status",
+          "webo/set-featured-image",
+          "webo-content/set-featured-image",
+          "webo-content/publish-post",
+          "webo/list-users",
+          "webo/user-mutate",
+          "webo/media-query",
+          "webo/media-mutate",
+          "webo-media/debug-upload-args",
+          "webo-media/test-upload",
+          "webo-media/upload",
+          "webo-media/upload-file",
+          "webo-media/upload-chatgpt-file",
+          "webo-media/upload-chatgpt-file-id",
+          "webo/comment-query",
+          "webo/comment-mutate",
+          "webo/comment-moderation",
+          "webo/comment-spam-query",
+          "webo/taxonomy-query",
+          "webo/taxonomy-mutate",
+          "webo/menu-query",
+          "webo/menu-mutate",
+          "webo/theme-query",
+          "webo/theme-mutate",
+          "webo/plugin-query",
+          "webo/plugin-conflict-query",
+          "webo/plugin-mutate",
+          "webo_plugin_mutate",
+          "webo/health-status",
+          "webo/get-404-logs",
+          "webo/client-health-report",
+          "webo/connector-query",
+          "webo/ai-prompt",
+          "webo/ability-query",
+          "webo/ability-execute",
+          "webo/get-options",
+          "webo/update-options",
+          "webo/set-site-icon",
+          "webo/theme-context",
+          "webo/block-patterns",
+          "webo/site-stats",
+          "webo/multisite-health",
+          "webo/domain-lifecycle",
+          "webo/activity-log",
+          "webo/security-audit",
+          "webo/security-mutate",
+          "webo/usage-stats",
+          "webo/user-profile",
+          "webo/site-settings",
+          "webo/content-search",
+          "webo/task-planner",
+          "webo/deployment-review",
+          "webo/task-execute-plan",
+          "webo/registry-consistency-check",
+          "webo/list-capabilities",
+          "webo/list-workflows",
+          "webo/run-workflow",
+          "webo/queue-query",
+          "webo/queue-mutate",
+          "webo/execution-history",
+          "webo/navigation-query",
+          "webo/navigation-mutate",
+          "webo/users-query",
+          "webo/users-mutate",
+          "webo/extensions-query",
+          "webo/extensions-mutate",
+          "webo/site-query",
+          "webo/site-mutate",
+          "webo/workflow-query",
+          "webo/workflow-run",
+          "webo/capabilities-search",
+          "webo/capabilities-describe",
+          "webo/capability-execute",
+          "webo/internal-links-suggest",
+          "webo/internal-links-apply",
+          "webo/quality-gates-evaluate",
+          "webo/content-publish",
+          "webo/content-session-create",
+          "webo/content-session-get",
+          "webo/content-session-upload-chunk",
+          "webo/content-session-complete-upload",
+          "webo/content-session-set-markdown",
+          "webo/content-session-build",
+          "webo/content-session-commit",
+          "webo/content-session-rollback"
+        ]
+      },
+      "summary": "About 91 tools when every feature flag is on: 66 core tools, 10 family facades, 3 capability control tools, plus feature-flagged content-session, quality-gate and internal-link tools. `webo/reorder-*` needs the separate Webo Reorder plugin. `webo/ability-execute` also runs any registered ability marked `meta.mcp.public`, including `core/get-site-settings` and tool-synced abilities this plugin registers; in \"full\" bridge mode those abilities are listed as individual tools instead.",
+      "evidence": [
+        "inc/bootstrap/class-standalone-tools.php:57",
+        "inc/capabilities-v2/class-family-facades.php:58",
+        "inc/capabilities-v2/class-control-tools.php:33",
+        "inc/tools/class-content-session-tools.php:46",
+        "webo-mcp.php:892",
+        "inc/abilities/class-site-settings-ability.php:68"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "comments",
+        "plugins",
+        "themes",
+        "settings",
+        "blocks"
+      ],
+      "summary": "The tools cover posts and pages (and custom post types), media, terms, users, comments, menus, plugins (install, activate, upgrade), themes (install, switch), site settings and options, and block patterns/theme context. WooCommerce tools come only from separate paid add-ons.",
+      "evidence": [
+        "inc/bootstrap/class-standalone-tools.php:74",
+        "inc/bootstrap/class-standalone-tools.php:1890",
+        "inc/bootstrap/class-standalone-tools.php:1792",
+        "inc/bootstrap/class-standalone-tools.php:2788",
+        "inc/bootstrap/class-standalone-tools.php:2343"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "webo/content-query (action=list, per_page=5)"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "webo-media/upload + webo/content-mutate action=create dry_run=false (content stored as supplied raw HTML/block markup, no Markdown conversion; Markdown only via feature-flagged content-session tools)"
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "webo/content-query get + webo/content-mutate action=update (no append mode; full content must be re-sent)"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "webo/media-mutate action=upload image_url / webo-media/upload"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "webo/plugin-query query=installed"
+        },
+        "T6": {
+          "status": "Pass",
+          "tool": "webo/site-settings action=update (site_description→blogdescription) or webo/update-options"
+        },
+        "T7": {
+          "status": "Partial",
+          "tool": "webo/content-mutate action=delete (preview by default; force=true deletes permanently, trash only with checkpoint_id; logged in audit log)"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "AccessHelper gate requires edit_posts; subscribers are refused at the endpoint"
+        }
+      },
+      "summary": "All the standard tasks can be done. Deleting a post is the weak spot: the usual confirmation (`force=true`) also makes the delete permanent instead of moving the post to the trash.",
+      "evidence": [
+        "inc/tools/class-wordpress-tools.php:2328",
+        "inc/tools/class-wordpress-tools.php:1974",
+        "inc/tools/class-site-settings-tool.php:45",
+        "inc/router/AccessHelper.php:28"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The plugin bundles the Abilities API and the MCP Adapter, registers its own abilities, and exposes public abilities from other plugins through `webo/ability-query` and `webo/ability-execute` (default \"layered\" mode) or as individual tools (\"full\" mode).",
+      "evidence": [
+        "webo-mcp.php:1024",
+        "webo-mcp.php:892",
+        "inc/abilities/class-site-settings-ability.php:68",
+        "inc/abilities/class-tool-ability-sync.php:149"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http (JSON-RPC POST, JSON responses)",
+          "sse (GET keepalive stream)"
+        ],
+        "protocol_version": "2025-11-25 (also 2025-06-18, 2024-11-05)",
+        "runs_in_wordpress": true
+      },
+      "summary": "The server runs inside WordPress as a REST JSON-RPC endpoint at `/wp-json/mcp/v1/router`, with an `Mcp-Session-Id` header and an optional GET SSE stream. It negotiates protocol versions up to 2025-11-25. The same handler is also registered on the MCP Adapter's default-server route.",
+      "evidence": [
+        "inc/router/class-mcp-router.php:33",
+        "inc/router/class-mcp-router.php:177",
+        "inc/router/class-mcp-router.php:1055"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [
+        "Paid add-ons only (e.g. SEO automation suite, Rank Math/WooCommerce tool groups); optional external WEBO MCP Hub"
+      ],
+      "summary": "The MCP server, the core tools, allowlists, URL tokens and the audit log are all in the free plugin. Paid add-ons sold from webomcp.com only add extra domain tools.",
+      "evidence": [
+        "inc/admin/sections/class-section-addons.php:75",
+        "inc/bootstrap/class-standalone-tools.php:57"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The endpoint runs on the local site and needs no vendor cloud. Claude Desktop can connect through a bridge such as `mcp-remote` with an Application Password; WordPress only allows those over HTTP when the environment type is \"local\". A URL token works over plain HTTP.",
+      "evidence": [
+        "inc/router/AccessHelper.php:108",
+        "inc/router/UrlTokenAuth.php:422"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "When the host strips the Authorization header, the plugin falls back to `HTTP_AUTHORIZATION` / `REDIRECT_HTTP_AUTHORIZATION`, and offers `?mcp_token` URL tokens for clients that can't send headers. It also checks the request Origin, sends `X-Accel-Buffering: no` on SSE, and has an opt-in filter to strip stray BOM characters from responses. There are no CORS headers for browser clients and no WAF guidance.",
+      "evidence": [
+        "inc/router/AccessHelper.php:73",
+        "inc/router/UrlTokenAuth.php:422",
+        "inc/router/class-mcp-router.php:1233",
+        "inc/router/class-mcp-router.php:1111"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 4,
+        "steps": [
+          "Activate the plugin",
+          "Create an Application Password (Users → Profile) or generate a scoped URL token for a non-admin user (Settings → WEBO MCP → Agents)",
+          "Copy the router URL from the Overview tab",
+          "Configure Claude Desktop with a bridge (e.g. mcp-remote with a Basic auth header), or paste router URL + ?mcp_token=… as a custom connector"
+        ]
+      },
+      "summary": "Connecting takes about four steps. The readme's quick start is written for developers: it says to run `composer install` and send raw JSON-RPC, and it gives no Claude Desktop config.",
+      "evidence": [
+        "readme.txt:177",
+        "inc/admin/sections/class-section-overview.php:88",
+        "inc/router/UrlTokenAuth.php:212"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Partial",
+      "value": null,
+      "summary": "A URL token lets you paste `router?mcp_token=…` into Claude's \"Add custom connector\" without a terminal. The token expires within 24 hours at most and can't belong to an admin by default. There is no OAuth server or dynamic client registration; the OAuth metadata only points to an external provider.",
+      "evidence": [
+        "inc/router/UrlTokenAuth.php:30",
+        "inc/router/UrlTokenAuth.php:278",
+        "inc/auth/class-oauth-resource-metadata.php:16"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The Overview tab shows a copyable, site-specific router URL and a JSON snippet, but the snippet (`url`/`transport`/`methods`) is not a working Claude Desktop config. The tab gives no step-by-step connection instructions; how to create tokens is explained on the Agents and Security tabs.",
+      "evidence": [
+        "inc/admin/sections/class-section-overview.php:34",
+        "inc/admin/sections/class-section-overview.php:98",
+        "inc/admin/class-credentials-ui.php:216"
+      ]
+    },
+    "DOCS": {
+      "status": "Partial",
+      "value": [
+        "https://webomcp.com",
+        "https://www.npmjs.com/package/n8n-nodes-webo-mcp",
+        "docs/MCP_TOOL_MIGRATION.md (referenced, not shipped)",
+        "docs/MIGRATION_GUIDE_2.1.0.md (referenced, not shipped)"
+      ],
+      "summary": "The readme covers the endpoint and authentication in its FAQ and links to webomcp.com, which the Bridge tab also links to. The quick start is developer-oriented, and the readme points to docs/*.md files that are not in the plugin.",
+      "evidence": [
+        "readme.txt:177",
+        "readme.txt:217",
+        "inc/admin/sections/class-section-bridge.php:142"
+      ]
+    }
+  },
+  "notes": "The readme contradicts the code in places. It gives the HMAC clock-skew limit as ≤300s (readme.txt:218), but the code defaults to 60s (inc/router/AccessHelper.php:217). It also says plugin/theme write tools are excluded by default (readme.txt:82-85), yet webo/plugin-mutate and webo/theme-mutate are registered core tools, gated only by capabilities.\n\nTool annotations always set destructiveHint=false (inc/router/class-mcp-router.php:340), including for delete tools.\n\nRead-only and allowlist profiles are matched by substring on the client name the client reports itself (inc/agents/class-agent-profiles.php:137). A client can avoid a profile by renaming itself, though WordPress capabilities still apply.\n\nWhen the Hub pairs on multisite, the pairing user is silently added as administrator to any child blog it calls (inc/router/class-hub-connector.php:452). Legacy Hub pairings auto-create an author-role user.\n\nThe public /webo-mcp/v1/health endpoint reveals the WordPress and plugin versions. The Quick start tells users to run `composer install`, but the WordPress.org zip already ships vendor/.\n\nThe bundled MCP Adapter's default server and WEBO's router both register `mcp/mcp-adapter-default-server`."
+}

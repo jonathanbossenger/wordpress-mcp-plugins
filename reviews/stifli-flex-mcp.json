@@ -1,0 +1,464 @@
+{
+  "slug": "stifli-flex-mcp",
+  "version": "3.6.1",
+  "reviewed_at": "2026-10-23T22:31:02+02:00",
+  "duration_s": 149,
+  "cost_usd": 2.0871840000000006,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "oauth",
+        "application-password",
+        "cookie"
+      ],
+      "summary": "The MCP routes accept OAuth 2.1 bearer tokens issued by the plugin's own authorization server, WordPress Application Passwords, and logged-in cookie sessions. Each of these is tied to a WordPress user, and that user also needs the edit_posts capability.",
+      "evidence": [
+        "mod.php:140",
+        "mod.php:179",
+        "mod.php:207",
+        "oauth/class-oauth-server.php:557"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "A request with no credentials is rate-limited and gets a 401 with an OAuth challenge. Only the OAuth discovery, registration and token endpoints are public, which OAuth requires. Tools cannot be listed or called anonymously.",
+      "evidence": [
+        "mod.php:211",
+        "mod.php:217",
+        "oauth/class-oauth-server.php:530"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every tool call goes through a central check that maps each tool to a capability (for example delete_posts, manage_options, upload_files). Individual handlers then check per object, for example current_user_can('delete_post', $id) and current_user_can('edit_post', $id).",
+      "evidence": [
+        "models/model.php:2577",
+        "models/model.php:3312",
+        "models/model.php:3961",
+        "models/model.php:4363",
+        "models/model.php:5189"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": "OAuth access and refresh tokens are stored as SHA-256 hashes; confidential client secrets are stored with wp_hash_password; Application Passwords are handled by WordPress core.",
+      "summary": "Secrets the plugin issues for MCP are never stored in plain text: tokens are SHA-256 hashed and client secrets are password-hashed. The optional AI-provider API keys (multimedia and chat add-ons) are separate and not part of MCP auth.",
+      "evidence": [
+        "oauth/class-oauth-storage.php:116",
+        "oauth/class-oauth-storage.php:484",
+        "oauth/class-oauth-storage.php:171",
+        "oauth/class-oauth-storage.php:358"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The MCP server is always on once the plugin is activated, and there is no switch to turn it off. It still requires authentication. Automatic approval of new OAuth client registrations is on by default, and almost all seeded tools, including write and delete tools, are enabled.",
+      "evidence": [
+        "readme.txt:29",
+        "oauth/class-oauth-server.php:601",
+        "stifli-flex-mcp.php:1030"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Pass",
+      "value": null,
+      "summary": "System profiles such as 'WordPress Read Only', 'WooCommerce Read Only' and a non-sensitive 'Safe Mode' can be applied. They change the global tool table, so they cover every connection type (OAuth, Application Password, cookie). They are site-wide, not per connection.",
+      "evidence": [
+        "stifli-flex-mcp.php:2556",
+        "stifli-flex-mcp.php:2687",
+        "stifli-flex-mcp.php:2847",
+        "models/model.php:152"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Each tool can be switched on or off in MCP Server > WordPress Tools, and profiles can be saved and applied. This applies to all connection types, but site-wide: you cannot give one OAuth client or one role a different tool set. Within that, WordPress capabilities still limit each user.",
+      "evidence": [
+        "mod.php:64",
+        "mod.php:67",
+        "models/model.php:152",
+        "mod.php:59"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "MCP annotations (readOnlyHint/destructiveHint/idempotentHint) plus optional dry_run/expected_hash on option and settings updates; no required confirm argument or approval queue for MCP calls"
+      },
+      "summary": "Tools carry destructiveHint and readOnlyHint annotations, so the client decides whether to ask you. Option and settings updates offer an optional dry run, but nothing forces it. The readme's 'Ask User' confirmations belong to the built-in chat agent, not to external MCP clients.",
+      "evidence": [
+        "models/model.php:454",
+        "models/model.php:455",
+        "models/model.php:1309",
+        "models/model.php:3348"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "wp_delete_post calls wp_delete_post($id, !empty($args['force'])), so posts go to the trash unless force=true is passed. Changes can also be rolled back from the Logs & Roll Back screen.",
+      "evidence": [
+        "models/model.php:4372"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Write tool calls are recorded by the change tracker with the tool name, the user ID, the source (MCP or which OAuth client) and before/after snapshots. You can view and undo them under Logs & Roll Back in wp-admin. Read-only calls are not logged there, only in an optional debug file.",
+      "evidence": [
+        "models/class-change-tracker.php:384",
+        "models/class-change-tracker.php:393",
+        "models/class-change-tracker.php:395",
+        "mod.php:187",
+        "stifli-flex-mcp.php:302"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": "about 200 (about 125 core and integration tools seeded in stifli-flex-mcp.php plus 73 WooCommerce tools, plus any imported WordPress Abilities); readme claims 122+",
+        "names": [
+          "mcp_ping",
+          "wp_get_posts",
+          "wp_get_post",
+          "wp_create_post",
+          "wp_update_post",
+          "wp_delete_post",
+          "wp_set_featured_image",
+          "wp_publish_and_promote",
+          "wp_create_preview_link",
+          "wp_get_pages",
+          "wp_create_page",
+          "wp_update_page",
+          "wp_delete_page",
+          "wp_get_comments",
+          "wp_create_comment",
+          "wp_update_comment",
+          "wp_delete_comment",
+          "wp_get_users",
+          "wp_get_user_meta",
+          "wp_update_user_meta",
+          "wp_delete_user_meta",
+          "wp_list_plugins",
+          "wp_get_themes",
+          "wp_get_media",
+          "wp_get_media_item",
+          "wp_upload_image_from_url",
+          "wp_upload_image",
+          "wp_upload_media",
+          "wp_update_media_item",
+          "wp_delete_media_item",
+          "wp_get_taxonomies",
+          "wp_get_terms",
+          "wp_create_term",
+          "wp_update_term",
+          "wp_delete_term",
+          "wp_get_term_meta",
+          "wp_update_term_meta",
+          "wp_delete_term_meta",
+          "wp_get_categories",
+          "wp_create_category",
+          "wp_update_category",
+          "wp_delete_category",
+          "wp_get_tags",
+          "wp_create_tag",
+          "wp_update_tag",
+          "wp_delete_tag",
+          "wp_get_nav_menus",
+          "wp_get_menus",
+          "wp_get_menu",
+          "wp_create_nav_menu",
+          "wp_create_menu",
+          "wp_reorder_menu_items",
+          "wp_css_get_global",
+          "wp_css_set_global",
+          "wp_css_set_scoped",
+          "wp_get_option",
+          "wp_get_plugin_settings",
+          "wp_update_option",
+          "wp_verify_rendered_page",
+          "wp_update_permalink_structure",
+          "wp_get_post_meta",
+          "wp_add_post_meta",
+          "wp_update_post_meta",
+          "wp_delete_post_meta",
+          "wp_get_post_revisions",
+          "wp_restore_post_revision",
+          "wp_get_post_types",
+          "wp_get_site_health",
+          "wp_get_cron_schedule",
+          "wp_get_error_log_tail",
+          "wp_get_settings",
+          "wp_update_settings",
+          "search",
+          "fetch",
+          "wp_generate_image",
+          "wp_generate_video",
+          "wp_search_image",
+          "mcp_get_changelog",
+          "mcp_get_change_detail",
+          "mcp_rollback_change",
+          "mcp_redo_change",
+          "mcp_rollback_session",
+          "snippet_list",
+          "snippet_get",
+          "snippet_create",
+          "snippet_update",
+          "snippet_delete",
+          "snippet_activate",
+          "snippet_deactivate",
+          "wp_rm_get_head",
+          "wp_rm_get_post_seo",
+          "wp_rm_update_post_seo",
+          "yoast_get_meta",
+          "yoast_get_schema",
+          "yoast_set_meta",
+          "yoast_reindex",
+          "wp_gsc_list_sites",
+          "wp_gsc_query_performance",
+          "wp_gsc_inspect_url",
+          "wp_gsc_list_sitemaps",
+          "wp_seo_find_gsc_opportunities",
+          "wp_seo_get_post_context",
+          "wp_seo_suggest_title_meta_from_gsc",
+          "wp_seo_apply_title_meta_safe",
+          "acf_get_field_groups",
+          "acf_get_fields",
+          "acf_update_field",
+          "wpforms_list_forms",
+          "wpforms_get_form",
+          "wpforms_get_entries",
+          "wpforms_get_entry",
+          "gf_list_forms",
+          "gf_get_entries",
+          "gf_update_entry",
+          "forminator_list_forms",
+          "forminator_get_entries",
+          "cf7_list_forms",
+          "cf7_get_form",
+          "flamingo_get_submissions",
+          "wp_tec_list_events",
+          "wp_tec_get_event",
+          "wp_tec_save_event",
+          "wp_tec_list_entities",
+          "wp_tec_save_entity",
+          "wp_tec_trash_event",
+          "elementor_* (clone_page, replace_text/image/link, get_page_outline, get/update_widget, add_widget, templates, repair_render)",
+          "divi_* (get_page_format, outline, validate_layout, templates, replace_text/image, clone_page, apply_library_template)",
+          "wc_* (73 WooCommerce product, variation, attribute, order, customer, coupon and system tools)"
+        ]
+      },
+      "summary": "A large set of fixed tools covering WordPress core, WooCommerce, SEO plugins, form plugins, page builders, code snippets, media generation and rollback. Abilities registered by other plugins can also be imported as tools. Plugin activation/install and user create/delete tools were removed.",
+      "evidence": [
+        "stifli-flex-mcp.php:1028",
+        "models/woocommerce/wc-products.php",
+        "stifli-flex-mcp.php:4106"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "comments",
+        "plugins",
+        "themes",
+        "settings",
+        "woocommerce"
+      ],
+      "summary": "The tools cover posts, pages, media, taxonomies, comments, users (list and user meta only), plugins and themes (list only), settings/options and WooCommerce. There are no dedicated block-editing tools; Elementor and Divi have their own.",
+      "evidence": [
+        "stifli-flex-mcp.php:1033",
+        "stifli-flex-mcp.php:1064",
+        "stifli-flex-mcp.php:1069",
+        "stifli-flex-mcp.php:1135"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "wp_get_posts"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "wp_create_post + wp_upload_image_from_url",
+          "note": "post_content is stored as given (HTML or block markup, filtered with wp_kses_post); no Markdown conversion"
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "wp_get_post + wp_update_post",
+          "note": "fields object updates only what is sent; appending means sending the full content back"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "wp_upload_image_from_url"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "wp_list_plugins",
+          "note": "returns Name, Version and active"
+        },
+        "T6": {
+          "status": "Pass",
+          "tool": "wp_update_settings",
+          "note": "blogdescription is in the allowed keys; optional dry_run"
+        },
+        "T7": {
+          "status": "Partial",
+          "tool": "wp_delete_post",
+          "note": "trash by default, force=true for permanent; logged with rollback; no plugin-side confirmation, only destructiveHint"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "n/a",
+          "note": "the endpoint requires edit_posts, so subscribers are refused; per-tool delete_post/publish checks as well"
+        }
+      },
+      "summary": "All standard tasks can be done. Deleting has no plugin-side confirmation; it relies on the client acting on the destructiveHint annotation.",
+      "evidence": [
+        "models/model.php:3720",
+        "models/model.php:3955",
+        "models/model.php:4372",
+        "models/model.php:4822",
+        "models/model.php:4883",
+        "models/model.php:8586",
+        "mod.php:207"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": null,
+      "summary": "On WordPress 6.9+ the plugin finds abilities registered by other plugins (wp_get_abilities), lets you import them from the Abilities tab, and runs them as MCP tools. It does not use the MCP Adapter.",
+      "evidence": [
+        "stifli-flex-mcp.php:4106",
+        "stifli-flex-mcp.php:4119",
+        "stifli-flex-mcp.php:4144",
+        "mod.php:69"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http (POST /wp-json/stifli-flex-mcp/v1/messages and POST /sse with direct JSON-RPC)",
+          "sse (legacy GET /sse)"
+        ],
+        "protocol_version": "2026-07-28 (also 2025-11-25, 2025-06-18, 2025-03-26)",
+        "runs_in_wordpress": true
+      },
+      "summary": "The plugin runs its own MCP server inside the WordPress REST API. It answers JSON-RPC POSTs directly (Streamable HTTP style) and keeps legacy SSE sessions, and it negotiates protocol versions up to 2026-07-28.",
+      "evidence": [
+        "mod.php:101",
+        "mod.php:115",
+        "mod.php:371",
+        "mod.php:1335",
+        "mod.php:1613"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [],
+      "summary": "There is no Pro version or account requirement in the code. The MCP server, OAuth, profiles and rollback are all in the free plugin. Optional add-ons (AI chat, copilot, image/video generation) need your own AI provider keys.",
+      "evidence": [
+        "readme.txt:29",
+        "stifli-flex-mcp.php:177"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Nothing in the code requires HTTPS, and Application Passwords work on localhost. But the main OAuth 'Add custom connector' flow needs a URL that Anthropic's servers can reach. For local sites the readme only says to put Basic Auth headers into claude_desktop_config.json and never names a bridge such as mcp-remote. The in-admin guide and the .mcpb download use a 'type: sse' config that Claude Desktop does not support natively.",
+      "evidence": [
+        "readme.txt:237",
+        "mod.php:3970",
+        "mod.php:7015",
+        "mod.php:3430"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "If the Authorization header is stripped, the plugin reads it from REDIRECT_HTTP_AUTHORIZATION or getallheaders(), and there is an admin check for whether the header arrives. It adds MCP headers to CORS, sends no-cache headers, offers well-known discovery alternatives, and the readme covers Cloudflare and WAF bot blocking.",
+      "evidence": [
+        "mod.php:223",
+        "mod.php:230",
+        "mod.php:34",
+        "mod.php:33",
+        "mod.php:86",
+        "readme.txt:224"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 4,
+        "steps": [
+          "Activate and finish the first-activation add-on screen (or skip it)",
+          "Go to Flex MCP > MCP Server and copy the connection URL",
+          "In Claude Desktop: Customize > Connectors > Add custom connector, then paste the URL",
+          "Log in to WordPress in the browser window and click Authorize"
+        ]
+      },
+      "summary": "Following the plugin's own steps, it takes about four steps to the first tool call, if the site is public and reachable over HTTPS.",
+      "evidence": [
+        "mod.php:3792",
+        "mod.php:3812",
+        "mod.php:3820",
+        "readme.txt:79"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "OAuth 2.1 with dynamic client registration (auto-approved by default) and discovery means you can paste the URL into Claude's 'Add custom connector' or ChatGPT's connector screen and authorize in the browser. No terminal or config file is needed.",
+      "evidence": [
+        "oauth/class-oauth-server.php:542",
+        "oauth/class-oauth-server.php:601",
+        "mod.php:3812"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The MCP Server settings tab shows this site's endpoint URL with a Copy button, numbered steps for Claude and ChatGPT, a one-click Application Password generator with a site-specific curl example, and a config download.",
+      "evidence": [
+        "mod.php:3795",
+        "mod.php:3801",
+        "mod.php:3976",
+        "mod.php:4005",
+        "mod.php:4032"
+      ]
+    },
+    "DOCS": {
+      "status": "Partial",
+      "value": [
+        "https://andromedanova.com/stifli-flex-mcp.html",
+        "https://github.com/estebanstifli/stifli-flex-mcp",
+        "https://youtu.be/AcmvwRzoOSM",
+        "https://andromedanova.com/wp-mcp-hub.html"
+      ],
+      "summary": "The readme has clear OAuth connection steps and a firewall/troubleshooting FAQ, and the admin screen has its own step list. The external docs page is linked only from the readme; wp-admin links to GitHub and the WP MCP Hub promo. The Application Password route for Claude Desktop is not fully documented (no bridge command).",
+      "evidence": [
+        "readme.txt:39",
+        "readme.txt:77",
+        "readme.txt:224",
+        "mod.php:7442",
+        "mod.php:3298"
+      ]
+    }
+  },
+  "notes": "- MCP cannot be turned off; the readme says \"The MCP Server is always active.\" Automatic approval of OAuth dynamic client registration defaults to '1' (oauth/class-oauth-server.php:601), so any client can register; a logged-in user still has to click Authorize.\n- The readme's \"Tool confirmations — In 'Ask User' mode, you approve every action\" applies to the built-in AI Chat Agent, not to external MCP clients. Over MCP, only annotations and the optional dry_run on settings and options exist.\n- The 'Download .mcpb Bundle' (mod.php:3418) is a plain JSON file with `type: sse` named .mcpb. It is not a real MCP Bundle archive, and Claude Desktop's config does not accept remote `type: sse` entries without a bridge. The Quick Setup Guide at mod.php:7015 has the same problem.\n- The admin setup screen shows the /sse URL, while the readme recommends the /messages URL for MCP 2026-07-28. Both accept direct JSON-RPC POSTs, so both work.\n- The admin troubleshooting text tells users to \"Make sure your site uses HTTPS\", but nothing in the code enforces HTTPS.\n- Requests with an Origin header that does not match the site host get a 403 (mod.php:160). Browser-based MCP clients therefore need the sflmcp_allowed_origin_hosts filter.\n- When enabled, the debug log is written to uploads/sflmcp-logs/ and protected only by .htaccess, which nginx ignores. Logging is off by default, and Authorization values are not logged.\n- The tool count is about 125 core/integration tools plus 73 WooCommerce tools. That is more than the readme's \"122+\".\n- Tools that install or activate plugins and themes, and tools that create, update or delete users, were removed for WordPress.org compliance. However, wp_update_option, wp_update_user_meta and snippet_create/activate remain, capability-gated at manage_options/edit_users. These are powerful for any admin-level token."
+}

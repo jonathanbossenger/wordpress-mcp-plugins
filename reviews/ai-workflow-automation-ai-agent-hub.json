@@ -1,0 +1,433 @@
+{
+  "slug": "ai-workflow-automation-ai-agent-hub",
+  "version": "1.9.4",
+  "reviewed_at": "2026-10-24T07:44:02+02:00",
+  "duration_s": 224,
+  "cost_usd": 2.7498282,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "oauth",
+        "bearer-token",
+        "application-password",
+        "cookie"
+      ],
+      "summary": "The MCP endpoint accepts OAuth 2.1 tokens (when one-click connect is on), JWT bearer tokens issued per WordPress user, Application Passwords (Basic auth passed to core) and logged-in cookie sessions with the REST nonce. Every credential maps to a WordPress user, and the old shared static token is removed on upgrade.",
+      "evidence": [
+        "src/Auth/JwtAuth.php:647",
+        "src/Auth/JwtAuth.php:660",
+        "src/Auth/JwtAuth.php:720",
+        "src/OAuth/Token_Validator.php:49",
+        "src/Plugin.php:1295",
+        "vendor-prefixed/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:122"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "A request to the MCP route with no Authorization header and no login session gets a 401 from the JWT filter. The adapter's transport check also requires the 'read' capability, so anonymous visitors can neither list nor call tools.",
+      "evidence": [
+        "src/Auth/JwtAuth.php:680",
+        "src/Auth/JwtAuth.php:689",
+        "vendor-prefixed/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:129"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every ability has a permission_callback with a capability for its group (edit_posts, edit_pages, upload_files, list_users, manage_options, manage_woocommerce) plus the role allow-list. Most tools then run through rest_do_request as the signed-in user, so core's REST controllers also check per-object rights like delete_post and edit_post.",
+      "evidence": [
+        "src/Plugin.php:1885",
+        "src/Abilities/Posts_Abilities.php:715",
+        "src/Abilities/Posts_Abilities.php:785",
+        "src/Abilities/Media_Abilities.php:329",
+        "src/Abilities/Settings_Abilities.php:99",
+        "src/Abilities/Users_Abilities.php:304",
+        "src/Abilities/Store_Manager_Abilities.php:139"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "OAuth access/refresh tokens and client secrets are stored only as HMAC-SHA256 hashes. JWTs are shown once at creation, and only their jti/user/expiry go in the registry. The JWT signing key is kept in plain text in wp_options, which is normal for a server signing secret.",
+      "evidence": [
+        "src/OAuth/OAuth_Repository.php:131",
+        "src/OAuth/OAuth_Repository.php:222",
+        "src/OAuth/Registration_Controller.php:120",
+        "src/REST/Connections_Controller.php:223",
+        "src/Auth/JwtAuth.php:426",
+        "src/Auth/JwtAuth.php:81"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The MCP server is registered as soon as the plugin is active, and most modules start switched on, including Users, Settings, Custom Post Types and the generic 'run REST API function'. It is not reachable without credentials. OAuth one-click connect is off by default, and tool-call logging is off by default.",
+      "evidence": [
+        "src/Plugin.php:196",
+        "src/Plugin.php:1189",
+        "src/Plugin.php:1267",
+        "src/OAuth/OAuth_Server.php:213",
+        "src/Plugin.php:376"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Partial",
+      "value": null,
+      "summary": "A connection can be approved as read-only, which hides and refuses write tools, but only for OAuth connections (read-only means the token lacks mcp:write). JWT, Application Password and cookie connections always get their role's full access. A separate 'Pause all AI access' switch blocks every tool call on any connection type.",
+      "evidence": [
+        "src/Access/Tool_Scope.php:110",
+        "src/Access/Tool_Scope.php:122",
+        "src/Connections/Connection_Guard.php:58",
+        "src/Connections/Connection_Guard.php:65"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Free code enforces a per-role list of allowed ability ids on tools/list and tools/call for every connection type. It also has a site-wide per-tool on/off (Ability_Visibility) and module switches. The readme says per-ability RBAC is a Pro feature, but the free code already filters by individual ability id. Pro adds tool/resource/prompt access modes.",
+      "evidence": [
+        "src/Plugin.php:1337",
+        "src/Plugin.php:1513",
+        "src/Plugin.php:1566",
+        "src/Access/Tool_Access.php:128",
+        "src/REST/Settings_Controller.php:391"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "destructiveHint/readOnlyHint annotations on some tools (e.g. delete post); no confirm argument or approval queue"
+      },
+      "summary": "Delete tools carry destructive annotations, so it is up to the AI client to ask before running them. The plugin itself has no confirm parameter or approval step.",
+      "evidence": [
+        "src/Abilities/Posts_Abilities.php:349",
+        "vendor-prefixed/wordpress/mcp-adapter/includes/Domain/Utils/McpAnnotationMapper.php:1"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Delete post, page and custom post type tools pass a 'force' flag that defaults to false, so items go to the Trash unless the AI asks for permanent deletion. Media delete defaults to force=true, because WordPress media has no Trash, and user delete is permanent.",
+      "evidence": [
+        "src/Abilities/Posts_Abilities.php:338",
+        "src/Abilities/Posts_Abilities.php:780",
+        "src/Abilities/Media_Abilities.php:242"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Tool calls (user, tool, status, duration) can be logged and viewed on the plugin's Activity log screen, but logging is off by default. It only works when the official WordPress AI plugin is installed with its request-logging experiment on, because entries are written to that plugin's table. The Connections screen separately shows when each app was last used.",
+      "evidence": [
+        "src/Plugin.php:1762",
+        "src/Plugin.php:1797",
+        "src/Plugin.php:1808",
+        "src/Service/Activity_Log.php:15",
+        "src/Service/Activity_Log.php:48"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 85,
+        "names": [
+          "awfah-content/analyze-post",
+          "awfah-content/generate-feature-image",
+          "awfah-content/generate-excerpt",
+          "awfah-content/focus-keywords",
+          "awfah-content/lsi-keywords",
+          "awfah-content/summarize",
+          "awfah-content/generate-content",
+          "awfah-content/generate-alt-text",
+          "awfah-content/suggest-titles",
+          "awfah-posts/wp-posts-search",
+          "awfah-posts/wp-get-post",
+          "awfah-posts/wp-add-post",
+          "awfah-posts/wp-update-post",
+          "awfah-posts/wp-delete-post",
+          "awfah-posts/wp-list-categories",
+          "awfah-posts/wp-add-category",
+          "awfah-posts/wp-update-category",
+          "awfah-posts/wp-delete-category",
+          "awfah-posts/wp-list-tags",
+          "awfah-posts/wp-add-tag",
+          "awfah-posts/wp-update-tag",
+          "awfah-posts/wp-delete-tag",
+          "awfah-pages/wp-pages-search",
+          "awfah-pages/wp-get-page",
+          "awfah-pages/wp-add-page",
+          "awfah-pages/wp-update-page",
+          "awfah-pages/wp-delete-page",
+          "awfah-media/wp-list-media",
+          "awfah-media/wp-get-media",
+          "awfah-media/wp-get-media-file",
+          "awfah-media/wp-upload-media",
+          "awfah-media/wp-update-media",
+          "awfah-media/wp-delete-media",
+          "awfah-media/wp-search-media",
+          "awfah-users/wp-users-search",
+          "awfah-users/wp-get-user",
+          "awfah-users/wp-add-user",
+          "awfah-users/wp-update-user",
+          "awfah-users/wp-delete-user",
+          "awfah-users/wp-get-current-user",
+          "awfah-users/wp-update-current-user",
+          "awfah-cpt/wp-list-post-types",
+          "awfah-cpt/wp-cpt-search",
+          "awfah-cpt/wp-get-cpt",
+          "awfah-cpt/wp-add-cpt",
+          "awfah-cpt/wp-update-cpt",
+          "awfah-cpt/wp-delete-cpt",
+          "awfah-rest-api/list-api-functions",
+          "awfah-rest-api/get-function-details",
+          "awfah-rest-api/run-api-function",
+          "awfah-site/get-site-info",
+          "awfah-site/get-plugin-info",
+          "awfah-site/get-theme-info",
+          "awfah-site/get-user-info",
+          "awfah-settings/wp-get-settings",
+          "awfah-settings/wp-update-settings",
+          "awfah-settings/get-site-settings",
+          "awfah-debug/get-debug-status",
+          "awfah-debug/read-debug-log",
+          "awfah-debug/get-error-source",
+          "awfah-debug/clear-debug-log",
+          "awfah-store/wc-products-search",
+          "awfah-store/wc-get-product",
+          "awfah-store/wc-add-product",
+          "awfah-store/wc-update-product",
+          "awfah-store/wc-delete-product",
+          "awfah-store/wc-list-product-categories",
+          "awfah-store/wc-add-product-category",
+          "awfah-store/wc-update-product-category",
+          "awfah-store/wc-delete-product-category",
+          "awfah-store/wc-list-product-tags",
+          "awfah-store/wc-add-product-tag",
+          "awfah-store/wc-update-product-tag",
+          "awfah-store/wc-delete-product-tag",
+          "awfah-store/wc-list-product-brands",
+          "awfah-store/wc-add-product-brand",
+          "awfah-store/wc-update-product-brand",
+          "awfah-store/wc-delete-product-brand",
+          "awfah-store/wc-orders-search",
+          "awfah-store/wc-reports-coupons-totals",
+          "awfah-store/wc-reports-customers-totals",
+          "awfah-store/wc-reports-orders-totals",
+          "awfah-store/wc-reports-products-totals",
+          "awfah-store/wc-reports-reviews-totals",
+          "awfah-store/wc-reports-sales"
+        ],
+        "plus": "Abilities registered by other plugins/core (external_abilities module, on by default) and read-only tools derived from WooCommerce's REST API (rest_derived); writes for other plugins' REST APIs are Pro. MCP resources and prompts are also served."
+      },
+      "summary": "85 of the plugin's own tools across 11 modules, plus abilities from core and other plugins and REST-derived WooCommerce tools. 'run-api-function' can call any REST route the admin user may use.",
+      "evidence": [
+        "src/Plugin.php:598",
+        "src/Plugin.php:631",
+        "src/Plugin.php:656",
+        "src/Abilities/Posts_Abilities.php:53",
+        "src/Abilities/Store_Manager_Abilities.php:83",
+        "src/Abilities/Rest_Api_Abilities.php:56"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "plugins",
+        "themes",
+        "settings",
+        "woocommerce"
+      ],
+      "summary": "Covers posts, pages, media, categories/tags, users, read-only plugin and theme info, general settings and WooCommerce products/orders/reports. There are no dedicated comment or block tools, though the generic REST tool can reach comment endpoints.",
+      "evidence": [
+        "src/Abilities/Posts_Abilities.php:360",
+        "src/Abilities/Site_Info_Abilities.php:32",
+        "src/Abilities/Site_Info_Abilities.php:48",
+        "src/Abilities/Settings_Abilities.php:33",
+        "src/Abilities/Users_Abilities.php:22",
+        "src/Abilities/Store_Manager_Abilities.php:83"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "awfah-posts/wp-posts-search (proxies /wp/v2/posts with per_page/orderby)"
+        },
+        "T2": {
+          "status": "Partial",
+          "tool": "awfah-posts/wp-add-post + awfah-media/wp-upload-media; content is passed straight to /wp/v2/posts and stored as given (block markup or HTML, no Markdown conversion); the image must be uploaded as base64 first"
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "awfah-posts/wp-get-post then awfah-posts/wp-update-post (content replaces whole field, so the AI must resend existing content)"
+        },
+        "T4": {
+          "status": "Fail",
+          "tool": "awfah-media/wp-upload-media accepts base64 only, no URL sideload"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "awfah-site/get-plugin-info (name, version, active)"
+        },
+        "T6": {
+          "status": "Pass",
+          "tool": "awfah-settings/wp-update-settings (description)"
+        },
+        "T7": {
+          "status": "Partial",
+          "tool": "awfah-posts/wp-delete-post: trash by default (force=false), destructive annotation only, logging opt-in and needs the AI plugin"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "permission_callback requires edit_posts; core REST checks publish/delete per post"
+        }
+      },
+      "summary": "Most standard tasks work. Uploading from a URL is not supported (base64 only). Delete goes to the Trash but has no plugin-side confirmation, and is logged only if logging is turned on.",
+      "evidence": [
+        "src/Abilities/Posts_Abilities.php:732",
+        "src/Abilities/Posts_Abilities.php:756",
+        "src/Abilities/Posts_Abilities.php:766",
+        "src/Abilities/Media_Abilities.php:402",
+        "src/Abilities/Site_Info_Abilities.php:136",
+        "src/Abilities/Settings_Abilities.php:42",
+        "src/Abilities/Posts_Abilities.php:338",
+        "src/Abilities/Posts_Abilities.php:716"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": null,
+      "summary": "All tools are registered with wp_register_ability and served through a scoped, bundled copy of the MCP Adapter. It also exposes abilities that core and other plugins register.",
+      "evidence": [
+        "src/Abilities/Posts_Abilities.php:709",
+        "src/Plugin.php:488",
+        "src/Plugin.php:1187",
+        "vendor-prefixed/wordpress/mcp-adapter/includes/Core/McpAdapter.php:192"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http"
+        ],
+        "protocol_version": "2025-11-25 (also negotiates 2025-06-18, 2024-11-05)",
+        "runs_in_wordpress": true
+      },
+      "summary": "The server runs inside WordPress at /wp-json/awfah_mcp/mcp using the adapter's HttpTransport (Streamable HTTP, POST/GET/DELETE) with protocol 2025-11-25.",
+      "evidence": [
+        "src/Plugin.php:1274",
+        "vendor-prefixed/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:66",
+        "vendor-prefixed/wordpress/mcp-adapter/includes/Core/McpVersionNegotiator.php:19"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Partial",
+      "value": [
+        "Write tools derived from other plugins' REST APIs (free: WooCommerce read-only only)",
+        "Tool/resource/prompt (T/R/P) access modes and per-role OAuth policy",
+        "Ability name/description editor",
+        "MCP Fix Command tool for Error Debugger",
+        "Shopping assistant MCP server",
+        "Workflow prompt builders, unlimited workflows"
+      ],
+      "summary": "The MCP server, OAuth, the core tools, role access and read-only/pause controls are all free. Some extra reach and finer controls are Pro.",
+      "evidence": [
+        "readme.txt:107",
+        "src/Plugin.php:655",
+        "src/Admin/MCP_Settings.php:388"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The plugin's one-click Claude flow uses claude.ai's custom connector, which needs a public HTTPS URL, and the readme says HTTPS is needed for web apps. A local http site would probably work with Claude Desktop through a bridge such as mcp-remote and an Application Password or JWT (Basic and Bearer are both accepted, and loopback http redirect URIs are allowed), but the plugin gives no bridge instructions. It only detects local sites in its health check.",
+      "evidence": [
+        "src/REST/Connections_Controller.php:201",
+        "src/Connections/Connection_Health.php:229",
+        "src/OAuth/Registration_Controller.php:207",
+        "readme.txt:177"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Reads the Authorization header from several server variables, and a one-click fix adds the SetEnvIf line to .htaccess (after a backup) when the host strips it. It keeps page caches off the MCP endpoints, works around other plugins' .well-known handling, and the readme covers Cloudflare/WAF setup. A health check tests HTTPS, permalinks, header passthrough and reachability.",
+      "evidence": [
+        "src/Auth/JwtAuth.php:569",
+        "src/Setup/Server_Fix.php:23",
+        "src/REST/Page_Cache_Guard.php:1",
+        "src/OAuth/OAuth_Server.php:55",
+        "readme.txt:167"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 4,
+        "steps": [
+          "Activate the plugin (setup guide opens)",
+          "Turn on one-click connect (OAuth, off by default) in the guide or Connections screen",
+          "Click Connect an AI app → Claude, which opens Claude's Add custom connector with the URL filled in; click Add",
+          "Approve on the site's consent screen (Full access or Read only), then ask a question"
+        ]
+      },
+      "summary": "About four steps from activation to a first tool call with Claude, all in the browser, provided the site is public and on HTTPS.",
+      "evidence": [
+        "src/Setup/Setup_Wizard.php:193",
+        "src/REST/Connections_Controller.php:252",
+        "src/REST/Connections_Controller.php:201",
+        "src/OAuth/Authorize_Controller.php:77"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "OAuth 2.1 with PKCE and dynamic client registration, plus a deep link into Claude's 'Add custom connector' dialog with the site URL filled in, so no terminal or JSON editing is needed. Cursor and VS Code get install deep links as well.",
+      "evidence": [
+        "src/OAuth/Registration_Controller.php:45",
+        "src/REST/Connections_Controller.php:195",
+        "src/OAuth/OAuth_Server.php:810"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "A first-run setup wizard and a Connections screen show the site-specific MCP URL, one-click links per app (Claude, ChatGPT, Cursor, VS Code, a Claude Code command), a health check and a 'first question' step.",
+      "evidence": [
+        "src/Setup/Setup_Wizard.php:193",
+        "src/REST/Connections_Controller.php:195",
+        "src/Plugin.php:980",
+        "assets/js/admin-app.min.js \"Compatible MCP Clients\""
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "readme.txt connection FAQ and troubleshooting",
+        "https://wpatlasmcp.com/docs/ (linked from admin app and OAuth metadata)",
+        "https://wpatlasmcp.com/contact/"
+      ],
+      "summary": "The readme explains how to connect each client and how to fix common host problems, and the admin screens link to a docs site.",
+      "evidence": [
+        "readme.txt:20",
+        "readme.txt:155",
+        "readme.txt:167",
+        "src/OAuth/OAuth_Server.php:954",
+        "assets/js/admin-app.min.js \"https://wpatlasmcp.com/docs/\""
+      ]
+    }
+  },
+  "notes": "The plugin brands itself \"AtlasMCP\" (formerly AtlasAI Connector). It bundles a renamed (Strauss-scoped) copy of wordpress/mcp-adapter 0.7.x, and it also ships an unscoped vendor/wordpress/mcp-adapter that does not seem to be loaded. Things worth knowing: (1) The MCP server is on from activation with a broad default module set, including Users (add/delete user), Settings and 'run-api-function', which can call any REST route an admin may use. External abilities from other plugins are also on by default, even though a code comment calls them 'Pro only'. (2) Access-control lists apply only to roles that have been configured. On first run only Administrator is configured, so any other role, Subscriber included, can list every tool. Calls still fail on each ability's capability check. (3) Read-only mode only works for OAuth tokens. JWT and Application Password connections cannot be made read-only. (4) Tool-call logging is off by default and needs the official WordPress AI plugin with its request-logging experiment, because entries go into that plugin's table. (5) The readme lists per-ability RBAC as Pro, but the free code already filters tools/list and tools/call by individual ability id per role. (6) The JWT sign-in route /jwt-auth/v1/token is public and takes a username and password; it is limited to 5 failed attempts per IP per 15 minutes. (7) Media upload takes base64 only, so there is no upload from a URL. (8) An opt-in usage tracker (track.atlasaidev.com) sends the admin's name and email only if they agree."
+}

@@ -1,0 +1,339 @@
+{
+  "slug": "acrossai-mcp-manager",
+  "version": "0.4.3",
+  "reviewed_at": "2026-10-24T07:44:02+02:00",
+  "duration_s": 268,
+  "cost_usd": 2.8481308000000003,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "oauth",
+        "bearer-token",
+        "application-password",
+        "cookie"
+      ],
+      "summary": "The endpoint accepts OAuth 2.1 bearer tokens issued by the plugin's own OAuth server, WordPress Application Passwords (through the mcp-wordpress-remote bridge), and the normal logged-in cookie. Every credential resolves to a WordPress user, and the transport runs current_user_can() for that user.",
+      "evidence": [
+        "includes/OAuth/TokenValidator.php:65",
+        "includes/OAuth/TokenValidator.php:96",
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:122",
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:129",
+        "includes/MCPClients/AbstractMCPClient.php:445"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "Requests with no credentials are refused at the REST permission check. A server with no access rule needs manage_options, and a server with any rule (even 'Anyone') still needs the 'read' capability, which anonymous visitors do not have. Users the rule excludes get an empty tools list and a 403 when they call a tool.",
+      "evidence": [
+        "includes/AccessControl/TransportPermissionDefault.php:198",
+        "includes/AccessControl/TransportPermissionDefault.php:205",
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:129",
+        "includes/AccessControl/AcrossAI_MCP_Access_Control.php:344",
+        "includes/AccessControl/AcrossAI_MCP_Access_Control.php:523"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every Toolset execute runs the target ability's own check_permissions() with the call's parameters, and the meta-tool execute path does the same. This sits on top of the per-server access rule. One caveat: a per-server opt-in setting ('override_abilities_permission') makes the permission check of every exposed ability return true for that server. It is off by default and behind a warning.",
+      "evidence": [
+        "includes/Abilities/Toolset/Base_Toolset_Ability.php:824",
+        "includes/Abilities/Toolset/Base_Toolset_Ability.php:893",
+        "vendor/wordpress/mcp-adapter/includes/Abilities/ExecuteAbilityAbility.php:192",
+        "includes/Abilities/PermissionOverrideProcessor.php:116",
+        "includes/Abilities/PermissionOverrideProcessor.php:163"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "OAuth client secrets, auth codes, access tokens and refresh tokens are stored only as SHA-256 hashes and compared with hash_equals. Application Passwords are created and hashed by WordPress core. CLI session tokens are short-lived transients (600 s).",
+      "evidence": [
+        "includes/OAuth/Security/SecretsVault.php:46",
+        "includes/OAuth/TokenValidator.php:82",
+        "includes/REST/CliController.php:39",
+        "includes/REST/CliController.php:167"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Both seeded servers (Default MCP Server and AcrossAI) are inserted with is_enabled = 0, and with no access rule they are admin-only. No endpoint is registered until a server is enabled. Note that the Quick Connect wizard, which opens on activation, enables a server and offers an 'enable all abilities' step.",
+      "evidence": [
+        "includes/Database/MCPServer/DefaultServerSeeder.php:113",
+        "includes/MCP/Controller.php:96",
+        "includes/MCP/Controller.php:317",
+        "includes/AccessControl/TransportPermissionDefault.php:205",
+        "includes/REST/QuickConnectController.php:20"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Fail",
+      "value": null,
+      "summary": "There is no read-only switch. The readme suggests building a 'read-only server' by hand-picking tools and abilities, but nothing enforces read-only behaviour for a connection.",
+      "evidence": [
+        "includes/Abilities/Toolset/Base_Toolset_Ability.php:597",
+        "readme.txt:84"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Each server has its own curated tool list (Tools tab) and per-ability exposure (Abilities tab), plus an access rule by user, role or capability. These are enforced at the server, so they apply to OAuth, Application Password and cookie connections alike. Each connector can also be switched off per server, and admin approval of users can be required.",
+      "evidence": [
+        "includes/MCP/Controller.php:152",
+        "includes/AccessControl/AcrossAI_MCP_Access_Control.php:475",
+        "includes/Abilities/Toolset/Base_Toolset_Ability.php:871",
+        "admin/Partials/ServerTabs/AIConnectorsTab.php:689",
+        "admin/Partials/ServerTabs/AIConnectorsTab.php:728"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Fail",
+      "value": {
+        "mechanism": "none in this plugin; Toolset dispatchers are hard-annotated destructive:false"
+      },
+      "summary": "This plugin has no confirmation step. The tools a client actually sees (Toolset dispatchers and the execute-ability meta tool) are annotated readonly:false, destructive:false, so the client never gets a destructiveHint to ask about. An ability's own annotations only show up in 'info' output. The readme's 'confirmation flag' claim refers to abilities in the separate Abilities Manager plugin.",
+      "evidence": [
+        "includes/Abilities/Toolset/Base_Toolset_Ability.php:597",
+        "includes/Abilities/Toolset/Base_Toolset_Ability.php:599",
+        "readme.txt:76"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "N/A",
+      "value": null,
+      "summary": "This plugin registers no content or delete abilities. Delete tools come from the separate AcrossAI Abilities Manager plugin, which this review did not cover.",
+      "evidence": []
+    },
+    "SAFE-LOG": {
+      "status": "Fail",
+      "value": null,
+      "summary": "Tool calls are not recorded. Servers are created with NullMcpObservabilityHandler, and errors go to PHP's error_log only. wp-admin does show a CLI authentication-attempt log and a list of OAuth connections, but neither records who ran which tool, or when.",
+      "evidence": [
+        "includes/MCP/Controller.php:233",
+        "includes/MCP/Controller.php:234",
+        "admin/Partials/CliAuthLogListTable.php:1",
+        "admin/Partials/ServerTabs/AIConnectorsTab.php:328"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 6,
+        "names": [
+          "mcp-adapter/discover-abilities",
+          "mcp-adapter/get-ability-info",
+          "mcp-adapter/execute-ability",
+          "mcp-adapter/server-guide",
+          "toolset/server-guide",
+          "toolset/setup-required"
+        ],
+        "abilities_behind_meta_tools": "Only abilities other code registers, e.g. WordPress core's core/get-site-info, core/get-user-info, core/get-environment-info",
+        "conditional": [
+          "toolset/content",
+          "toolset/blocks",
+          "toolset/appearance",
+          "toolset/configuration",
+          "toolset/users",
+          "toolset/updates",
+          "toolset/cron",
+          "toolset/cache",
+          "toolset/database",
+          "toolset/files",
+          "toolset/diagnostics",
+          "toolset/integrations",
+          "toolset/other"
+        ],
+        "note": "The 13 conditional toolsets register only when abilities tagged with their group exist. Those 357+ abilities ship in the separate free AcrossAI Abilities Manager plugin, not this one."
+      },
+      "summary": "On its own, this plugin serves MCP Adapter's three meta tools plus a server guide, or (on an AcrossAI-type server) only a 'setup required' notice. Its Toolset dispatchers stay unregistered until the separate AcrossAI Abilities Manager plugin supplies abilities for them.",
+      "evidence": [
+        "includes/Database/MCPServer/ToolPolicy.php:47",
+        "includes/Database/MCPServer/ServerTypes.php:603",
+        "includes/Abilities/Toolset/Registrar.php:96",
+        "includes/Abilities/Toolset/Base_Toolset_Ability.php:564",
+        "includes/Abilities/SetupRequired.php:69",
+        "includes/Abilities/ServerGuide.php:56"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [],
+      "summary": "This plugin contributes no content-area abilities. Posts, media, users, plugins, settings and the rest come only from the separate Abilities Manager plugin, or from WordPress core's few site/user info abilities.",
+      "evidence": [
+        "includes/Abilities/Toolset/Registrar.php:10",
+        "includes/Abilities/Toolset/AbilityGroup.php:171"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T2": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T3": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T4": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T5": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T6": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T7": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "transport + per-ability permission check"
+        }
+      },
+      "summary": "With only this plugin installed, none of the content, media, plugin or settings tasks can be done, because it ships no abilities for them (the readme's 357 abilities live in the AcrossAI Abilities Manager plugin). T8 passes: servers are admin-only by default, and every execute runs the target ability's own capability check.",
+      "evidence": [
+        "includes/Abilities/Toolset/Registrar.php:10",
+        "includes/AccessControl/TransportPermissionDefault.php:205",
+        "includes/Abilities/Toolset/Base_Toolset_Ability.php:893"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Built on the bundled official MCP Adapter. It exposes abilities registered through the WordPress Abilities API and registers its own (Toolset dispatchers, server guides).",
+      "evidence": [
+        "includes/MCP/Controller.php:225",
+        "includes/Abilities/Toolset/Base_Toolset_Ability.php:568",
+        "includes/Abilities/ServerGuide.php:81"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http",
+          "wp-cli-stdio"
+        ],
+        "protocol_version": "2026-07-28 (also 2025-11-25 and older revisions)",
+        "runs_in_wordpress": true
+      },
+      "summary": "MCP is served inside WordPress as a REST route through MCP Adapter 0.7.0's HttpTransport (POST/GET/DELETE), negotiating protocol 2026-07-28 or 2025-11-25. WP-CLI STDIO is also available.",
+      "evidence": [
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:62",
+        "vendor/wordpress/mcp-adapter/includes/Core/McpVersionNegotiator.php:35",
+        "vendor/wordpress/mcp-adapter/includes/Cli/StdioServerBridge.php:1"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [],
+      "summary": "The server, OAuth connectors, access control and client guides are all in the free plugin. The useful abilities need a second free plugin (AcrossAI Abilities Manager). The paid AcrossAI Pro only adds extra integrations (MailerPress, LearnDash, BuddyBoss, GeoDirectory).",
+      "evidence": [
+        "readme.txt:69",
+        "readme.txt:133",
+        "includes/Database/MCPServer/ServerTypes.php:85"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The Clients tab generates an Application Password and an npx @automattic/mcp-wordpress-remote config for Claude Desktop. It detects local hosts and adds a TLS-bypass flag for self-signed certificates. WP-CLI STDIO is offered as a credential-free local option. Application Passwords over plain http rely on WordPress core allowing them (environment type 'local').",
+      "evidence": [
+        "includes/MCPClients/ClaudeDesktopClient.php:43",
+        "includes/Utilities/LocalEnvironment.php:80",
+        "readme.txt:26"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Bearer-token reading falls back from HTTP_AUTHORIZATION to REDIRECT_HTTP_AUTHORIZATION, apache_request_headers() and getallheaders(). OAuth discovery documents send CORS headers. 401s carry a WWW-Authenticate resource_metadata header. A Site Health check probes the .well-known routes. The Application Password path still relies on the host passing the Authorization header (the readme tells you to ask your host).",
+      "evidence": [
+        "includes/OAuth/TokenValidator.php:128",
+        "includes/OAuth/DiscoveryController.php:104",
+        "includes/OAuth/BearerChallengeHeader.php:99",
+        "includes/OAuth/DiscoveryHealthCheck.php:42",
+        "readme.txt:173"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 5,
+        "steps": [
+          "Activate the plugin (Quick Connect wizard opens)",
+          "In the wizard pick and enable a server (and install the AcrossAI Abilities Manager plugin for real tools)",
+          "Open the server's Connectors > Claude tab and copy the MCP URL",
+          "In Claude, Customize > Connectors > Add custom connector, paste the URL",
+          "Click Connect and approve the consent screen on the WordPress site"
+        ]
+      },
+      "summary": "About five steps through the OAuth connector path, one of which is installing a second plugin to get useful tools. The Claude Desktop config-file path takes more: generate a password, copy JSON, edit the config file, restart.",
+      "evidence": [
+        "acrossai-mcp-manager.php:76",
+        "includes/ConnectorProfiles/ClaudeConnectorProfile.php:249",
+        "includes/MCPClients/ClaudeDesktopClient.php:114"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The built-in OAuth 2.1 server supports dynamic client registration (rate-limited) and .well-known discovery, so a site owner can paste the URL into Claude's 'Add custom connector' and approve in the browser. This needs a public HTTPS URL that Anthropic's servers can reach.",
+      "evidence": [
+        "includes/OAuth/ClientRegistrationController.php:93",
+        "includes/OAuth/ClientRegistrationController.php:296",
+        "includes/OAuth/OAuthRouter.php:126",
+        "includes/ConnectorProfiles/ClaudeConnectorProfile.php:284"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "wp-admin shows site-specific setup: per-connector step lists with this server's MCP URL, a Claude Code command, and per-client JSON snippets with config file paths per OS. There is also a Quick Connect wizard.",
+      "evidence": [
+        "includes/ConnectorProfiles/ClaudeConnectorProfile.php:239",
+        "includes/ConnectorProfiles/ClaudeConnectorProfile.php:241",
+        "includes/MCPClients/ClaudeDesktopClient.php:96",
+        "admin/Partials/QuickConnect/QuickConnectPage.php:1"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "https://acrossai.co/docs/",
+        "https://acrossai.co/mcp-manager-quick-setup/",
+        "https://acrossai.co/claude-connectors/",
+        "https://acrossai.co/chatgpt-connectors/",
+        "https://acrossai.co/gemini-connectors/",
+        "https://acrossai.co/grok-connectors/",
+        "https://acrossai.co/cursor-connectors/",
+        "https://github.com/Automattic/mcp-wordpress-remote/blob/trunk/Docs/troubleshooting.md"
+      ],
+      "summary": "The readme documents installation and connection steps, and the admin connector screens link to per-client guides on acrossai.co.",
+      "evidence": [
+        "readme.txt:108",
+        "includes/ConnectorProfiles/ClaudeConnectorProfile.php:240",
+        "includes/ConnectorProfiles/ChatGPTConnectorProfile.php:270",
+        "includes/Utilities/LocalEnvironment.php:57"
+      ]
+    }
+  },
+  "notes": "The readme's headline claims (357+ abilities, posts/media/users/database/files tools, confirmation flags, search-and-replace dry run, file allowlist) describe the separate free plugin 'AcrossAI Abilities Manager', not this code. With only acrossai-mcp-manager active, an AcrossAI-type server offers just a 'toolset/setup-required' notice, and an MCP Adapter-type server offers the three adapter meta tools plus a guide. Readme line 173 says Application Passwords need HTTPS, but WordPress core also allows them on 'local' environments. A per-server opt-in (override_abilities_permission, PermissionOverrideProcessor at priority 999999) wraps every ability's permission_callback to return true for exposed abilities on that server. It is off by default and gated behind manage_options plus a confirm() prompt, but it is effectively a 'skip capability checks' switch. Quick Connect step 5 sets abilities_default_policy to 'expose' (every ability on). The access-control layer fails open at tool-call time if the wpb-access-control library is missing, but the transport layer fails closed to manage_options in that case. The CLI auth REST routes (/auth/start, /auth/status, /auth/exchange, /health) use __return_true by design. DCR is open but rate-limited (10 per minute per IP), and unknown clients need per-user admin approval."
+}

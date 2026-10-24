@@ -1,0 +1,376 @@
+{
+  "slug": "albert-ai-butler",
+  "version": "1.5.0",
+  "reviewed_at": "2026-10-24T07:44:02+02:00",
+  "duration_s": 179,
+  "cost_usd": 2.2349966000000006,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "oauth"
+      ],
+      "summary": "The Albert MCP endpoint only accepts OAuth 2.0 Bearer tokens, and each token is tied to the WordPress user who approved it. Application passwords and cookies are not accepted, and Albert empties the MCP Adapter's default server so that server can't be used as a way around this.",
+      "evidence": [
+        "src/MCP/Server.php:485",
+        "src/MCP/Server.php:498",
+        "src/MCP/Server.php:505",
+        "src/MCP/Server.php:156",
+        "src/OAuth/Server/TokenValidator.php:37"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "A request without a Bearer token gets a 401 with an OAuth discovery header, so it can neither list nor call tools. The server's permission callback covers the whole transport route.",
+      "evidence": [
+        "src/MCP/Server.php:489",
+        "src/MCP/Server.php:433",
+        "src/MCP/Server.php:307"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Each ability has its own permission check, which uses the matching core REST endpoint's permission callback or a capability such as delete_posts. Execution then goes through rest_do_request, so core's per-object checks also run. Tools the user cannot run are hidden from tools/list.",
+      "evidence": [
+        "src/Abilities/WordPress/Posts/Delete.php:104",
+        "src/Abilities/WordPress/Posts/Delete.php:140",
+        "src/Abstracts/BaseAbility.php:470",
+        "src/MCP/Server.php:233"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Access tokens are signed JWTs, and only the token ID is stored in the database, not the token. DCR client secrets are hashed with wp_hash_password, and single-use tokens are stored as SHA-256 hashes. The OAuth signing and encryption keys sit in non-autoloaded options as plain text, which is normal for OAuth servers.",
+      "evidence": [
+        "src/OAuth/Repositories/AccessTokenRepository.php:77",
+        "src/OAuth/Repositories/ClientRepository.php:124",
+        "src/Core/Tokens/TokenService.php:162",
+        "src/OAuth/Server/KeyManager.php:141"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The endpoint route exists after activation, but nobody can get a token until an admin adds them to the 'Who may connect' list. Invitations that are never used expire after 1 day by default. On a fresh install all write and delete abilities are off, safe mode is on, and privacy defaults to Strict.",
+      "evidence": [
+        "src/OAuth/Endpoints/AuthorizationPage.php:222",
+        "src/OAuth/AllowedUsers.php:105",
+        "src/OAuth/AllowedUsers.php:174",
+        "src/Core/AbilitiesState.php:59",
+        "src/Core/AbilitiesRegistry.php:283",
+        "src/SafeMode/Gate.php:51",
+        "src/Core/Plugin.php:601"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Pass",
+      "value": null,
+      "summary": "There is no single 'read-only' switch, but a fresh install is read-only: every non-read ability is off until the admin turns it on under Albert > Abilities. New abilities added later also start off. OAuth is the only connection type, so the toggles apply to every connection.",
+      "evidence": [
+        "src/Core/AbilitiesRegistry.php:283",
+        "src/Core/AbilitiesState.php:56",
+        "src/Abstracts/BaseAbility.php:584"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The admin can switch each ability on or off for the site, and that applies to every connection. Per-role and per-user permission rules are Albert Premium only.",
+      "evidence": [
+        "src/Core/AbilitiesState.php:90",
+        "src/Admin/Rest/AbilitiesController.php",
+        "src/MCP/Server.php:233"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Pass",
+      "value": {
+        "mechanism": "Plugin-side approval queue (safe mode, on by default). Destructive or unannotated calls, plus high-risk inputs such as role changes or key option writes, are held until a person approves them under Albert > Approvals. Abilities also carry destructiveHint annotations. Needs WordPress 7.1 (wp_pre_execute_ability); on older versions only the annotations apply."
+      },
+      "summary": "Safe mode holds delete calls and other risky calls in an approval queue in wp-admin, and the assistant cannot approve its own request or turn safe mode off. This only works on WordPress 7.1 and later; on 6.9 and 7.0 only the annotations apply.",
+      "evidence": [
+        "src/SafeMode/Interceptor.php:112",
+        "src/SafeMode/Gate.php:159",
+        "src/SafeMode/Gate.php:233",
+        "src/Core/Annotations.php:108",
+        "src/Admin/Approvals.php",
+        "src/Core/Plugin.php:207"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "delete-post and delete-page default to force=false, so posts and pages go to the trash. Permanent deletion only happens when force=true is passed.",
+      "evidence": [
+        "src/Abilities/WordPress/Posts/Delete.php:68",
+        "src/Abilities/WordPress/Posts/Delete.php:133",
+        "src/Abilities/WordPress/Pages/Delete.php"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Every ability call is logged to a database table with the ability, user, connection and time. In the free plugin, wp-admin shows only a 5-row 'Recent activity' card plus a 'last run' line per ability; the readme says Free keeps only the two most recent results of each kind. The full, filterable log with retention settings is Albert Premium only.",
+      "evidence": [
+        "src/Logging/Logger.php:62",
+        "src/Logging/Logger.php:84",
+        "src/Admin/Dashboard.php:75",
+        "src/Admin/Dashboard.php:696"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 51,
+        "names": [
+          "mcp-adapter/discover-abilities",
+          "mcp-adapter/get-ability-info",
+          "mcp-adapter/execute-ability",
+          "albert/find-posts",
+          "albert/view-post",
+          "albert/create-post",
+          "albert/update-post",
+          "albert/delete-post",
+          "albert/edit-post-block",
+          "albert/add-post-block",
+          "albert/remove-post-block",
+          "albert/move-post-block",
+          "albert/find-pages",
+          "albert/view-page",
+          "albert/create-page",
+          "albert/update-page",
+          "albert/delete-page",
+          "albert/edit-page-block",
+          "albert/add-page-block",
+          "albert/remove-page-block",
+          "albert/move-page-block",
+          "albert/find-users",
+          "albert/view-user",
+          "albert/create-user",
+          "albert/update-user",
+          "albert/delete-user",
+          "albert/find-media",
+          "albert/view-media",
+          "albert/upload-media",
+          "albert/create-upload-link",
+          "albert/set-featured-image",
+          "albert/find-taxonomies",
+          "albert/find-terms",
+          "albert/view-term",
+          "albert/create-term",
+          "albert/update-term",
+          "albert/delete-term",
+          "albert/list-block-types",
+          "albert/get-block-type",
+          "albert/find-patterns",
+          "albert/view-pattern",
+          "albert/create-pattern",
+          "albert/update-pattern",
+          "albert/delete-pattern",
+          "albert/get-skill",
+          "albert/woo-find-products",
+          "albert/woo-view-product",
+          "albert/woo-find-orders",
+          "albert/woo-view-order",
+          "albert/woo-find-customers",
+          "albert/woo-view-customer"
+        ]
+      },
+      "summary": "The server exposes 3 MCP Adapter meta-tools (discover, get-info, execute). Behind them are 48 Albert abilities; the 6 WooCommerce ones are read-only and only appear when WooCommerce is active. Public abilities from other plugins can also be reached, and skills (prompts) and resources are exposed as well.",
+      "evidence": [
+        "src/MCP/Server.php:68",
+        "src/Core/Plugin.php:364",
+        "src/Core/Plugin.php:431"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "blocks",
+        "woocommerce"
+      ],
+      "summary": "The tools cover posts, pages, media, taxonomies, users, blocks and patterns, plus read-only WooCommerce. There are no tools for comments, plugins, themes or settings.",
+      "evidence": [
+        "src/Core/Plugin.php:369",
+        "src/Core/Plugin.php:395",
+        "src/Core/Plugin.php:402",
+        "src/Core/Plugin.php:409",
+        "src/Core/Plugin.php:417",
+        "src/Core/Plugin.php:431"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "albert/find-posts"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "albert/upload-media + albert/create-post (blocks or content); stored as block markup, HTML/Markdown converted to blocks"
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "albert/update-post (title) + albert/add-post-block (append without replacing body)"
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "albert/upload-media (url sideload)"
+        },
+        "T5": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T6": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T7": {
+          "status": "Pass",
+          "tool": "albert/delete-post (trash by default, held for approval by safe mode on WP 7.1+, logged)"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "Per-ability REST permission checks; subscriber must also be on the allowed-users list"
+        }
+      },
+      "summary": "Post, media and delete tasks are covered. Content is stored as block markup, and Markdown or HTML is converted to blocks. There is no tool to list plugins or change the tagline.",
+      "evidence": [
+        "src/Abilities/WordPress/Posts/Create.php:74",
+        "src/Abilities/WordPress/Posts/Create.php:79",
+        "src/Abilities/WordPress/Posts/Update.php:80",
+        "src/Abilities/WordPress/Media/UploadMedia.php:68",
+        "src/Abilities/WordPress/Posts/Delete.php:104"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every Albert tool is registered with wp_register_ability and served through the bundled WordPress MCP Adapter, using that plugin's copy instead if it is active. Public abilities from other plugins appear on the Abilities screen too.",
+      "evidence": [
+        "src/Abstracts/BaseAbility.php:139",
+        "src/MCP/Server.php:420",
+        "albert-ai-butler.php:56"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http"
+        ],
+        "protocol_version": "2025-11-25",
+        "runs_in_wordpress": true
+      },
+      "summary": "The server runs inside WordPress at /wp-json/albert/v1/mcp, using the MCP Adapter's HttpTransport (Streamable HTTP). It negotiates protocol version 2025-11-25 and falls back to 2025-06-18 and 2024-11-05.",
+      "evidence": [
+        "src/MCP/Server.php:427",
+        "lib/mcp-adapter/vendor/wordpress/mcp-adapter/includes/Core/McpVersionNegotiator.php:67"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Partial",
+      "value": [
+        "Per-role and per-user permission rules",
+        "Custom post type support",
+        "Full activity log with filters and retention",
+        "Extended WooCommerce abilities (Albert for WooCommerce add-on)"
+      ],
+      "summary": "The MCP server, OAuth, the per-ability toggles and safe mode are all in the free plugin. Per-role and per-user rules, custom post types and the full activity log need Premium.",
+      "evidence": [
+        "src/MCP/Server.php:233",
+        "src/Admin/Dashboard.php:702",
+        "src/Admin/Dashboard/Recommendations.php:197"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": null,
+      "summary": "For a local site, the Connections screen offers a Claude Desktop extension file built for that site. It bundles a pinned mcp-remote bridge and signs in through OAuth in the browser. Plain http works on localhost or loopback addresses; other http hosts need https.",
+      "evidence": [
+        "src/Admin/Connections/ClientSetupGuides.php:189",
+        "src/Admin/Connections/ClaudeDesktopBundle.php:274",
+        "src/Admin/Connections/ClientSetupGuides.php:79",
+        "src/Admin/Connections/ClientSetupGuides.php:500"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Albert serves OAuth discovery at a mid-path .well-known URL so it still works on hosts that intercept the root /.well-known/, and sends CORS headers on that discovery URL. It checks in Site Health that discovery and the adapter are reachable, and returns proper WWW-Authenticate headers on 401. There is no fallback for hosts that strip the Authorization header.",
+      "evidence": [
+        "src/OAuth/DiscoveryHealth.php:28",
+        "src/OAuth/Endpoints/OAuthDiscovery.php:253",
+        "src/MCP/Server.php:307",
+        "src/MCP/AdapterHealth.php",
+        "src/OAuth/Server/TokenValidator.php:162"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Pass",
+      "value": {
+        "count": 3,
+        "steps": [
+          "Albert > Connections: add yourself under 'Who may connect'",
+          "Click 'Add to Claude' (or paste the connector URL / install the Claude Desktop extension on a local site) and confirm",
+          "Sign in and choose Authorize in the browser consent screen"
+        ]
+      },
+      "summary": "From activation to a first tool call takes about 3 steps, following the plugin's own guide. Write tools have to be switched on separately under Albert > Abilities.",
+      "evidence": [
+        "readme.txt:153",
+        "src/Admin/Connections/ClientSetupGuides.php:156",
+        "src/Admin/Connections/ClientSetupGuides.php:203"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Albert uses OAuth with dynamic client registration and gives a connector URL plus an 'Add to Claude' link that pre-fills the connector. On a local site you open a downloadable Claude Desktop extension file instead. No terminal or JSON editing is needed for Claude, ChatGPT or Claude Desktop.",
+      "evidence": [
+        "src/OAuth/Endpoints/ClientRegistration.php",
+        "src/Admin/Connections/ClientSetupGuides.php:140",
+        "src/Admin/Connections/ClientSetupGuides.php:189"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The Connections and connect screens show step-by-step guides for Claude, Claude Desktop, ChatGPT, Cursor, VS Code, Claude Code, Codex and others. They include this site's endpoint URL, copy buttons, ready-made commands and config snippets.",
+      "evidence": [
+        "src/Admin/Connections/ClientSetupGuides.php:68",
+        "src/Admin/Connections/ClientSetupGuides.php:229",
+        "src/Admin/Connections/GuidePanel.php:190"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "https://albertwp.com",
+        "https://github.com/YourMark/albert-ai-butler",
+        "https://wordpress.org/support/plugin/albert-ai-butler/",
+        "https://developer.wordpress.org/apis/abilities-api/"
+      ],
+      "summary": "The readme has installation and connection steps, and wp-admin has detailed guides for each app. The admin screens link to albertwp.com only for add-ons; there is no separate docs site for setup.",
+      "evidence": [
+        "readme.txt:146",
+        "readme.txt:200",
+        "src/Admin/Connections/ClientSetupGuides.php:54",
+        "src/Admin/Settings.php:538"
+      ]
+    }
+  },
+  "notes": "The readme's requirements list says HTTPS is required, but the code accepts plain http for localhost and loopback addresses (ClientSetupGuides.php:79). Safe mode, which the readme describes as \"on from the start\", only works on WordPress 7.1+ because it hooks wp_pre_execute_ability, while the plugin itself requires only 6.9; the readme does say so. The free activity view is limited to 5 rows on the dashboard, so the readme FAQ line \"the activity log shows everything that was done\" overstates what Free shows. TokenValidator::permission_callback() has a cookie-login fallback, but the MCP server does not use it; it uses its own Bearer-only callback. In 1.5.0, Albert empties the MCP Adapter's default server config (tools, resources and prompts set to empty) so application passwords cannot reach its abilities, and a filter can switch this off. Connections whose site address has changed are recorded but not yet suspended (TokenValidator.php:69)."
+}

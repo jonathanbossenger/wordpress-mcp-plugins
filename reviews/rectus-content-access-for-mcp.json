@@ -1,0 +1,396 @@
+{
+  "slug": "rectus-content-access-for-mcp",
+  "version": "1.7.2",
+  "reviewed_at": "2026-10-23T22:41:33+02:00",
+  "duration_s": 119,
+  "cost_usd": 1.5443532,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "oauth",
+        "application-password",
+        "cookie"
+      ],
+      "summary": "The plugin adds OAuth 2.1 with PKCE. Bearer tokens are accepted only on the MCP endpoint and each one is tied to the WordPress user who approved it. The bundled MCP Adapter's default server also accepts any logged-in WordPress user, so core Application Passwords and cookie+nonce sessions work too. The plugin does not document either of those.",
+      "evidence": [
+        "includes/oauth.php:2252",
+        "includes/oauth.php:2264",
+        "includes/oauth.php:2303",
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:119",
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:126"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "The MCP transport requires a logged-in user with the 'read' capability, so a request without credentials gets a 401 with an OAuth WWW-Authenticate challenge. Only the OAuth discovery, registration, token and revoke endpoints are public, which OAuth needs.",
+      "evidence": [
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:126",
+        "includes/oauth.php:2318",
+        "includes/oauth.php:2142"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every ability has its own permission callback that checks native WordPress capabilities on the specific object. Examples: delete_post for that ID, edit_post plus publish_posts, the post type's create_posts, taxonomy capabilities, edit_theme_options, upload_files and moderate_comments. On WordPress 7.1 and later, abilities the user can never use are also hidden from discovery.",
+      "evidence": [
+        "includes/abilities.php:3394",
+        "includes/abilities.php:3462",
+        "includes/abilities.php:2258",
+        "includes/abilities.php:2263",
+        "includes/abilities.php:102"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "OAuth authorization codes, access tokens, refresh tokens and client secrets are stored only as SHA-256 hashes. Access tokens expire after one hour. Refresh-token replay data is encrypted with a key derived from the token itself.",
+      "evidence": [
+        "includes/oauth.php:1187",
+        "includes/oauth.php:1328",
+        "includes/oauth.php:1409",
+        "includes/oauth.php:1470"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The MCP endpoint is live as soon as the plugin is activated, with posts and pages enabled by default. There is no 'off until enabled' switch, but every call still needs an authenticated user. The risky error-log reader is off by default.",
+      "evidence": [
+        "includes/post-types.php:169",
+        "includes/features.php:26",
+        "rectus-content-access-for-mcp.php:89"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Fail",
+      "value": null,
+      "summary": "There is no read-only switch. The readme's only suggestion is to approve the connection as a low-role user, such as a subscriber, so WordPress capabilities block writes. That is a workaround, not a mode, and it does not help an editor or admin who wants a read-only connection.",
+      "evidence": [
+        "readme.txt:113",
+        "includes/features.php:26"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The administrator can choose which post types MCP may touch and which protected meta keys it may use. Beyond that, scope follows the approving user's WordPress role. There is no per-tool or per-connection allow-list.",
+      "evidence": [
+        "includes/post-types.php:162",
+        "includes/abilities.php:499"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Pass",
+      "value": {
+        "mechanism": "required confirm:true argument (JSON schema const plus a server-side check) on post-delete, media-delete, media-rename, term-delete, menu delete, page-template-delete, custom-css-delete, redirect-delete and change-restore, along with destructive annotations and stale-state SHA-256 or modified-time checks"
+      },
+      "summary": "Destructive abilities refuse to run unless the call includes confirm=true. Most also require a checksum or modified time from a fresh read, so stale or blind deletes are rejected on the server.",
+      "evidence": [
+        "includes/abilities.php:1507",
+        "includes/abilities.php:3363",
+        "includes/abilities.php:3385",
+        "includes/abilities.php:1051",
+        "includes/abilities.php:1928",
+        "includes/page-templates.php:442",
+        "includes/custom-css.php:517"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "post-delete always moves posts to the trash. It refuses to run if the trash is disabled (EMPTY_TRASH_DAYS=0) rather than delete permanently. Media and term deletes are permanent, but they need confirm=true and exact ID and checksum matches.",
+      "evidence": [
+        "includes/abilities.php:3380",
+        "includes/abilities.php:3417",
+        "includes/abilities.php:1928"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every successful change made through the plugin's abilities is stored in a database table and shown to administrators under Tools > MCP Activity. This includes partial batches and direct media uploads. Each entry records the time, user, OAuth client, operation, target and field names, but not values. Reads are not logged, and entries are kept for 90 days.",
+      "evidence": [
+        "includes/activity-log.php:53",
+        "includes/activity-log.php:95",
+        "includes/activity-log.php:412",
+        "includes/features.php:138"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 71,
+        "meta_tools": [
+          "mcp-adapter-discover-abilities",
+          "mcp-adapter-get-ability-info",
+          "mcp-adapter-execute-ability"
+        ],
+        "names": [
+          "post-list",
+          "post-get",
+          "post-type-list",
+          "term-list",
+          "term-create",
+          "term-update",
+          "term-delete",
+          "post-create",
+          "post-update",
+          "post-edit",
+          "post-delete",
+          "post-revision-list",
+          "post-revision-get",
+          "post-revision-restore",
+          "post-text-search",
+          "post-edit-batch",
+          "post-update-batch",
+          "post-duplicate",
+          "post-block-list",
+          "post-block-edit",
+          "media-list",
+          "media-update",
+          "media-rename",
+          "media-delete",
+          "media-upload-ticket",
+          "media-upload",
+          "media-import",
+          "page-template-list",
+          "page-template-get",
+          "page-template-create",
+          "page-template-update",
+          "page-template-delete",
+          "navigation-menu-list",
+          "navigation-menu-get",
+          "navigation-menu-create",
+          "navigation-menu-update",
+          "navigation-menu-delete",
+          "navigation-menu-item-create",
+          "navigation-menu-item-update",
+          "navigation-menu-item-delete",
+          "navigation-menu-item-batch",
+          "navigation-menu-location-set",
+          "custom-css-get",
+          "custom-css-update",
+          "custom-css-edit",
+          "custom-css-delete",
+          "custom-css-revision-list",
+          "custom-css-revision-get",
+          "custom-css-revision-restore",
+          "site-info-get",
+          "widget-list",
+          "widget-update",
+          "comment-list",
+          "comment-moderate",
+          "block-template-list",
+          "block-template-get",
+          "block-template-update",
+          "block-template-revert",
+          "global-styles-get",
+          "global-styles-update",
+          "block-navigation-list",
+          "block-navigation-get",
+          "block-navigation-update",
+          "change-list",
+          "change-get",
+          "change-restore",
+          "cache-purge",
+          "redirect-list",
+          "redirect-delete",
+          "site-health-get",
+          "error-log-get"
+        ]
+      },
+      "summary": "The server uses the MCP Adapter's three meta-tools (discover, get-info, execute) over 71 abilities in the rectus-content-access-for-mcp/ namespace. They cover posts, terms, revisions, blocks, media, classic and block navigation, page templates, CSS, widgets, comments, block themes, change history, cache, redirects and diagnostics.",
+      "evidence": [
+        "includes/abilities.php:498",
+        "includes/server.php:77",
+        "includes/navigation-menus.php:294",
+        "includes/block-theme.php:261",
+        "includes/custom-css.php:248"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "comments",
+        "blocks",
+        "themes"
+      ],
+      "summary": "The abilities cover posts, pages and custom post types, terms, media, comments, block-level editing, and theme surfaces: menus, widgets, page and block templates, global styles and CSS. Site settings are read-only (site-info-get). There are no user, plugin or WooCommerce abilities.",
+      "evidence": [
+        "includes/abilities.php:498",
+        "includes/comments.php:53",
+        "includes/post-blocks.php:20",
+        "includes/block-theme.php:261",
+        "includes/site-info.php:29"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "post-list (orderby date, per_page 5; returns title and status)"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "post-create with status draft. Content is stored as given (raw block markup or HTML) with no Markdown conversion. Upload the image first with media-upload or a ticket, then reference it or set featured_media"
+        },
+        "T3": {
+          "status": "Pass",
+          "tool": "post-edit (exact string replace with field SHA-256) or post-update"
+        },
+        "T4": {
+          "status": "Partial",
+          "tool": "No URL sideload. Only media-upload (Base64), media-upload-ticket (multipart from the client) or media-import from uploads/mcp-inbox"
+        },
+        "T5": {
+          "status": "Fail",
+          "tool": null
+        },
+        "T6": {
+          "status": "Fail",
+          "tool": "site-info-get reads the tagline but nothing can change it"
+        },
+        "T7": {
+          "status": "Pass",
+          "tool": "post-delete: trash only, needs confirm=true and expected_modified_gmt, logged in MCP Activity"
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "Permission callbacks check publish_posts and delete_post for the approving user, so a subscriber is refused"
+        }
+      },
+      "summary": "Content tasks T1–T3, T7 and T8 work well. Images can't be imported from a URL directly (T4), and there are no tools for listing plugins (T5) or changing the tagline (T6).",
+      "evidence": [
+        "includes/abilities.php:540",
+        "includes/abilities.php:1095",
+        "includes/abilities.php:1385",
+        "includes/abilities.php:1634",
+        "includes/abilities.php:1485",
+        "includes/abilities.php:2263",
+        "includes/site-info.php:29"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": null,
+      "summary": "All functionality is registered as WordPress Abilities (wp_register_ability with mcp.public meta) and served through the bundled official MCP Adapter.",
+      "evidence": [
+        "includes/abilities.php:10",
+        "includes/abilities.php:540",
+        "includes/abilities.php:641",
+        "rectus-content-access-for-mcp.php:89"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http"
+        ],
+        "protocol_version": "2025-11-25 (also 2025-06-18)",
+        "runs_in_wordpress": true
+      },
+      "summary": "MCP is served inside WordPress by the bundled MCP Adapter's HTTP transport at /wp-json/mcp/mcp-adapter-default-server, using protocol 2025-11-25. The readme also claims 2024-11-05 support, but the bundled negotiator lists only 2025-11-25 and 2025-06-18.",
+      "evidence": [
+        "vendor/wordpress/mcp-adapter/includes/Core/McpVersionNegotiator.php:30",
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:65",
+        "includes/server.php:134"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Pass",
+      "value": [],
+      "summary": "There is no Pro version or paid gating. All MCP functionality is in the free plugin.",
+      "evidence": [
+        "rectus-content-access-for-mcp.php:1"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Partial",
+      "value": null,
+      "summary": "The plugin's own OAuth flow refuses to run without HTTPS, so its documented setup fails on a plain http://localhost site. Because the adapter accepts any logged-in user, a core Application Password with mcp-remote should still work locally. The plugin does not document this, and Claude Desktop's custom connector also needs a publicly reachable URL.",
+      "evidence": [
+        "includes/oauth.php:986",
+        "includes/oauth.php:1210",
+        "includes/oauth.php:2085",
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:126"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The plugin handles common host problems. It falls back to REDIRECT_HTTP_AUTHORIZATION when Authorization is stripped. Site Health and the settings screen check that /.well-known/ OAuth discovery URLs reach WordPress, including subdirectory installs. It bypasses persistent user-meta caching for MCP sessions and clears page caches after changes. No CORS handling was found, which matters only for browser-based clients.",
+      "evidence": [
+        "includes/oauth.php:2193",
+        "includes/admin.php:106",
+        "rectus-content-access-for-mcp.php:69",
+        "includes/oauth.php:550"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Partial",
+      "value": {
+        "count": 4,
+        "steps": [
+          "Activate the plugin (posts and pages are enabled by default)",
+          "Open Settings > Rectus Content Access for MCP and click 'Copy MCP server URL'",
+          "In Claude Desktop go to Settings > Connectors > Add custom connector and paste the URL",
+          "Sign in to WordPress and approve the connection on the OAuth consent screen"
+        ]
+      },
+      "summary": "Connecting Claude Desktop takes about four steps, with no developer work, as long as the site is on public HTTPS.",
+      "evidence": [
+        "includes/admin.php:452",
+        "includes/admin.php:454",
+        "includes/oauth.php:1214"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The plugin has OAuth with dynamic client registration and client metadata documents, and the admin screen gives a connector URL for Claude's 'Add custom connector', so no terminal or JSON is needed. This requires HTTPS.",
+      "evidence": [
+        "includes/oauth.php:2155",
+        "includes/admin.php:452",
+        "includes/admin.php:454"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The settings screen shows this site's MCP server URL with a copy button, ready-to-copy Codex and Claude Code commands named for this site, a connector walkthrough for clients without a command line, and a readiness and discovery check.",
+      "evidence": [
+        "includes/admin.php:241",
+        "includes/admin.php:452",
+        "includes/admin.php:459",
+        "includes/admin.php:470"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "https://www.rectus.co.jp/tool/rectuscontentaccessformcp.html",
+        "https://www.rectus.co.jp/tool/mcpclientinstall.html",
+        "readme.txt Installation and FAQ"
+      ],
+      "summary": "The readme covers setup steps and an extensive FAQ. The settings screen links to the vendor's overview and client-installation guides, which the readme describes as Japanese.",
+      "evidence": [
+        "readme.txt:79",
+        "includes/admin.php:429",
+        "includes/admin.php:445"
+      ]
+    }
+  },
+  "notes": "The readme claims MCP protocol 2024-11-05 support, but the bundled McpVersionNegotiator lists only 2025-11-25 and 2025-06-18 (server.php also only handles those two). The readme presents OAuth as the way to connect and says HTTPS is required. However, the adapter's default transport check is just current_user_can('read'), so core Application Passwords and cookie+nonce also authenticate on the MCP endpoint. That is undocumented, and the OAuth-only revocation table does not cover it. Activity-log client attribution only works for OAuth connections. The plugin bundles the official MCP Adapter and uses its default server (mcp/mcp-adapter-default-server). If another plugin also bundles or loads the adapter, the two could collide. The 'confirm' checks are inside permission callbacks as well as the schema, so a bypass is not possible through the schema alone. Media and term deletes are permanent, but they need confirm and checksums. Ability hiding in discovery (wp_get_abilities_item_include) only works on WordPress 7.1 and later."
+}

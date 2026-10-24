@@ -1,0 +1,430 @@
+{
+  "slug": "nibwp",
+  "version": "1.2.11",
+  "reviewed_at": "2026-10-24T07:37:22+02:00",
+  "duration_s": 217,
+  "cost_usd": 2.7926062000000003,
+  "unverified_evidence": [],
+  "checks": {
+    "SEC-AUTH": {
+      "status": "Pass",
+      "value": [
+        "application-password",
+        "oauth",
+        "cookie"
+      ],
+      "summary": "The MCP endpoint accepts WordPress Application Passwords (Basic auth), OAuth 2.1 bearer tokens issued by the site itself, and the normal logged-in cookie. Every one of these maps to a real WordPress user, and the transport requires the 'read' capability.",
+      "evidence": [
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:119",
+        "includes/oauth/oauth.php:836",
+        "includes/oauth/oauth.php:878",
+        "includes/connect-page.php:334"
+      ]
+    },
+    "SEC-UNAUTH": {
+      "status": "Pass",
+      "value": {
+        "public_by_design": false
+      },
+      "summary": "Requests with no credentials are refused at the transport (is_user_logged_in plus the 'read' capability), and the response carries a WWW-Authenticate challenge pointing to OAuth. The only open fallback route returns an error when the adapter is missing; it exposes no tools.",
+      "evidence": [
+        "vendor/wordpress/mcp-adapter/includes/Transport/HttpTransport.php:77",
+        "includes/oauth/oauth.php:933",
+        "nibwp.php:556"
+      ]
+    },
+    "SEC-CAPS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Each ability has its own permission callback (edit_posts, upload_files, moderate_comments, edit_theme_options, list_users, manage_options). Post, term and meta tools also check per object with current_user_can('edit_post'/'delete_post'/'edit_term', $id), and privileged meta keys are blocked. The settings, plugin and file tools need manage_options.",
+      "evidence": [
+        "includes/abilities/wordpress-core.php:16",
+        "includes/abilities/wordpress-core.php:113",
+        "includes/abilities/wordpress-core.php:120",
+        "includes/abilities/wordpress-core.php:578",
+        "includes/abilities/wordpress-core.php:2599",
+        "includes/abilities/wordpress-core.php:2772"
+      ]
+    },
+    "SEC-SECRETS": {
+      "status": "Pass",
+      "value": null,
+      "summary": "OAuth access and refresh tokens are stored only as SHA-256 hashes. Application passwords are created through WordPress core (hashed) and shown once. Visual-workspace keys are stored as HMAC fingerprints.",
+      "evidence": [
+        "includes/oauth/oauth.php:505",
+        "includes/oauth/oauth.php:602",
+        "includes/connect-page.php:340",
+        "includes/visual/visual-rest.php:243"
+      ]
+    },
+    "SEC-DEFAULT": {
+      "status": "Pass",
+      "value": null,
+      "summary": "MCP is off until an admin turns on AI Abilities (the option defaults to false). The switch is also tied to the site's domain, so a moved or cloned site comes back switched off. The OAuth consent screen ticks only read and write by default.",
+      "evidence": [
+        "includes/helpers.php:445",
+        "includes/helpers.php:458",
+        "nibwp.php:1083",
+        "includes/oauth/oauth-scopes.php:68"
+      ]
+    },
+    "SAFE-READONLY": {
+      "status": "Partial",
+      "value": null,
+      "summary": "An OAuth connection can be limited to the 'mcp:read' scope, which is effectively read-only. Application-password and cookie connections are unscoped by design and have no read-only mode. The read-only filter on the AI Abilities screen only filters the list; it does not enforce anything.",
+      "evidence": [
+        "includes/oauth/oauth-scopes.php:206",
+        "includes/oauth/oauth-scopes.php:217",
+        "includes/admin-page.php:442"
+      ]
+    },
+    "SAFE-SCOPE": {
+      "status": "Partial",
+      "value": null,
+      "summary": "Settings → Security has a per-tool disabled list, enforced on every tool call whatever the connection type. OAuth connections also get coarse scopes (read/write/manage/files/code). However, nibwp/multi-execute runs inner abilities directly, so a disabled tool or an out-of-scope ability can still be reached through a batch.",
+      "evidence": [
+        "includes/agent-guardrails.php:28",
+        "includes/agent-guardrails.php:181",
+        "includes/settings-page.php:67",
+        "includes/oauth/oauth-scopes.php:29",
+        "includes/abilities/multi-execute.php:119"
+      ]
+    },
+    "SAFE-CONFIRM": {
+      "status": "Partial",
+      "value": {
+        "mechanism": "destructive annotations (mapped to destructiveHint by the MCP Adapter); OAuth 'mcp:manage' scope unticked by default"
+      },
+      "summary": "Delete tools are only annotated as destructive, so it is up to the client to ask. The plugin has no required confirm argument and no approval queue for MCP calls; the Jobs approvals inbox only covers jobs. OAuth connections cannot delete at all unless the owner ticks 'Delete and reorganize'.",
+      "evidence": [
+        "includes/abilities/wordpress-core.php:1810",
+        "includes/oauth/oauth-scopes.php:42",
+        "includes/oauth/oauth-scopes.php:159"
+      ]
+    },
+    "SAFE-DELETE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "wp-delete-post, wp-delete-comment and wc-delete-product move items to the trash unless force=true. Exception: wp-delete-media deletes permanently by default (force defaults to true).",
+      "evidence": [
+        "includes/abilities/wordpress-core.php:583",
+        "includes/abilities/wordpress-core.php:1136",
+        "includes/abilities/woocommerce.php:975",
+        "includes/abilities/wordpress-core.php:825"
+      ]
+    },
+    "SAFE-LOG": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every tool call is written to a {prefix}nibwp_audit_log table: tool, arguments, status, duration, user, OAuth client and IP. Admins can read it under NIBWP → Audit Log, and it is on by default with 30-day retention. Steps run inside multi-execute are not logged one by one, only the outer call.",
+      "evidence": [
+        "includes/audit-log.php:28",
+        "includes/audit-log.php:83",
+        "nibwp.php:951",
+        "nibwp.php:807"
+      ]
+    },
+    "CAP-TOOLS": {
+      "status": "Info",
+      "value": {
+        "count": 82,
+        "mcp_tools": [
+          "mcp-adapter-discover-abilities",
+          "mcp-adapter-get-ability-info",
+          "mcp-adapter-execute-ability"
+        ],
+        "names": [
+          "nibwp/wp-list-posts",
+          "nibwp/wp-get-post",
+          "nibwp/wp-create-post",
+          "nibwp/wp-update-post",
+          "nibwp/wp-delete-post",
+          "nibwp/wp-list-media",
+          "nibwp/wp-upload-media",
+          "nibwp/wp-replace-media",
+          "nibwp/wp-delete-media",
+          "nibwp/design-system-detect",
+          "nibwp/wp-list-terms",
+          "nibwp/wp-create-term",
+          "nibwp/wp-update-term",
+          "nibwp/wp-delete-term",
+          "nibwp/wp-list-comments",
+          "nibwp/wp-create-comment",
+          "nibwp/wp-update-comment",
+          "nibwp/wp-delete-comment",
+          "nibwp/wp-list-menus",
+          "nibwp/wp-get-menu-items",
+          "nibwp/wp-create-menu",
+          "nibwp/wp-add-menu-item",
+          "nibwp/wp-list-users",
+          "nibwp/wp-get-user",
+          "nibwp/wp-get-site-info",
+          "nibwp/wp-get-site-stats",
+          "nibwp/wp-update-option",
+          "nibwp/wp-get-option",
+          "nibwp/wp-search",
+          "nibwp/wp-get-meta",
+          "nibwp/wp-update-meta",
+          "nibwp/wp-list-plugins",
+          "nibwp/wc-list-products",
+          "nibwp/wc-get-product",
+          "nibwp/wc-create-product",
+          "nibwp/wc-update-product",
+          "nibwp/wc-delete-product",
+          "nibwp/wc-list-orders",
+          "nibwp/wc-get-order",
+          "nibwp/wc-update-order-status",
+          "nibwp/wc-list-customers",
+          "nibwp/wc-list-coupons",
+          "nibwp/wc-create-coupon",
+          "nibwp/wc-get-reports",
+          "nibwp/memory-store",
+          "nibwp/memory-recall",
+          "nibwp/memory-delete",
+          "nibwp/memory-list-keys",
+          "nibwp/preferences-get",
+          "nibwp/preferences-set",
+          "nibwp/multi-execute",
+          "nibwp/read-file",
+          "nibwp/list-directory",
+          "nibwp/read-audit-log",
+          "nibwp/find-tools",
+          "nibwp/skill-preflight",
+          "nibwp/templates-list",
+          "nibwp/templates-apply",
+          "nibwp/load-integration-playbook",
+          "nibwp/integration-feedback",
+          "nibwp/load-skill-playbook",
+          "nibwp/design-direction",
+          "nibwp/visual-open",
+          "nibwp/visual-read",
+          "nibwp/visual-click",
+          "nibwp/visual-hover",
+          "nibwp/visual-screenshot",
+          "nibwp/visual-capabilities",
+          "nibwp/visual-fill",
+          "nibwp/visual-viewport",
+          "nibwp/visual-audit",
+          "nibwp/visual-console",
+          "nibwp/visual-blocks",
+          "nibwp/visual-block-insert",
+          "nibwp/visual-block-update",
+          "nibwp/visual-block-delete",
+          "nibwp/visual-block-schema",
+          "nibwp/visual-batch",
+          "nibwp/visual-tabs",
+          "mcp-adapter/discover-abilities",
+          "mcp-adapter/get-ability-info",
+          "mcp-adapter/execute-ability"
+        ]
+      },
+      "summary": "A meta-tool server: MCP clients see three adapter tools (discover, get info, execute). Behind them sit about 80 free abilities registered by NIBWP, plus any mcp.public ability registered by other plugins. The 12 WooCommerce abilities load only when WooCommerce is active and its integration is switched on.",
+      "evidence": [
+        "nibwp.php:1123",
+        "nibwp.php:1569",
+        "nibwp.php:1596",
+        "includes/abilities/discover-abilities.php:115",
+        "includes/abilities/wordpress-core.php:1610"
+      ]
+    },
+    "CAP-AREAS": {
+      "status": "Info",
+      "value": [
+        "posts",
+        "pages",
+        "media",
+        "taxonomies",
+        "users",
+        "comments",
+        "plugins",
+        "settings",
+        "blocks",
+        "woocommerce"
+      ],
+      "summary": "Covers posts and pages (any post type), media, terms, comments, menus, users (read-only), the plugin list (read-only), options, post/user/term meta, editor blocks through the visual workspace, and WooCommerce. There are no theme tools, and plugins cannot be installed or activated in the free build.",
+      "evidence": [
+        "includes/abilities/wordpress-core.php:302",
+        "includes/abilities/wordpress-core.php:1271",
+        "includes/abilities/wordpress-core.php:1578",
+        "includes/abilities/woocommerce.php:10",
+        "includes/visual/visual-abilities.php:388"
+      ]
+    },
+    "CAP-TASKS": {
+      "status": "Info",
+      "value": {
+        "T1": {
+          "status": "Pass",
+          "tool": "nibwp/wp-list-posts"
+        },
+        "T2": {
+          "status": "Pass",
+          "tool": "nibwp/wp-upload-media + nibwp/wp-create-post",
+          "note": "Content is stored exactly as sent (wp_slash only), with no Markdown or HTML-to-block conversion; the agent must write block markup itself."
+        },
+        "T3": {
+          "status": "Partial",
+          "tool": "nibwp/wp-get-post + nibwp/wp-update-post",
+          "note": "update-post replaces the whole content; there is no append mode."
+        },
+        "T4": {
+          "status": "Pass",
+          "tool": "nibwp/wp-upload-media"
+        },
+        "T5": {
+          "status": "Pass",
+          "tool": "nibwp/wp-list-plugins"
+        },
+        "T6": {
+          "status": "Pass",
+          "tool": "nibwp/wp-update-option (blogdescription)"
+        },
+        "T7": {
+          "status": "Partial",
+          "tool": "nibwp/wp-delete-post",
+          "note": "Trash by default and logged in the audit log, but the only confirmation is the destructive annotation."
+        },
+        "T8": {
+          "status": "Pass",
+          "tool": "nibwp_wp_core_permission_callback (edit_posts) + delete_post per object"
+        }
+      },
+      "summary": "Most standard tasks work. Edits replace the whole post content, and deletes have no plugin-side confirmation. A subscriber passes the transport's 'read' check but is refused by each tool's edit_posts and delete_post checks.",
+      "evidence": [
+        "includes/abilities/wordpress-core.php:420",
+        "includes/helpers.php:3142",
+        "includes/abilities/wordpress-core.php:514",
+        "includes/abilities/wordpress-core.php:640",
+        "includes/abilities/wordpress-core.php:1371",
+        "includes/abilities/wordpress-core.php:583"
+      ]
+    },
+    "STD-ABILITIES": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Every tool is a WordPress Abilities API ability, served through the bundled official wordpress/mcp-adapter. Its discover tool also lists mcp.public abilities registered by other plugins.",
+      "evidence": [
+        "nibwp.php:1528",
+        "nibwp.php:1123",
+        "includes/abilities/discover-abilities.php:115",
+        "composer.json:10"
+      ]
+    },
+    "STD-TRANSPORT": {
+      "status": "Pass",
+      "value": {
+        "transports": [
+          "streamable-http"
+        ],
+        "protocol_version": "2025-11-25",
+        "runs_in_wordpress": true,
+        "endpoints": [
+          "/wp-json/mcp/nibwp",
+          "/wp-json/mcp/mcp-adapter-default-server (legacy alias)"
+        ]
+      },
+      "summary": "MCP is served inside WordPress by the adapter's HttpTransport (Streamable HTTP) at /wp-json/mcp/nibwp. It negotiates protocol versions up to 2025-11-25.",
+      "evidence": [
+        "vendor/wordpress/mcp-adapter/includes/Core/McpVersionNegotiator.php:31",
+        "nibwp.php:1090",
+        "nibwp.php:1130"
+      ]
+    },
+    "STD-FREE": {
+      "status": "Partial",
+      "value": [
+        "nibwp/execute-php and nibwp/write-file (sandbox)",
+        "plugin integrations other than WooCommerce (ACF, Elementor, Bricks, forms, CRM, SEO, etc.)",
+        "premium skill packs",
+        "Workflows",
+        "User access (per-user menu visibility)"
+      ],
+      "summary": "The MCP server, the core WordPress and WooCommerce tools, OAuth, the audit log and the guardrails are all free. Code execution, file writing, most plugin integrations, skills and workflows are Pro.",
+      "evidence": [
+        "nibwp.php:1519",
+        "nibwp.php:630",
+        "includes/abilities/discover-abilities.php:169"
+      ]
+    },
+    "HOST-LOCAL": {
+      "status": "Pass",
+      "value": null,
+      "summary": "For Claude Desktop, the Connect screen gives an npx @automattic/mcp-wordpress-remote config using an Application Password; it adds NODE_TLS_REJECT_UNAUTHORIZED for self-signed HTTPS. OAuth also allows loopback redirect URIs. The plugin warns that cloud connectors cannot reach a local hostname.",
+      "evidence": [
+        "includes/connect-page.php:837",
+        "includes/connect-page.php:849",
+        "includes/oauth/oauth.php:344",
+        "includes/oauth/oauth-connect-tab.php:505"
+      ]
+    },
+    "HOST-PUBLIC": {
+      "status": "Pass",
+      "value": null,
+      "summary": "Handles common host problems. It reads the bearer token from HTTP_AUTHORIZATION, REDIRECT_HTTP_AUTHORIZATION or getallheaders(), and offers an admin-approved .htaccess rule to restore a stripped Authorization header. It sends CORS headers and answers preflights for the MCP and OAuth routes, serves metadata from REST because hosts often break /.well-known, and switches the authorize URL when a WAF blocks it.",
+      "evidence": [
+        "includes/oauth/oauth.php:794",
+        "includes/oauth/oauth-htaccess.php:36",
+        "includes/oauth/oauth-server.php:72",
+        "includes/oauth/oauth-server.php:97",
+        "includes/oauth/oauth.php:245"
+      ]
+    },
+    "SETUP-STEPS": {
+      "status": "Pass",
+      "value": {
+        "count": 3,
+        "steps": [
+          "Open NIBWP → Connect and turn on AI Abilities",
+          "In Claude Desktop open Settings → Connectors → Add custom connector and paste the site's MCP URL shown on the Connect screen",
+          "Approve the connection on the site's consent screen in the browser"
+        ]
+      },
+      "summary": "Following the Connect screen's sign-in (OAuth) path, it takes three steps. The readme's Application Password path takes five: enable, generate a password, copy the config or prompt, edit claude_desktop_config.json, restart.",
+      "evidence": [
+        "includes/oauth/oauth-connect-tab.php:590",
+        "includes/oauth/oauth-connect-tab.php:594",
+        "includes/helpers.php:1635",
+        "readme.txt:121"
+      ]
+    },
+    "SETUP-NOTERM": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The site runs its own OAuth 2.1 server with dynamic client registration, and gives a connector URL plus a one-click 'Add the connector to Claude.ai' link. Claude Desktop and claude.ai can connect without a terminal or config file; local-only sites still need the npx bridge.",
+      "evidence": [
+        "includes/oauth/oauth-server.php:43",
+        "includes/oauth/oauth-connect-tab.php:476",
+        "includes/oauth/oauth-connect-tab.php:540"
+      ]
+    },
+    "SETUP-GUIDE": {
+      "status": "Pass",
+      "value": null,
+      "summary": "The Connect screen and the setup onboarder show this site's MCP URL and ready-made config snippets with the username filled in, for 15+ clients. They include step-by-step instructions, one-click install links for claude.ai, Cursor and VS Code, and a Status page with copyable endpoint and connection self-test.",
+      "evidence": [
+        "includes/helpers.php:1656",
+        "includes/connect-page.php:1021",
+        "includes/oauth/oauth-connect-tab.php:493",
+        "includes/status-page.php:390"
+      ]
+    },
+    "DOCS": {
+      "status": "Pass",
+      "value": [
+        "readme.txt Installation and FAQ",
+        "wp-admin NIBWP → How To walkthrough (admin.php?page=nibwp-how-to)",
+        "https://nibwp.com",
+        "https://nibwp.com/integrations",
+        "https://www.youtube.com/watch?v=N4UX7ABmroA"
+      ],
+      "summary": "Setup is documented in the readme and in an in-admin How To page linked from the top bar. The readme is out of date: it never mentions the OAuth sign-in path, and it says no Node.js is needed even though the Claude Desktop config snippets run npx.",
+      "evidence": [
+        "readme.txt:121",
+        "readme.txt:145",
+        "nibwp.php:971",
+        "includes/connect-page.php:849"
+      ]
+    }
+  },
+  "notes": "1) Bypass in nibwp/multi-execute (includes/abilities/multi-execute.php:119): each step calls $ability->execute() directly. Each inner ability's permission_callback still runs, but the OAuth scope check (oauth-scopes.php:214), the disabled-tools guardrail (agent-guardrails.php:181) and per-step audit logging all hook mcp_adapter_pre_tool_call / tool_call_result, so they only ever see the outer call. multi-execute is annotated non-destructive, so it falls under 'mcp:write'. That means an OAuth token granted only read+write can run wp-delete-post or other 'mcp:manage' abilities through a batch, and tools the owner switched off can still be run this way. multi-execute itself needs manage_options. 2) wp-create-post and wp-update-post write arbitrary 'meta' keys with update_post_meta (wordpress-core.php:483, 558) without the privileged-meta guard that wp-update-meta applies. 3) wp-delete-media defaults force=true, so it deletes permanently by default (wordpress-core.php:825). 4) wp-update-option can change any existing option, e.g. default_role or users_can_register (admin-only). 5) The readme describes only Application Passwords and claims no Node.js is needed, but the Claude Desktop snippets use npx @automattic/mcp-wordpress-remote, and a full OAuth 2.1 server with DCR ships in the free build. 6) A comment at nibwp.php:1521 says execute-php ships in Free, but no such file is loaded; discover-abilities lists execute-php and write-file as locked Pro abilities. 7) discover-abilities returns 'locked_abilities' upsell entries with unlock URLs and asks agents to mention them, which is marketing inside tool output. 8) OAuth consent requires manage_options, so only administrators can connect via OAuth; tokens last 30 days and refresh tokens 180 days. 9) An AI Abilities switch is tied to the domain, so it turns off automatically when the site URL changes."
+}
