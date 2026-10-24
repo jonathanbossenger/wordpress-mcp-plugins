@@ -55,54 +55,6 @@ full reviews in this repository on GitHub.
 Usage: the ai-engine pilot (one of the largest plugins) took about 3 minutes and reported $2.72 at API prices.
 Check `/usage` in Claude Code before and after a few plugins to see what one costs against your plan.
 
-## Status
-
-- Reviewed: ai-engine (2026-10-22, matches a manual read of its code).
-- Reviewed 2026-10-23, smallest first, three at a time (`-j 3`) with a usage check between batches:
-  ylabs-ai-assistant-connector, devcubic-ai-bridge-for-mcp, strifebridge-mcp, admindra-mcp, invizo-mcp,
-  mcp-for-woocommerce, bcs-mcp-manager, sokket-site-connector-for-mcp, counterhand-mcp-for-woocommerce,
-  mountdev-ai-mcp-connector, wsp-mcp-ai-agents-connector, alphabridge-mcp.
-  Then, in three more batches of three: iato-mcp, abilities-bridge, diviops-agent, aicom, vibe-ai,
-  cowboy-mcp, track-debug, acadium-agent-publisher, publishio.
-  Then royal-mcp, saddle, stifli-flex-mcp ($7.14 for the batch, about 3 minutes), and
-  rectus-content-access-for-mcp, miniorange-secure-mcp-server, webo-mcp ($6.91, about 3½ minutes).
-  On 2026-10-24: nibwp, siteskite, agent-abilities-for-mcp ($8.37, about 3¾ minutes), and
-  acrossai-mcp-manager, albert-ai-butler, ai-workflow-automation-ai-agent-hub ($7.83, about 4½ minutes),
-  and finally easy-mcp-ai on its own ($3.57, about 2½ minutes).
-  All 35 done (`mcp-adapter` is the baseline and is not fetched or reviewed), $65.12 at API prices
-  in total.
-- Cost by size: the first 13 (0.6k–23k PHP lines) cost $0.90–$2.62 each; the next nine (25k–48k)
-  $0.49–$0.97 each; the six after (51k–85k) $1.54–$3.10 each; the next six (86k–164k) $2.23–$2.95
-  each; easy-mcp-ai (244k) $3.57.
-- strifebridge-mcp: its 7 unverified citations say `includes/api.php` but the file is `api/api.php`.
-  The cited lines exist there and match the review, so it's a wrong path, not made-up evidence.
-- Decided (2026-10-23): HOST-LOCAL passes when a local connection is possible, whether or not the plugin documents it.
-
-## Next steps
-
-Where things stand (2026-10-24): all 35 reviewed, spot-checks applied, weighted ranking in `ranking.md`.
-Nothing has been tested on a real site yet. Pick up at step 1.
-
-Done on 2026-10-24:
-- STD-TRANSPORT rule written into `CHECKLIST.md`: 2025-11-25 or later is Pass, older is Partial. Re-scoring
-  all 35 from `protocol_version` moved cowboy-mcp, miniorange-secure-mcp-server and siteskite to Partial.
-  alphabridge-mcp (stateless 2026-07-28) and wsp-mcp-ai-agents-connector (negotiates 2025-11-25) stay Pass.
-- Spot-check corrections below applied to `reviews/`, each with a note in the check's summary.
-- Ranking added to `compare.py` (`WEIGHTS` and `GATE`): SEC ×3, SAFE ×2, STD ×1.5, the rest and T1–T8 ×1;
-  a Fail on any SEC-* check or STD-TRANSPORT ranks the plugin last.
-
-1. **Consistency pass.** Most corrections came from checks applied unevenly, not from misread code.
-   Compare SETUP-STEPS (how steps are counted) and STD-FREE (account-required = Fail) across all 35.
-2. **Test the shortlist on a real site.** CAP-TASKS, HOST-* and SETUP-* are judged from code. Install
-   the top candidates in `ranking.md` on a local site, connect Claude Desktop, run T1–T8 and count the
-   actual setup steps.
-3. **Write up the findings.** Use `comparison.md` and `ranking.md`, and call out common gaps:
-   SAFE-READONLY fails in 11 of 35, STD-ABILITIES in 10 of 35, and only 8 of 35 have a plugin-side
-   confirmation for destructive actions.
-4. **Keep it current.** Each review records the plugin version. After `fetch_sources.py`, re-run
-   `review.py --force <slug>` for any plugin whose version changed, then `compare.py` and `build_site.py`.
-   A re-run overwrites the spot-check corrections for that plugin.
-
 ### Spot-check results
 
 Checked the top five and the two most-installed plugins. Top five: tried to break their Passes.
