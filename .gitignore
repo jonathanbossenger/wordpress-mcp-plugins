@@ -4,3 +4,4 @@ venv/
 .~lock.*
 sources/
 __pycache__/
+discovery/

@@ -15,6 +15,7 @@ import argparse
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -25,7 +26,7 @@ HERE = Path(__file__).resolve().parent
 SOURCES = HERE / "sources"
 REVIEWS = HERE / "reviews"
 CHECKLIST = HERE / "CHECKLIST.md"
-CLAUDE = os.environ.get("CLAUDE_BIN", str(Path.home() / ".local" / "bin" / "claude"))
+CLAUDE = os.environ.get("CLAUDE_BIN") or shutil.which("claude") or str(Path.home() / ".local" / "bin" / "claude")
 TIMEOUT = 45 * 60
 
 STATUSES = ["Pass", "Partial", "Fail", "Info", "Unknown", "N/A"]

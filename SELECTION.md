@@ -50,6 +50,15 @@ installation section has setup steps; mentions the Abilities API or MCP Adapter;
 has at least one rating; has support threads.
 The individual reasons for each hand-picked challenger were not recorded beyond this score.
 
+## Reproducing it
+
+`discover.py` runs steps 1-3 and the filters, and writes `discovery/candidates.csv`.
+`python3 discover.py --as-of 2026-10-15 --wp-version 7.0` uses the original cutoffs, but WordPress.org only serves
+today's data, so counts, installs and signals drift. A run on 2026-10-24 found 182 plugins (86 server).
+
+Two shortlisted plugins do not pass the filters and were let through by hand: `ylabs-ai-assistant-connector`
+(no MCP mention in its name or short description) and `abilities-bridge` (tested up to 6.9).
+
 ## Changes since the list was built
 
 - 2026-10-20: `ylabs-connector-for-wpwriter` (established) removed: closed on WordPress.org, cannot be installed.
