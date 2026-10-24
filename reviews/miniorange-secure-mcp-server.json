@@ -85,16 +85,18 @@
       ]
     },
     "SAFE-CONFIRM": {
-      "status": "Pass",
+      "status": "Partial",
       "value": {
         "mechanism": "Permanent-delete abilities require a confirm=true argument that is enforced server-side; the plugin's own and core abilities also get readOnlyHint/destructiveHint annotations."
       },
-      "summary": "Irreversible deletes are refused unless the call passes confirm=true, and destructive tools carry destructiveHint annotations. The readme's 'human-in-the-loop approval' is not implemented in the plugin code; it may be a gateway feature.",
+      "summary": "Irreversible deletes are refused unless the call passes confirm=true, and destructive tools carry destructiveHint annotations. The readme's 'human-in-the-loop approval' is not implemented in the plugin code; it may be a gateway feature. Corrected by the spot-check (2026-10-24, spotchecks/miniorange-secure-mcp-server.md): Pass → Partial. confirm=true is enforced only for some tools; delete-user, permanently-delete-comment and WooCommerce force deletes have no confirmation.",
       "evidence": [
         "libraries/abilities/src/packs/core/class-posts-pack.php:676",
         "libraries/abilities/src/packs/core/class-posts-provider.php:570",
         "includes/common/services/mcp/class-mcp-server.php:911",
-        "includes/common/services/mcp/class-mcp-server.php:1095"
+        "includes/common/services/mcp/class-mcp-server.php:1095",
+        "libraries/abilities/src/packs/users/class-users-pack.php:530",
+        "libraries/abilities/src/packs/comments/class-comments-pack.php:228"
       ]
     },
     "SAFE-DELETE": {
@@ -270,7 +272,7 @@
       ]
     },
     "STD-TRANSPORT": {
-      "status": "Pass",
+      "status": "Partial",
       "value": {
         "transports": [
           "streamable-http (POST + JSON, no SSE stream)"
@@ -278,7 +280,7 @@
         "protocol_version": "2025-06-18",
         "runs_in_wordpress": true
       },
-      "summary": "A JSON-RPC MCP server runs inside WordPress at /wp-json/mosmcp/v1/mcp (Streamable HTTP, POST only, protocol 2025-06-18). However, the plugin labels direct connections 'deprecated' and steers users to the miniOrange cloud gateway (gateway.miniorange.ai/v2/mcp).",
+      "summary": "A JSON-RPC MCP server runs inside WordPress at /wp-json/mosmcp/v1/mcp (Streamable HTTP, POST only, protocol 2025-06-18). However, the plugin labels direct connections 'deprecated' and steers users to the miniOrange cloud gateway (gateway.miniorange.ai/v2/mcp). Re-scored 2026-10-24 under the protocol rule in CHECKLIST.md (2025-11-25 or later is Pass): Pass → Partial. The server speaks only 2025-06-18.",
       "evidence": [
         "includes/common/apis/mcp/class-mcp-routes.php:32",
         "includes/common/services/mcp/class-mcp-server.php:35",
@@ -299,9 +301,9 @@
       ]
     },
     "HOST-LOCAL": {
-      "status": "Partial",
+      "status": "Pass",
       "value": null,
-      "summary": "The server doesn't require HTTPS, and OAuth dynamic client registration accepts localhost redirect URIs, so a local bridge like mcp-remote can probably complete the OAuth flow. However, the plugin's own instructions only cover the cloud gateway or claude.ai connectors (both need a public URL), and the readme says localhost sites can't be reached.",
+      "summary": "The server doesn't require HTTPS, and OAuth dynamic client registration accepts localhost redirect URIs, so a local bridge like mcp-remote can probably complete the OAuth flow. However, the plugin's own instructions only cover the cloud gateway or claude.ai connectors (both need a public URL), and the readme says localhost sites can't be reached. Corrected by the spot-check (2026-10-24, spotchecks/miniorange-secure-mcp-server.md): Partial → Pass. DCR accepts http localhost redirect URIs and nothing requires HTTPS, so mcp-remote can complete OAuth against a local site.",
       "evidence": [
         "includes/common/services/oauth/class-oauth-server.php:840",
         "includes/common/utils/class-utils.php:168",

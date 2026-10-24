@@ -69,7 +69,7 @@ Standard tasks:
 | ID | Question | Pass / Partial / Fail |
 |---|---|---|
 | STD-ABILITIES | Does it use the WordPress Abilities API or the MCP Adapter (registers abilities, or exposes abilities registered by other plugins)? | Pass: registers or exposes abilities. Partial: optional or Pro. Fail: neither. |
-| STD-TRANSPORT | How is MCP served? Value: `{transports: [...], protocol_version, runs_in_wordpress: bool}` | Pass: Streamable HTTP inside WordPress, current protocol version. Partial: SSE only, or an older protocol. Fail: no MCP server in WordPress (an external relay or hosted service does the work). |
+| STD-TRANSPORT | How is MCP served? Value: `{transports: [...], protocol_version, runs_in_wordpress: bool}` | Pass: Streamable HTTP inside WordPress, current protocol version (2025-11-25 or later supported). Partial: SSE only, or only older protocol versions. Fail: no MCP server in WordPress (an external relay or hosted service does the work). |
 | STD-FREE | Is the MCP functionality complete in the free plugin? Value: list of Pro-only MCP features. | Pass: nothing important gated. Partial: some tools or controls are Pro. Fail: MCP itself needs Pro or an account. |
 
 ## Hosting, setup and docs

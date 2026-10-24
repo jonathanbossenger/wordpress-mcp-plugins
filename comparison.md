@@ -13,34 +13,34 @@ with no weighting: read the reviews before drawing conclusions from them.
 | agent-abilities-for-mcp | established | 600 | 17 | 2 | 0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅ |
 | saddle | challenger | 30 | 17 | 2 | 0 | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅ |
 | albert-ai-butler | challenger | 30 | 16 | 3 | 0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | 🟡 | ✅ | 🟡 | ✅ | ✅ | ✅ | ✅ |
-| miniorange-secure-mcp-server | established | 6,000 | 15 | 4 | 0 | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | 🟡 | ✅ | 🟡 | ✅ | ✅ | ✅ |
 | nibwp | established | 300 | 15 | 4 | 0 | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | 🟡 | 🟡 | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | royal-mcp | established | 10,000 | 14 | 5 | 0 | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | 🟡 | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | 🟡 | ✅ | ✅ | ✅ |
-| cowboy-mcp | established | 1,000 | 14 | 5 | 0 | 🟡 | ✅ | 🟡 | ✅ | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | 🟡 | ✅ | ✅ | ✅ |
+| miniorange-secure-mcp-server | established | 6,000 | 14 | 5 | 0 | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | 🟡 | ✅ | ✅ | ✅ | 🟡 | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅ |
 | stifli-flex-mcp | established | 800 | 14 | 5 | 0 | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | 🟡 | ✅ | ✅ | 🟡 |
 | alphabridge-mcp | challenger | 30 | 14 | 5 | 0 | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | 🟡 | ✅ | 🟡 | 🟡 | ✅ | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | sokket-site-connector-for-mcp | challenger | 70 | 14 | 4 | 1 | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | 🟡 | 🟡 | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅ |
 | counterhand-mcp-for-woocommerce | challenger | 20 | 14 | 4 | 1 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | 🟡 | ✅ | ✅ | ❌ | ✅ | ✅ | 🟡 | ✅ | 🟡 | ✅ | ✅ | ✅ |
 | rectus-content-access-for-mcp | challenger | 0 | 14 | 4 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | ❌ | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | 🟡 | ✅ | ✅ | ✅ |
 | acrossai-mcp-manager | challenger | 40 | 14 | 1 | 3 | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | – | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅ |
+| cowboy-mcp | established | 1,000 | 13 | 6 | 0 | 🟡 | ✅ | 🟡 | ✅ | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | 🟡 | 🟡 | ✅ | ✅ | ✅ |
 | acadium-agent-publisher | challenger | 0 | 13 | 5 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | ❌ | 🟡 | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | ai-workflow-automation-ai-agent-hub | established | 300 | 12 | 7 | 0 | ✅ | ✅ | ✅ | ✅ | 🟡 | 🟡 | ✅ | 🟡 | ✅ | 🟡 | ✅ | ✅ | 🟡 | 🟡 | ✅ | 🟡 | ✅ | ✅ | ✅ |
 | mountdev-ai-mcp-connector | established | 200 | 12 | 6 | 1 | ✅ | ✅ | ✅ | ❌ | 🟡 | ✅ | ✅ | 🟡 | ✅ | 🟡 | ✅ | 🟡 | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | 🟡 |
 | devcubic-ai-bridge-for-mcp | challenger | 0 | 12 | 5 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | 🟡 | ✅ | 🟡 | 🟡 | ✅ | ✅ | ✅ | 🟡 |
-| siteskite | established | 100 | 11 | 6 | 1 | 🟡 | ✅ | 🟡 | 🟡 | 🟡 | ✅ | ✅ | 🟡 | – | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| vibe-ai | established | 70,000 | 12 | 2 | 5 | ✅ | ✅ | ✅ | 🟡 | 🟡 | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | strifebridge-mcp | challenger | 30 | 11 | 7 | 1 | 🟡 | ✅ | 🟡 | ❌ | 🟡 | ✅ | 🟡 | 🟡 | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅ | ✅ |
 | admindra-mcp | challenger | 0 | 11 | 6 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | 🟡 | 🟡 | – | 🟡 | ✅ | ✅ | ✅ | ❌ | 🟡 | 🟡 | ✅ | ✅ | ✅ |
 | aicom | challenger | 60 | 11 | 6 | 2 | 🟡 | 🟡 | 🟡 | ✅ | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | 🟡 | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | 🟡 |
 | publishio | challenger | 20 | 11 | 5 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | ❌ | ❌ | 🟡 | – | 🟡 | ✅ | ✅ | ✅ | 🟡 | 🟡 | ✅ | ✅ | ✅ | ✅ |
 | bcs-mcp-manager | challenger | 30 | 11 | 5 | 3 | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | 🟡 | ✅ | 🟡 | ❌ | ✅ | ✅ | 🟡 | 🟡 | 🟡 | ✅ | ✅ | ✅ |
 | webo-mcp | challenger | 40 | 10 | 9 | 0 | ✅ | ✅ | ✅ | 🟡 | 🟡 | 🟡 | ✅ | 🟡 | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
+| siteskite | established | 100 | 10 | 7 | 1 | 🟡 | ✅ | 🟡 | 🟡 | 🟡 | ✅ | ✅ | 🟡 | – | ✅ | ❌ | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | invizo-mcp | established | 100 | 10 | 7 | 2 | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | ❌ | ✅ | 🟡 | ✅ | 🟡 | 🟡 | 🟡 | ❌ | ✅ | 🟡 |
 | wsp-mcp-ai-agents-connector | established | 2,000 | 10 | 6 | 3 | 🟡 | ✅ | 🟡 | ❌ | 🟡 | 🟡 | ✅ | ❌ | 🟡 | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅ |
+| ai-engine | established | 90,000 | 9 | 10 | 0 | 🟡 | ✅ | 🟡 | 🟡 | ✅ | 🟡 | 🟡 | 🟡 | ✅ | 🟡 | 🟡 | 🟡 | 🟡 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | abilities-bridge | challenger | 80 | 9 | 7 | 2 | ✅ | ✅ | 🟡 | ✅ | ✅ | ❌ | ✅ | ❌ | – | 🟡 | ✅ | 🟡 | ✅ | 🟡 | 🟡 | 🟡 | ✅ | ✅ | 🟡 |
-| ai-engine | established | 90,000 | 8 | 11 | 0 | 🟡 | ✅ | 🟡 | 🟡 | ✅ | 🟡 | 🟡 | 🟡 | ✅ | 🟡 | 🟡 | 🟡 | 🟡 | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅ |
 | iato-mcp | established | 100 | 8 | 9 | 1 | ✅ | ✅ | ✅ | 🟡 | 🟡 | ❌ | 🟡 | 🟡 | – | ✅ | 🟡 | 🟡 | 🟡 | 🟡 | 🟡 | ✅ | ✅ | ✅ | ✅ |
 | track-debug | challenger | 0 | 8 | 8 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | ❌ | 🟡 | 🟡 | – | 🟡 | ✅ | ✅ | 🟡 | ✅ | 🟡 | 🟡 | ❌ | ✅ | 🟡 |
-| vibe-ai | established | 70,000 | 8 | 7 | 4 | 🟡 | 🟡 | ✅ | 🟡 | 🟡 | ❌ | ❌ | ✅ | 🟡 | ✅ | 🟡 | ❌ | 🟡 | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | mcp-for-woocommerce | challenger | 60 | 6 | 6 | 4 | ❌ | 🟡 | ❌ | – | ✅ | ✅ | 🟡 | – | – | ❌ | ❌ | 🟡 | ✅ | ✅ | 🟡 | 🟡 | 🟡 | ✅ | ✅ |
 | diviops-agent | established | 500 | 6 | 7 | 5 | ✅ | ✅ | ✅ | – | 🟡 | ❌ | 🟡 | 🟡 | ✅ | 🟡 | ❌ | ❌ | 🟡 | ✅ | 🟡 | ❌ | ❌ | 🟡 | ✅ |
 | ylabs-ai-assistant-connector | established | 1,000 | 4 | 5 | 7 | ✅ | ✅ | ✅ | – | 🟡 | ❌ | ❌ | ? | ? | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
@@ -55,34 +55,34 @@ See `CHECKLIST.md` for what T1–T8 mean. Tools is the tool count with every opt
 | agent-abilities-for-mcp | 179 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ |
 | saddle | 141 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | albert-ai-butler | 51 | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ |
-| miniorange-secure-mcp-server | About 360 counted in the source (357 single-line ability names across 26 files, plus the ACF, Kadence, Users, Comments, Yoast and Divi packs, which use other formats); the readme claims 426. Integration packs register only when their plugin is active. Every ability is exposed as a tool (name with / replaced by __). | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | nibwp | 82 | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅ | 🟡 | ✅ |
 | royal-mcp | 108 core tools + about 170 integration tools that only appear when the matching plugin is active (WooCommerce 29, Elementor 14, page builders 14, Divi 9, Wordfence 8, and more) | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | 🟡 | ✅ |
-| cowboy-mcp | about 201 (2 gateway tools plus about 199 definitions, with WooCommerce, ACF, Elementor, Beaver Builder, SiteOrigin, Wordfence, Events, SEO, Cache and Forms active). Plus any abilities from other plugins. | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| miniorange-secure-mcp-server | About 360 counted in the source (357 single-line ability names across 26 files, plus the ACF, Kadence, Users, Comments, Yoast and Divi packs, which use other formats); the readme claims 426. Integration packs register only when their plugin is active. Every ability is exposed as a tool (name with / replaced by __). | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | stifli-flex-mcp | about 200 (about 125 core and integration tools seeded in stifli-flex-mcp.php plus 73 WooCommerce tools, plus any imported WordPress Abilities); readme claims 122+ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ |
 | alphabridge-mcp | 40 | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | 🟡 | ✅ |
 | sokket-site-connector-for-mcp | 41 | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ | 🟡 | ✅ |
 | counterhand-mcp-for-woocommerce | 128 | ✅ | 🟡 | 🟡 | ❌ | 🟡 | ❌ | 🟡 | ✅ |
 | rectus-content-access-for-mcp | 71 | ✅ | ✅ | ✅ | 🟡 | ❌ | ❌ | ✅ | ✅ |
 | acrossai-mcp-manager | 6 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| cowboy-mcp | about 201 (2 gateway tools plus about 199 definitions, with WooCommerce, ACF, Elementor, Beaver Builder, SiteOrigin, Wordfence, Events, SEO, Cache and Forms active). Plus any abilities from other plugins. | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | acadium-agent-publisher | 27 | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ |
 | ai-workflow-automation-ai-agent-hub | 85 | ✅ | 🟡 | ✅ | ❌ | ✅ | ✅ | 🟡 | ✅ |
 | mountdev-ai-mcp-connector | 89 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ |
 | devcubic-ai-bridge-for-mcp | 43 fixed + 5 per public REST-enabled custom post type | ✅ | ✅ | 🟡 | ✅ | ❌ | ❌ | 🟡 | ✅ |
-| siteskite | 110 | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | 🟡 | ✅ |
+| vibe-ai | None | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | 🟡 | ✅ |
 | strifebridge-mcp | 34 | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅ | 🟡 | ✅ |
 | admindra-mcp | 10 | 🟡 | ❌ | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ |
 | aicom | 206 | ✅ | 🟡 | 🟡 | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | publishio | 25 | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ |
 | bcs-mcp-manager | 360 | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ |
 | webo-mcp | 91 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ |
+| siteskite | 110 | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | 🟡 | ✅ |
 | invizo-mcp | 3 | ✅ | ✅ | 🟡 | ✅ | ✅ | ✅ | 🟡 | ✅ |
 | wsp-mcp-ai-agents-connector | 286 | ✅ | 🟡 | 🟡 | ✅ | ✅ | ✅ | 🟡 | 🟡 |
-| abilities-bridge | 1 + N | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | ai-engine | 61 | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | 🟡 | ✅ |
+| abilities-bridge | 1 + N | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | iato-mcp | 58 | ✅ | 🟡 | 🟡 | 🟡 | ❌ | ❌ | ❌ | ✅ |
 | track-debug | 6 | ✅ | 🟡 | 🟡 | ❌ | ❌ | ❌ | ❌ | ✅ |
-| vibe-ai | None | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 | ✅ | ✅ |
 | mcp-for-woocommerce | 31 | 🟡 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | diviops-agent | about 95 REST routes (the MCP server tools map onto them) | ✅ | 🟡 | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ |
 | ylabs-ai-assistant-connector | 0 | ? | ? | ? | ? | ✅ | ? | ? | ✅ |
@@ -91,22 +91,22 @@ See `CHECKLIST.md` for what T1–T8 mean. Tools is the tool count with every opt
 
 | Check | Pass | Partial | Fail | Unknown | N/A |
 |---|--:|--:|--:|--:|--:|
-| SEC-AUTH | 27 | 7 | 1 | 0 | 0 |
-| SEC-UNAUTH | 32 | 3 | 0 | 0 | 0 |
+| SEC-AUTH | 28 | 6 | 1 | 0 | 0 |
+| SEC-UNAUTH | 33 | 2 | 0 | 0 | 0 |
 | SEC-CAPS | 26 | 8 | 1 | 0 | 0 |
 | SEC-SECRETS | 23 | 6 | 3 | 0 | 3 |
 | SEC-DEFAULT | 13 | 22 | 0 | 0 | 0 |
 | SAFE-READONLY | 17 | 7 | 11 | 0 | 0 |
 | SAFE-SCOPE | 17 | 14 | 4 | 0 | 0 |
-| SAFE-CONFIRM | 9 | 20 | 4 | 1 | 1 |
-| SAFE-DELETE | 23 | 3 | 0 | 1 | 8 |
+| SAFE-CONFIRM | 8 | 21 | 4 | 1 | 1 |
+| SAFE-DELETE | 24 | 2 | 0 | 1 | 8 |
 | SAFE-LOG | 20 | 11 | 4 | 0 | 0 |
-| STD-ABILITIES | 21 | 4 | 10 | 0 | 0 |
-| STD-TRANSPORT | 23 | 9 | 3 | 0 | 0 |
-| STD-FREE | 24 | 10 | 1 | 0 | 0 |
-| HOST-LOCAL | 19 | 13 | 3 | 0 | 0 |
+| STD-ABILITIES | 22 | 3 | 10 | 0 | 0 |
+| STD-TRANSPORT | 20 | 12 | 3 | 0 | 0 |
+| STD-FREE | 24 | 9 | 2 | 0 | 0 |
+| HOST-LOCAL | 20 | 12 | 3 | 0 | 0 |
 | HOST-PUBLIC | 22 | 13 | 0 | 0 | 0 |
-| SETUP-STEPS | 12 | 22 | 1 | 0 | 0 |
+| SETUP-STEPS | 13 | 21 | 1 | 0 | 0 |
 | SETUP-NOTERM | 28 | 3 | 4 | 0 | 0 |
 | SETUP-GUIDE | 32 | 3 | 0 | 0 | 0 |
 | DOCS | 24 | 11 | 0 | 0 | 0 |

@@ -7,29 +7,32 @@
   "unverified_evidence": [],
   "checks": {
     "SEC-AUTH": {
-      "status": "Partial",
+      "status": "Pass",
       "value": [
         "application-password",
         "oauth"
       ],
-      "summary": "The plugin has no MCP endpoint of its own. The MCP server is a hosted relay at mcp.wpvibe.ai, where the user signs in with a WPVibe account. The relay reaches the site's REST routes with a WordPress Application Password it holds, so WordPress-side calls are tied to a WP user. Authentication to the relay itself happens outside the plugin and can't be checked from the code. The plugin also has a few unauthenticated public routes (/ping, /health).",
+      "summary": "The plugin has no MCP endpoint of its own. The MCP server is a hosted relay at mcp.wpvibe.ai, where the user signs in with a WPVibe account. The relay reaches the site's REST routes with a WordPress Application Password it holds, so WordPress-side calls are tied to a WP user. Authentication to the relay itself happens outside the plugin and can't be checked from the code. The plugin also has a few unauthenticated public routes (/ping, /health). Corrected by the spot-check (2026-10-24, spotchecks/vibe-ai.md): Partial → Pass. Every route that acts as a tool has a capability-checked permission_callback and needs a WordPress user credential; the open routes are not tools.",
       "evidence": [
         "includes/class-wpvibe-admin.php:199",
         "includes/class-wpvibe-rest.php:623",
         "includes/class-wpvibe-ping.php:35-40",
-        "readme.txt:115"
+        "readme.txt:115",
+        "includes/class-wpvibe-rest.php:264-826"
       ]
     },
     "SEC-UNAUTH": {
-      "status": "Partial",
+      "status": "Pass",
       "value": {
         "public_by_design": true
       },
-      "summary": "On the WordPress side every wpvibe/v1 route except /ping and /health has a capability-checked permission_callback. Those two are public by design and return only the plugin and WordPress versions and feature flags. Whether the hosted MCP endpoint refuses anonymous tool calls is not in this plugin's code.",
+      "summary": "On the WordPress side every wpvibe/v1 route except /ping and /health has a capability-checked permission_callback. Those two are public by design and return only the plugin and WordPress versions and feature flags. Whether the hosted MCP endpoint refuses anonymous tool calls is not in this plugin's code. Corrected by the spot-check (2026-10-24, spotchecks/vibe-ai.md): Partial → Pass. Nothing can be listed or called without credentials. /ping is a presence probe; /detached/run, /self-update/run, /self-update/health and /connection-check-challenge are token- or state-gated.",
       "evidence": [
         "includes/class-wpvibe-ping.php:1-13",
         "includes/class-wpvibe-ping.php:35-40",
-        "includes/class-wpvibe-rest.php:264-267"
+        "includes/class-wpvibe-rest.php:264-267",
+        "includes/class-wpvibe-ping.php:35-55",
+        "includes/class-wpvibe-detached-ops.php:199-207"
       ]
     },
     "SEC-CAPS": {
@@ -95,14 +98,16 @@
       ]
     },
     "SAFE-DELETE": {
-      "status": "Partial",
+      "status": "Pass",
       "value": null,
-      "summary": "The readme says deletes go to trash and never delete permanently, and the plugin records 'trashed' in the change summary. Permanent deletes are listed as needing approval. The delete tools themselves live in the hosted relay, so I couldn't confirm the default there. Theme file deletes are permanent.",
+      "summary": "The readme says deletes go to trash and never delete permanently, and the plugin records 'trashed' in the change summary. Permanent deletes are listed as needing approval. The delete tools themselves live in the hosted relay, so I couldn't confirm the default there. Theme file deletes are permanent. Corrected by the spot-check (2026-10-24, spotchecks/vibe-ai.md): Partial → Pass. The plugin's own post delete calls wp_trash_post by default; permanent delete needs --force plus a signed approval.",
       "evidence": [
         "includes/class-wpvibe-rest.php:2251",
         "readme.txt:78",
         "readme.txt:197",
-        "includes/class-wpvibe-rest.php:414-418"
+        "includes/class-wpvibe-rest.php:414-418",
+        "includes/cli/trait-wpvibe-cli-post.php:731-745",
+        "includes/cli/trait-wpvibe-cli-security.php:422-435"
       ]
     },
     "SAFE-LOG": {
@@ -191,8 +196,8 @@
           "tool": "cli/run option update; the readme says 'site settings' can be changed, but changelog 1.19.1 says basic settings such as site address are read-only"
         },
         "T7": {
-          "status": "Pass",
-          "tool": "REST delete (trash) with approval and log"
+          "status": "Partial",
+          "tool": "post delete (trash, no confirmation or log; only --force permanent deletes are approved and logged). Corrected by the spot-check (2026-10-24): Pass → Partial."
         },
         "T8": {
           "status": "Pass",
@@ -209,9 +214,9 @@
       ]
     },
     "STD-ABILITIES": {
-      "status": "Partial",
+      "status": "Pass",
       "value": null,
-      "summary": "The plugin registers no abilities itself. The readme says the relay can discover and run abilities that other plugins register, via a discover_abilities tool. That tool lives in the relay, so I couldn't confirm it.",
+      "summary": "The plugin registers no abilities itself. The readme says the relay can discover and run abilities that other plugins register, via a discover_abilities tool. That tool lives in the relay, so I couldn't confirm it. Corrected by the spot-check (2026-10-24, spotchecks/vibe-ai.md): Partial → Pass. Abilities are neither optional nor Pro: the relay exposes abilities registered by other plugins via discover_abilities.",
       "evidence": [
         "readme.txt:52-56",
         "includes/class-wpvibe-content-ops.php:988"
@@ -235,15 +240,16 @@
       ]
     },
     "STD-FREE": {
-      "status": "Partial",
+      "status": "Fail",
       "value": [
         "Requires a WPVibe account at mcp.wpvibe.ai",
         "Daily allowance of WordPress actions on the free plan; paid plans raise it"
       ],
-      "summary": "The plugin is free. The readme says the free service plan includes every tool and skill, with a daily action limit. MCP use depends on the vendor's hosted service and an account, which makes it a hard dependency for any use.",
+      "summary": "The plugin is free. The readme says the free service plan includes every tool and skill, with a daily action limit. MCP use depends on the vendor's hosted service and an account, which makes it a hard dependency for any use. Corrected by the spot-check (2026-10-24, spotchecks/vibe-ai.md): Partial → Fail. MCP works only through the vendor service with a WPVibe account, which the checklist scores Fail.",
       "evidence": [
         "readme.txt:173",
-        "readme.txt:115"
+        "readme.txt:115",
+        "readme.txt:213"
       ]
     },
     "HOST-LOCAL": {

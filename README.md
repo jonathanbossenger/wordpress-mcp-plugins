@@ -14,7 +14,7 @@ reviewing their source against `CHECKLIST.md`.
 | `review.py` | Runs Claude Code headless on each plugin and writes `reviews/<slug>.json` |
 | `reviews/` | One review per plugin |
 | `spotchecks/` | Manual checks of selected reviews against the source, one per plugin |
-| `compare.py` | Combines `reviews/` into `comparison.md` (tables) and `comparison.csv` (for a spreadsheet) |
+| `compare.py` | Combines `reviews/` into `comparison.md` (tables), `comparison.csv` (for a spreadsheet) and `ranking.md` (weighted ranking) |
 
 ## Running it
 
@@ -25,7 +25,7 @@ set `CLAUDE_BIN` if it is installed elsewhere.
 python3 fetch_sources.py            # once per machine: sources/ is not in git
 python3 review.py royal-mcp         # one plugin at a time
 python3 review.py                   # every plugin without a review yet
-python3 compare.py                  # rebuild comparison.md and comparison.csv
+python3 compare.py                  # rebuild comparison.md, comparison.csv and ranking.md
 ```
 
 - Plugins that already have a review are skipped; `--force` redoes them.
@@ -61,36 +61,35 @@ Check `/usage` in Claude Code before and after a few plugins to see what one cos
 
 ## Next steps
 
-Where things stand (2026-10-24): all 35 reviewed, the comparison is built, and the spot-checks are done.
-`reviews/` and `comparison.*` have not been changed by the spot-checks yet. Pick up at step 1.
+Where things stand (2026-10-24): all 35 reviewed, spot-checks applied, weighted ranking in `ranking.md`.
+Nothing has been tested on a real site yet. Pick up at step 1.
 
-1. **Settle three open decisions, then apply the corrections.**
-   - **STD-TRANSPORT cutoff.** The checklist says "current protocol version" without naming one, so
-     reviews disagree: on 2025-06-18, cowboy-mcp, miniorange-secure-mcp-server, alphabridge-mcp,
-     wsp-mcp-ai-agents-connector and siteskite got Pass, while ai-engine, devcubic-ai-bridge-for-mcp,
-     iato-mcp and aicom got Partial. Suggested rule: 2025-11-25 or later is Pass, older is Partial.
-     Write the rule into `CHECKLIST.md`, then re-score STD-TRANSPORT for all 35 from each review's
-     `protocol_version` value (no need to re-run `review.py`).
-   - **Apply the spot-check corrections** below by editing `reviews/<slug>.json` by hand. Add a note to
-     each changed check's summary saying it was corrected by the spot-check, then run `compare.py`.
-   - **Consistency pass.** Most corrections came from checks applied unevenly, not from misread code.
-     Compare SETUP-STEPS (how steps are counted) and STD-FREE (account-required = Fail) across all 35.
-2. **Decide what counts most.** The P / ½ / F tally has no weighting. Choose which checks must pass
-   (for example, no Fail on any SEC-* check) and which only break ties, then re-sort with that rule.
-3. **Test the shortlist on a real site.** CAP-TASKS, HOST-* and SETUP-* are judged from code. Install
-   the top candidates on a local site, connect Claude Desktop, run T1–T8 and count the actual setup steps.
-4. **Write up the findings.** Use `comparison.md` plus the weighted ranking, and call out common gaps:
-   SAFE-READONLY fails in 11 of 35, STD-ABILITIES in 10 of 35, and only 9 of 35 have a plugin-side
-   confirmation for destructive actions (re-count after step 1).
-5. **Keep it current.** Each review records the plugin version. After `fetch_sources.py`, re-run
+Done on 2026-10-24:
+- STD-TRANSPORT rule written into `CHECKLIST.md`: 2025-11-25 or later is Pass, older is Partial. Re-scoring
+  all 35 from `protocol_version` moved cowboy-mcp, miniorange-secure-mcp-server and siteskite to Partial.
+  alphabridge-mcp (stateless 2026-07-28) and wsp-mcp-ai-agents-connector (negotiates 2025-11-25) stay Pass.
+- Spot-check corrections below applied to `reviews/`, each with a note in the check's summary.
+- Ranking added to `compare.py` (`WEIGHTS` and `GATE`): SEC ×3, SAFE ×2, STD ×1.5, the rest and T1–T8 ×1;
+  a Fail on any SEC-* check or STD-TRANSPORT ranks the plugin last.
+
+1. **Consistency pass.** Most corrections came from checks applied unevenly, not from misread code.
+   Compare SETUP-STEPS (how steps are counted) and STD-FREE (account-required = Fail) across all 35.
+2. **Test the shortlist on a real site.** CAP-TASKS, HOST-* and SETUP-* are judged from code. Install
+   the top candidates in `ranking.md` on a local site, connect Claude Desktop, run T1–T8 and count the
+   actual setup steps.
+3. **Write up the findings.** Use `comparison.md` and `ranking.md`, and call out common gaps:
+   SAFE-READONLY fails in 11 of 35, STD-ABILITIES in 10 of 35, and only 8 of 35 have a plugin-side
+   confirmation for destructive actions.
+4. **Keep it current.** Each review records the plugin version. After `fetch_sources.py`, re-run
    `review.py --force <slug>` for any plugin whose version changed, then `compare.py`.
+   A re-run overwrites the spot-check corrections for that plugin.
 
 ### Spot-check results
 
 Checked the top five and the two most-installed plugins. Top five: tried to break their Passes.
 ai-engine and vibe-ai: tried to lift their Partials and Fails. Details and evidence in `spotchecks/<slug>.md`.
 
-| Plugin | Result | Corrections to apply |
+| Plugin | Result | Corrections (applied 2026-10-24) |
 |---|---|---|
 | easy-mcp-ai | Holds up | None. Fix the SAFE-SCOPE summary and notes: a bare `*` key *does* grant privileged tools once their group is on (`includes/auth/class-permission-guard.php:90`). SAFE-LOG evidence should be `class-server.php:2516-2540`. |
 | agent-abilities-for-mcp | Holds up | None. Note: product, media and comment deletes are always permanent. |

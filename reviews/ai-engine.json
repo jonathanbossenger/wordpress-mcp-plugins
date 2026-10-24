@@ -345,7 +345,7 @@
       ]
     },
     "SETUP-STEPS": {
-      "status": "Partial",
+      "status": "Pass",
       "value": {
         "count": 5,
         "steps": [
@@ -356,7 +356,7 @@
           "Sign in to WordPress on the consent page and click Approve; the tools are then available in Claude Desktop"
         ]
       },
-      "summary": "About five clicks with no terminal, using the guided Connect card and the Claude link that comes pre-filled.",
+      "summary": "About five clicks with no terminal, using the guided Connect card and the Claude link that comes pre-filled. Corrected by the spot-check (2026-10-24, spotchecks/ai-engine.md): Partial → Pass. The plugin's own flow is 3 steps (turn on MCP, open Claude pre-filled, approve in WordPress), counted the same way as siteskite.",
       "evidence": [
         "classes/admin.php:541",
         "app/index.js \"https://claude.ai/customize/connectors?modal=add-custom-connector\"",

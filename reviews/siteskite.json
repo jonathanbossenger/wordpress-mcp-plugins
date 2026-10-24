@@ -338,7 +338,7 @@
       ]
     },
     "STD-TRANSPORT": {
-      "status": "Pass",
+      "status": "Partial",
       "value": {
         "transports": [
           "streamable-http (POST JSON responses only; GET/SSE returns 405)"
@@ -346,7 +346,7 @@
         "protocol_version": "2025-06-18 supported; defaults to 2025-03-26",
         "runs_in_wordpress": true
       },
-      "summary": "A JSON-RPC MCP server runs inside WordPress at /wp-json/mcp/siteskite. It supports batches and Mcp-Session-Id and negotiates protocol versions up to 2025-06-18. There is no SSE stream.",
+      "summary": "A JSON-RPC MCP server runs inside WordPress at /wp-json/mcp/siteskite. It supports batches and Mcp-Session-Id and negotiates protocol versions up to 2025-06-18. There is no SSE stream. Re-scored 2026-10-24 under the protocol rule in CHECKLIST.md (2025-11-25 or later is Pass): Pass → Partial. The newest version it negotiates is 2025-06-18.",
       "evidence": [
         "includes/Mcp/McpServer.php:14",
         "includes/Mcp/McpServer.php:114",

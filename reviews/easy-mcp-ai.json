@@ -80,12 +80,13 @@
     "SAFE-SCOPE": {
       "status": "Pass",
       "value": null,
-      "summary": "Each API token and each OAuth grant has its own list of allowed tools, with presets for read, write, full and per-role (editor, author) access. Site-wide disabled-tool and allowed-pattern settings apply on top of that. Privileged tools must be named explicitly and are not matched by wildcards.",
+      "summary": "Each API token and each OAuth grant has its own list of allowed tools, with presets for read, write, full and per-role (editor, author) access. Site-wide disabled-tool and allowed-pattern settings apply on top of that. Glob patterns such as wp_* and the role presets never grant privileged tools, but a bare * key (the Full preset) does once their group is enabled. Corrected by the spot-check (2026-10-24).",
       "evidence": [
         "includes/auth/class-permission-guard.php:36-104",
         "includes/admin/class-access-presets.php:106-114",
         "includes/admin/class-access-presets.php:177-204",
-        "includes/class-config.php:79-80"
+        "includes/class-config.php:79-80",
+        "includes/auth/class-permission-guard.php:22-24"
       ]
     },
     "SAFE-CONFIRM": {
@@ -117,7 +118,7 @@
       "summary": "The free plugin writes every tool call, including refused ones, to its own audit-log table with the token, tool, arguments, status, IP and time. Admins can read it on the Activity page in wp-admin. Change History adds before/after snapshots of what changed. Logging is on by default with 30-day retention.",
       "evidence": [
         "includes/mcp/class-server.php:1368",
-        "includes/mcp/class-server.php:2438-2446",
+        "includes/mcp/class-server.php:2516-2540",
         "includes/admin/rest/class-activity-controller.php:73",
         "includes/class-config.php:77-78",
         "includes/class-plugin.php:1010-1014"
@@ -410,5 +411,5 @@
       ]
     }
   },
-  "notes": "The tool count is stated three different ways: the plugin header says 243, the readme says 280+, and the code has about 317 tool classes. The plugin includes powerful privileged tools: wp_cli_run, database search-replace and file read/query. Their groups are off by default, they only run while the audit log is on, wildcard scopes cannot grant them, and they are excluded from the role presets. The REST passthrough tools (wp_rest_write and wp_rest_delete) expose any REST route, limited only by the user's capabilities. Both OAuth and Dynamic Client Registration are on by default. API keys can be passed in the URL path (/mcp/wpmcp_…) unless the admin turns on the api_key_header_only hardening option, and URL keys can leak through server logs. A daily outbound request fetches signed 'skills' from skills.easymcpai.com once a client has connected (opt-out constant EASY_MCP_AI_SKILLS_SYNC). The plugin also loads the Themeisle SDK. The approval gate is a strong feature, but it is off by default (approval_required=false)."
+  "notes": "The tool count is stated three different ways: the plugin header says 243, the readme says 280+, and the code has about 317 tool classes. The plugin includes powerful privileged tools: wp_cli_run, database search-replace and file read/query. Their groups are off by default, they only run while the audit log is on, glob scopes such as wp_* cannot grant them (a bare * can, once the group is on), and they are excluded from the role presets. The REST passthrough tools (wp_rest_write and wp_rest_delete) expose any REST route, limited only by the user's capabilities. Both OAuth and Dynamic Client Registration are on by default. API keys can be passed in the URL path (/mcp/wpmcp_…) unless the admin turns on the api_key_header_only hardening option, and URL keys can leak through server logs. A daily outbound request fetches signed 'skills' from skills.easymcpai.com once a client has connected (opt-out constant EASY_MCP_AI_SKILLS_SYNC). The plugin also loads the Themeisle SDK. The approval gate is a strong feature, but it is off by default (approval_required=false)."
 }

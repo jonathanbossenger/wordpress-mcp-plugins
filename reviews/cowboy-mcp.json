@@ -247,7 +247,7 @@
       ]
     },
     "STD-TRANSPORT": {
-      "status": "Pass",
+      "status": "Partial",
       "value": {
         "transports": [
           "streamable-http"
@@ -255,7 +255,7 @@
         "protocol_version": "2025-06-18",
         "runs_in_wordpress": true
       },
-      "summary": "Streamable HTTP is served from a WordPress REST route at /wp-json/cowboy-mcp/v1/endpoint. It uses the 2025-06-18 protocol version. Responses are JSON, or SSE when notifications are queued and the client accepts it. GET returns 405 and JSON-RPC batches are rejected, as that spec version requires.",
+      "summary": "Streamable HTTP is served from a WordPress REST route at /wp-json/cowboy-mcp/v1/endpoint. It uses the 2025-06-18 protocol version. Responses are JSON, or SSE when notifications are queued and the client accepts it. GET returns 405 and JSON-RPC batches are rejected, as that spec version requires. Re-scored 2026-10-24 under the protocol rule in CHECKLIST.md (2025-11-25 or later is Pass): Pass → Partial. The server speaks 2025-06-18 only.",
       "evidence": [
         "includes/class-mcp-transport.php:38",
         "includes/class-mcp-transport.php:200",
