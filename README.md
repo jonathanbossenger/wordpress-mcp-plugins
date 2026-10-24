@@ -13,6 +13,7 @@ reviewing their source against `CHECKLIST.md`.
 | `fetch_sources.py` | Downloads each plugin's free version from WordPress.org into `sources/` (git-ignored) |
 | `review.py` | Runs Claude Code headless on each plugin and writes `reviews/<slug>.json` |
 | `reviews/` | One review per plugin |
+| `spotchecks/` | Manual checks of selected reviews against the source, one per plugin |
 | `compare.py` | Combines `reviews/` into `comparison.md` (tables) and `comparison.csv` (for a spreadsheet) |
 
 ## Running it
@@ -60,17 +61,44 @@ Check `/usage` in Claude Code before and after a few plugins to see what one cos
 
 ## Next steps
 
-1. **Spot-check the surprises by hand.** The reviews are from Claude reading the code, so check the
-   ones the conclusions will rest on: the top five in `comparison.md` (easy-mcp-ai, agent-abilities-for-mcp,
-   saddle, albert-ai-butler, miniorange-secure-mcp-server) and the two biggest by installs, which score
-   low (ai-engine 8 Pass / 11 Partial, vibe-ai 8 Pass / 4 Fail). Read each review's Fail and Partial
-   evidence against the source.
+Where things stand (2026-10-24): all 35 reviewed, the comparison is built, and the spot-checks are done.
+`reviews/` and `comparison.*` have not been changed by the spot-checks yet. Pick up at step 1.
+
+1. **Settle three open decisions, then apply the corrections.**
+   - **STD-TRANSPORT cutoff.** The checklist says "current protocol version" without naming one, so
+     reviews disagree: on 2025-06-18, cowboy-mcp, miniorange-secure-mcp-server, alphabridge-mcp,
+     wsp-mcp-ai-agents-connector and siteskite got Pass, while ai-engine, devcubic-ai-bridge-for-mcp,
+     iato-mcp and aicom got Partial. Suggested rule: 2025-11-25 or later is Pass, older is Partial.
+     Write the rule into `CHECKLIST.md`, then re-score STD-TRANSPORT for all 35 from each review's
+     `protocol_version` value (no need to re-run `review.py`).
+   - **Apply the spot-check corrections** below by editing `reviews/<slug>.json` by hand. Add a note to
+     each changed check's summary saying it was corrected by the spot-check, then run `compare.py`.
+   - **Consistency pass.** Most corrections came from checks applied unevenly, not from misread code.
+     Compare SETUP-STEPS (how steps are counted) and STD-FREE (account-required = Fail) across all 35.
 2. **Decide what counts most.** The P / ½ / F tally has no weighting. Choose which checks must pass
    (for example, no Fail on any SEC-* check) and which only break ties, then re-sort with that rule.
 3. **Test the shortlist on a real site.** CAP-TASKS, HOST-* and SETUP-* are judged from code. Install
    the top candidates on a local site, connect Claude Desktop, run T1–T8 and count the actual setup steps.
 4. **Write up the findings.** Use `comparison.md` plus the weighted ranking, and call out common gaps:
    SAFE-READONLY fails in 11 of 35, STD-ABILITIES in 10 of 35, and only 9 of 35 have a plugin-side
-   confirmation for destructive actions.
+   confirmation for destructive actions (re-count after step 1).
 5. **Keep it current.** Each review records the plugin version. After `fetch_sources.py`, re-run
    `review.py --force <slug>` for any plugin whose version changed, then `compare.py`.
+
+### Spot-check results
+
+Checked the top five and the two most-installed plugins. Top five: tried to break their Passes.
+ai-engine and vibe-ai: tried to lift their Partials and Fails. Details and evidence in `spotchecks/<slug>.md`.
+
+| Plugin | Result | Corrections to apply |
+|---|---|---|
+| easy-mcp-ai | Holds up | None. Fix the SAFE-SCOPE summary and notes: a bare `*` key *does* grant privileged tools once their group is on (`includes/auth/class-permission-guard.php:90`). SAFE-LOG evidence should be `class-server.php:2516-2540`. |
+| agent-abilities-for-mcp | Holds up | None. Note: product, media and comment deletes are always permanent. |
+| saddle | Holds up | None |
+| albert-ai-butler | Holds up | None. Note: two read tools skip per-object checks; the approval queue only works on WordPress 7.1+. |
+| miniorange-secure-mcp-server | 3 wrong | SAFE-CONFIRM Pass → Partial (`delete-user` and some force deletes have no confirm). HOST-LOCAL Partial → Pass (localhost redirect URIs accepted). STD-TRANSPORT Pass → Partial (only 2025-06-18), pending the cutoff decision. |
+| ai-engine | 1 borderline | SETUP-STEPS Partial → Pass (3 steps, as siteskite was counted). |
+| vibe-ai | Too harsh | SEC-AUTH, SEC-UNAUTH, SAFE-DELETE, STD-ABILITIES Partial → Pass. STD-FREE Partial → Fail (needs a WPVibe account). CAP-TASKS T7 Pass → Partial. Goes from 8 / 7 / 4 to 12 / 2 / 5. |
+
+Verified by hand: the easy-mcp-ai wildcard claim, and the miniorange protocol version and localhost claims.
+Not yet verified by hand: the vibe-ai and ai-engine corrections, which come from the spot-check alone.
