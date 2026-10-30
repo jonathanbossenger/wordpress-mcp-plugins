@@ -14,6 +14,7 @@ reviewing their source against `CHECKLIST.md`.
 | `fetch_sources.py` | Downloads each plugin's free version from WordPress.org into `sources/` (git-ignored) |
 | `review.py` | Runs Claude Code headless on each plugin and writes `reviews/<slug>.json` |
 | `reviews/` | One review per plugin |
+| `review_combined.py` | Reviews a plugin together with the companion plugin(s) it needs, into `setups/` |
 | `spotchecks/` | Manual checks of selected reviews against the source, one per plugin |
 | `compare.py` | Combines `reviews/` into `comparison.md` (tables), `comparison.csv` (for a spreadsheet) and `ranking.md` (weighted ranking) |
 | `build_site.py` | Builds `site/index.html`, the public ranking page, from `reviews/` with the same scores as `ranking.md` |
@@ -54,6 +55,33 @@ full reviews in this repository on GitHub.
 
 Usage: the ai-engine pilot (one of the largest plugins) took about 3 minutes and reported $2.72 at API prices.
 Check `/usage` in Claude Code before and after a few plugins to see what one costs against your plan.
+
+## Plugins split across two plugins
+
+Every plugin is reviewed on its own downloaded zip. That is the fair basis for a comparison, but it
+under-measures a plugin whose tools live in a second plugin the vendor expects you to install.
+`acrossai-mcp-manager` is the one plugin in the shortlist built that way: it ships the MCP server,
+transport, OAuth, access control and wp-admin, while the abilities come from the separate free
+`acrossai-abilities-manager`. Reviewed alone it serves 6 tools and does 1 of the 8 standard tasks,
+which its own review notes point out.
+
+`review_combined.py` runs the same checklist, schema, tool restrictions and citation check as
+`review.py` over both plugins side by side, as they sit in `wp-content/plugins`:
+
+```sh
+python3 fetch_sources.py acrossai-mcp-manager acrossai-abilities-manager
+python3 review_combined.py acrossai-mcp-manager acrossai-abilities-manager
+```
+
+It writes to `setups/`, not `reviews/`, so `compare.py` keeps ranking one zip per plugin and the
+ranking is unchanged.
+
+Two things to weigh before letting `setups/` feed the ranking. A combined run is not a like-for-like
+comparison with `reviews/acrossai-mcp-manager.json`, because `fetch_sources.py` downloads the current
+release while that review is of 0.4.3: the activity log that SAFE-LOG asks about arrived in 0.4.4, so
+some of any difference is the version, not the companion plugin. And royal-mcp, cowboy-mcp and
+miniorange-secure-mcp-server all ship integration packs that only register when another plugin is
+active, so measuring deployed setups rather than plugins would affect several rows, not one.
 
 ### Spot-check results
 
